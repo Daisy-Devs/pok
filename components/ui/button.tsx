@@ -18,6 +18,10 @@ const buttonVariants = cva(
           "bg-white text-primary hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
         green:
           "bg-secondary text-secondary-dark hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
+        ghost:
+          "text-primary hover:text-primary underline-offset-4 hover:underline ",
+        outline:
+          "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]",
       },
       size: {
         only_icon: "px-[12px] py-[12px]",
@@ -150,21 +154,20 @@ function Button({
   };
 
   return (
-   <Comp
-  type="button"
-  data-slot="button"
-  className={cn(buttonVariants({ variant, size }), className)}
-  {...props}
->
-  <span className="flex items-center gap-2">
-    {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
-    {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
-    {text && <span className={textClassName}>{text}</span>}
-    {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
-    {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
-  </span>
-</Comp>
-
+    <Comp
+      type="button"
+      data-slot="button"
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    >
+      <span className="flex items-center gap-2">
+        {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
+        {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
+        {text && <span className={textClassName}>{text}</span>}
+        {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
+        {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
+      </span>
+    </Comp>
   );
 }
 
