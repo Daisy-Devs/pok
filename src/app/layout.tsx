@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "./globals.css";
+
 import Footer from "../../components/Footer";
 import Navbar from "@/components/Navbar";
+
+// 👇 shadcn sidebar
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/AppSidebar";
 
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
-  weight: ["800","700","600","400"]
+  weight: ["800", "700", "600", "400"],
 });
-
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,20 +22,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html
-      lang="en"
-      className={`${manrope.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${manrope.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <Navbar/>
-        <main className="grow bg-background">
-          {children}
-        </main>
-        <Footer/>
+        <SidebarProvider className="flex flex-col">
+          <Navbar />
+          <div className="flex flex-1">
+            <AppSidebar />
+              <main className="flex-1 bg-background overflow-y-auto p-4">
+                {children}
+              </main>
+          </div>
+        </SidebarProvider>
+        <Footer />
       </body>
     </html>
   );
