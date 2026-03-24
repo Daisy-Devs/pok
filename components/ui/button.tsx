@@ -18,6 +18,10 @@ const buttonVariants = cva(
           "bg-white text-primary hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
         green:
           "bg-secondary text-secondary-dark hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
+        ghost:
+          "text-primary hover:text-primary underline-offset-4 hover:underline ",
+        outline:
+          "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]",
       },
       size: {
         only_icon: "px-[12px] py-[12px]",
@@ -156,20 +160,13 @@ function Button({
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     >
-      {/* Left icon (React) */}
-      {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
-
-      {/* Left image */}
-      {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
-
-      {/* Text */}
-      {text && <span className={textClassName}>{text}</span>}
-
-      {/* Right image */}
-      {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
-
-      {/* Right icon (React) */}
-      {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
+      <span className="flex items-center gap-2">
+        {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
+        {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
+        {text && <span className={textClassName}>{text}</span>}
+        {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
+        {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
+      </span>
     </Comp>
   );
 }
