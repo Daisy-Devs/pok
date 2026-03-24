@@ -150,27 +150,21 @@ function Button({
   };
 
   return (
-    <Comp
-      type="button"
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    >
-      {/* Left icon (React) */}
-      {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
+   <Comp
+  type="button"
+  data-slot="button"
+  className={cn(buttonVariants({ variant, size }), className)}
+  {...props}
+>
+  <span className="flex items-center gap-2">
+    {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
+    {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
+    {text && <span className={textClassName}>{text}</span>}
+    {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
+    {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
+  </span>
+</Comp>
 
-      {/* Left image */}
-      {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
-
-      {/* Text */}
-      {text && <span className={textClassName}>{text}</span>}
-
-      {/* Right image */}
-      {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
-
-      {/* Right icon (React) */}
-      {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
-    </Comp>
   );
 }
 
