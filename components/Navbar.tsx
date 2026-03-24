@@ -23,12 +23,7 @@ const Navbar = () => {
     <div className="h-16 px-6 flex items-center justify-between border-b">
       
       <div className="flex items-center gap-3">
-        <SidebarTrigger className="md:hidden">
-          <Button className="md:hidden p-2 rounded hover:bg-gray-100">
-            <Menu size={20} />
-          </Button>
-        </SidebarTrigger>
-
+        <SidebarTrigger className="md:hidden"/>
         <Link href="/">
           <p className="text-xl font-extrabold text-tertiary">
             {nomenclature.PRODUCT_NAME}
@@ -90,7 +85,7 @@ const Navbar = () => {
         ) : (
           <>
             <Link href="/">
-              <Button text={nomenclature.NGO_PORTAL} />
+              <Button variant={'outline'} text={nomenclature.NGO_PORTAL} />
             </Link>
             <Link href="/">
               <Button text={nomenclature.SIGN_IN} />
