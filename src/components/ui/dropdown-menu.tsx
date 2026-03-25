@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
-import { cn } from "../../src/lib/utils"
 import { CheckIcon, ChevronRightIcon } from "lucide-react"
+import { cn } from "@/src/lib/utils"
 
 function DropdownMenu({
   ...props
