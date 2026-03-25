@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
 import "../../globals.css";
-import NGOHeader from "@/components/NGOHeader";
-import Footer from "@/components/Footer";
-import { Sidebar, SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/AppSidebar";
+import { Sidebar, SidebarProvider } from "@/src/components/ui/sidebar";
+import NGOHeader from "@/src/components/NGOHeader";
+import Footer from "@/src/components/Footer";
 
 
 const manrope = Manrope({
@@ -23,7 +22,7 @@ export default function NGOLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const isLoggedIn = true;
+  const isLoggedIn = false;
   return (
         <SidebarProvider>
       <div className="flex w-full">
