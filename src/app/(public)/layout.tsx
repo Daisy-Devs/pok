@@ -1,0 +1,26 @@
+import AppSidebar from "@/components/AppSidebar";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import React from "react";
+
+const PublicLayout = ({children}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div>
+      <SidebarProvider className="flex flex-col">
+        <Navbar />
+        <div className="flex-col">
+          <AppSidebar />
+          <main className="flex-1 bg-background overflow-y-auto p-4 h-screen">
+            {children}
+          </main>
+          <Footer />
+        </div>
+      </SidebarProvider>
+    </div>
+  );
+};
+
+export default PublicLayout;
