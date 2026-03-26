@@ -13,7 +13,7 @@ const buttonVariants = cva(
         blue: "bg-primary text-white hover:bg-primary/80 focus-visible:ring-[#ffffff]",
         blue_light:
           "bg-primary-light text-black hover:bg-primary/50 focus-visible:ring-[#ffffff]",
-        grey: "bg-muted-foreground text-black hover:bg-primary/50 focus-visible:ring-[#ffffff]",
+        grey: "bg-background-secondary text-black hover:bg-background/50 focus-visible:ring-[#ffffff]",
         white:
           "bg-white text-primary hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
         green:
@@ -24,7 +24,7 @@ const buttonVariants = cva(
           "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]",
       },
       size: {
-        only_icon: "px-[12px] py-[12px]",
+        only_icon: "w-10 h-10 p-0 rounded-full",
         normal: "px-[14px] py-[8px]",
         long: "px-[80px] py-[8px]",
       },
