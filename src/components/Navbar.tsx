@@ -6,14 +6,9 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "./ui/sidebar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Navbar = () => {
   const isLoggedIn = false;

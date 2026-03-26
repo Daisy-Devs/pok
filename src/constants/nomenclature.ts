@@ -5,5 +5,11 @@ export const nomenclature={
  ABOUT_US:"About Us",
  SIGN_IN:"Sign In",
  SIGN_UP:"Sign Up",
- NGO_PORTAL:"NGO Portal"
+ NGO_PORTAL:"NGO Portal",
+ SOC_2_COMPLIANT:"🔒 SOC 2 COMPLIANT",
+ END_TO_END_ENCRYPTED:"🔒 END-TO-END ENCRYPTED",
+ COPYRIGHT:"© 2026 Proof of Kindness. Secure Crypto-Philanthropy. All rights reserved.",
+ ORGANIZATION_LOGIN:"Organization Login",
+ ORGANIZATION_LOGIN_DESCRIPTION:"Access your impact dashboard securely using your decentralized identity.",
+ NEW_TO_POK:"New to Proof of Kindness ecosystem?",
 }
