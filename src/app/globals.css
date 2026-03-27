@@ -6,6 +6,8 @@
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
+  --color-primaryText:var(--text-primary-color);
+  --color-secondaryText:var(--text-secondary-color);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -87,7 +89,7 @@
   --destructive: oklch(0.577 0.245 27.325);
 
   /* UI elements */
-  --border: oklch(0.922 0 0);
+  --border: #C6C6CD;
   --input: #E0E3E5;
   --ring: oklch(0.708 0 0);
 
@@ -109,7 +111,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Text */
-  --text-color: #45464D;
+  --text-primary-color: #45464D;
+  --text-secondary-color: #191C1E;
 
 }
  
@@ -118,7 +121,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-primaryText;
     font-family: var(--font-manrope), sans-serif;
   }
 }
