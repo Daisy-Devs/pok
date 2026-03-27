@@ -13,7 +13,7 @@ const buttonVariants = cva(
         blue: "bg-primary text-white hover:bg-primary/80 focus-visible:ring-[#ffffff]",
         blue_light:
           "bg-primary-light text-black hover:bg-primary/50 focus-visible:ring-[#ffffff]",
-        grey: "bg-background-secondary text-black hover:bg-background/50 focus-visible:ring-[#ffffff]",
+        grey: "bg-background-secondary text-tertiary font-semibold hover:bg-primary/50 focus-visible:ring-[#ffffff]",
         white:
           "bg-white text-primary hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
         green:
