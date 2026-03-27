@@ -48,7 +48,10 @@ export interface InputProps
   React.InputHTMLAttributes<HTMLInputElement>,
   "size"
   >,
-    VariantProps<typeof inputVariants> {}
+    VariantProps<typeof inputVariants> {
+      label?: string;
+      error?: string;
+    }
 
 // -----------------------------------------------------------------------------
 // COMPONENT
@@ -58,15 +61,40 @@ function Input({
   type = "text",
   variant,
   size,
+  label,
+  error,
+  id,
   ...props
 }: InputProps) {
+
+  const inputId = id || React.useId();
+
   return (
-    <input
-      type={type}
-      data-slot="input"
-      className={cn(inputVariants({ variant, size }), className)}
-      {...props}
-    />
+    <div className="space-y-1 w-full">
+      {label && (
+        <label htmlFor={inputId} className="text-md font-medium">
+          {label}
+        </label>
+      )}
+
+     <input
+        id={inputId}
+        type={type}
+        data-slot="input"
+        aria-invalid={!!error}
+        className={cn(
+          inputVariants({
+            variant: error ? "error" : variant,
+            size,
+          }),
+          className
+        )}
+        {...props}
+      />
+      {error && (
+        <p className="text-xs text-destructive">{error}</p>
+      )}
+    </div>
   )
 }
 

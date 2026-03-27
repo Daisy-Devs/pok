@@ -1,6 +1,5 @@
-"use client";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import React from "react";
 
@@ -104,7 +103,7 @@ export default function SignUp() {
             <p className="text-sm text-gray-500 text-center">
               Don't have an accoubt yet?{" "}
               <Link
-                href="/sign-in"
+                href="/auth/signIn"
                 className="text-blue-500 hover:underline"
               >
                 Sign Up today

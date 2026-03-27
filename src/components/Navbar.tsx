@@ -82,7 +82,7 @@ const Navbar = () => {
             <Link href="/">
               <Button variant={'outline'} text={nomenclature.NGO_PORTAL} />
             </Link>
-            <Link href="/">
+            <Link href="/sign-in">
               <Button text={nomenclature.SIGN_IN} />
             </Link>
           </>
