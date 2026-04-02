@@ -27,4 +27,5 @@ export const nomenclature={
  DONATION_AMOUNT:"Donation Amount",
  WALLET_SETUP:"Step 3: Wallet Setup",
  WALLET_SETUP_DESCRIPTION:"Choose how you would like to receive donations.",
+ PROTOCOL_TRANSPARENCY:"Protocol Transparency",
 }

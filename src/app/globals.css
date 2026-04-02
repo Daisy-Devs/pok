@@ -13,6 +13,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-progress: var(--primary-progress);
   --color-primary-light: var(--primary-light);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -68,6 +69,7 @@
 
   /* Primary */
   --primary: #4648D4;
+  --primary-progress:rgba(192, 193, 240, 0.82);
   --primary-light: #E1E0FF;
   --primary-foreground: oklch(0.985 0 0);
 
@@ -80,7 +82,7 @@
   --tertiary: #131B2E;
 
   /* Muted / Accent */
-  --muted: oklch(0.97 0 0);
+  --muted: #E6E8EA;
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -121,7 +123,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-primaryText;
+    @apply bg-background text-primaryText font-normal;
     font-family: var(--font-manrope), sans-serif;
   }
 }
