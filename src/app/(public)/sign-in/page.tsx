@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
-import { useGoogleLogin } from "@react-oauth/google";
 import { nomenclature } from "@/src/constants/nomenclature";
 
 export default function SignIn() {
   return (
-    <div className="  grid min-h-screen grid-cols-1 lg:grid-cols-2">
+    <div className="  grid min-h-screen overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
       <div className="relative hidden lg:block">
         <img
@@ -20,7 +19,7 @@ export default function SignIn() {
         <div className="absolute inset-0 bg-linear-to-br from-indigo-900/70 via-blue-800/60 to-indigo-600/60" />
 
         <div className="relative z-10 flex h-full flex-col justify-center px-6 lg:px-12 text-white space-y-4">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+          <h1 className="text-7xl sm:text-5xl font-bold leading-tight">
             Transform the world through{" "}
             <span className="text-green-400">crypto ProofOfKindness</span>
           </h1>
@@ -29,21 +28,12 @@ export default function SignIn() {
             Join the next generation of global giving. Secure, transparent, and
             private crypto contribution to vetted causes worldwide.
           </p>
-
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-3">
-              <Button variant="white" size="only_icon" />
-              <Button variant="blue" size="only_icon" />
-              <Button variant="green" size="only_icon" />
-            </div>
-            <p className="text-sm">Trusted by donors globally</p>
-          </div>
         </div>
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
-        <div className="w-full max-w-md space-y-6">
+      <div className="flex items-start lg:items-center justify-center px-4 sm:px-6 lg:px-10 py-6 lg:py-0">
+        <div className="w-full max-w-xl space-y-4 sm:space-y-5 lg:space-y-6 max-h-screen">
           {/* HEADER */}
           <div className="space-y-2 text-center md:text-left">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
@@ -62,11 +52,7 @@ export default function SignIn() {
               label="Email"
             />
 
-            <Input
-              variant="outline"
-              placeholder="12345678"
-              label="Password"
-            />
+            <Input variant="outline" placeholder="12345678" label="Password" />
           </div>
 
           {/* BUTTON */}
@@ -105,10 +91,7 @@ export default function SignIn() {
 
             <p className="text-sm text-gray-500 text-center">
               Don't have an accoubt yet?{" "}
-              <Link
-                href="/sign-in"
-                className="text-blue-500 hover:underline"
-              >
+              <Link href="/sign-in" className="text-blue-500 hover:underline">
                 Sign Up today
               </Link>
             </p>

@@ -1,12 +1,12 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/src/lib/utils"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/src/lib/utils";
 
 // -----------------------------------------------------------------------------
 // VARIANTS
 // -----------------------------------------------------------------------------
 const inputVariants = cva(
-  "w-full min-w-0 rounded-lg border bg-transparent transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
+  "w-full min-w-0 rounded-sm border bg-transparent transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
   {
     variants: {
       variant: {
@@ -16,20 +16,17 @@ const inputVariants = cva(
         outline:
           "border-gray-400 focus-visible:border-black focus-visible:ring-2",
 
-        ghost:
-          "border-transparent bg-transparent focus-visible:ring-2",
+        ghost: "border-transparent bg-transparent focus-visible:ring-2",
 
-        filled:
-          "bg-input border-transparent focus-visible:ring-2",
+        filled: "bg-input border-transparent focus-visible:ring-2",
 
-        error:
-          "border-destructive focus-visible:ring-destructive/40",
+        error: "border-destructive focus-visible:ring-destructive/40",
       },
 
       size: {
-        sm: "h-7 px-2 text-sm",
-        default: "h-8 px-2.5 text-sm",
-        lg: "h-10 px-3 text-base",
+        sm: "h-9 px-3 text-sm",
+        default: "h-11 px-4 text-base",
+        lg: "h-13 px-5 text-lg",
       },
     },
 
@@ -37,21 +34,19 @@ const inputVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
-)
+  },
+);
 
 // -----------------------------------------------------------------------------
 // TYPES
 // -----------------------------------------------------------------------------
 export interface InputProps
-  extends Omit<
-  React.InputHTMLAttributes<HTMLInputElement>,
-  "size"
-  >,
+  extends
+    Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
     VariantProps<typeof inputVariants> {
-      label?: string;
-      error?: string;
-    }
+  label?: string;
+  error?: string;
+}
 
 // -----------------------------------------------------------------------------
 // COMPONENT
@@ -66,18 +61,17 @@ function Input({
   id,
   ...props
 }: InputProps) {
-
   const inputId = id || React.useId();
 
   return (
     <div className="space-y-1 w-full">
       {label && (
-        <label htmlFor={inputId} className="text-md font-medium">
+        <label htmlFor={inputId} className="text-xl font-medium">
           {label}
         </label>
       )}
 
-     <input
+      <input
         id={inputId}
         type={type}
         data-slot="input"
@@ -87,15 +81,13 @@ function Input({
             variant: error ? "error" : variant,
             size,
           }),
-          className
+          className,
         )}
         {...props}
       />
-      {error && (
-        <p className="text-xs text-destructive">{error}</p>
-      )}
+      {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
-  )
+  );
 }
 
-export { Input, inputVariants }
+export { Input, inputVariants };
