@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import { UserCircle2 } from "lucide-react";
+import { useGoogleLogin } from "@react-oauth/google";
+import { nomenclature } from "@/src/constants/nomenclature";
 
 export default function SignIn() {
   return (
@@ -47,52 +47,42 @@ export default function SignIn() {
           {/* HEADER */}
           <div className="space-y-2 text-center md:text-left">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold">
-              Create Account
+              Sign In
             </h1>
             <p className="text-sm sm:text-base text-gray-500">
-              Join our community of impactful donors today.
+              Continue your impact journey.
             </p>
           </div>
 
           {/* FORM */}
           <div className="space-y-4">
-            <Input variant="outline" placeholder="Suchita" label="Full Name" />
+            <Input
+              variant="outline"
+              placeholder="suchita@gmail.com"
+              label="Email"
+            />
 
             <Input
               variant="outline"
-              placeholder="suchi@gmail.com"
-              label="Email Address"
+              placeholder="12345678"
+              label="Password"
             />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                variant="outline"
-                placeholder="1234567890"
-                label="Phone Number"
-              />
-              <Input
-                variant="outline"
-                type="password"
-                placeholder="••••••••"
-                label="Password"
-              />
-            </div>
           </div>
 
           {/* BUTTON */}
           <div className="flex justify-center">
-            <Link href="/sign-up">
-              <Button variant="blue" size="long" text="Sign Up" />
+            <Link href="/">
+              <Button variant="blue" size="long" text={nomenclature.SIGN_IN} />
             </Link>
           </div>
 
           {/* SOCIAL LOGIN */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-             <div className="flex-1 h-px bg-gray-300" />
-            <p className="text-sm text-gray-500 text-center">Social Logins</p>
-             <div className="flex-1 h-px bg-gray-300" />
-             </div>
+              <div className="flex-1 h-px bg-gray-300" />
+              <p className="text-sm text-gray-500 text-center">Social Logins</p>
+              <div className="flex-1 h-px bg-gray-300" />
+            </div>
             <div className="flex justify-center gap-4 flex-wrap">
               <Button
                 variant="grey"
@@ -114,12 +104,12 @@ export default function SignIn() {
             </div>
 
             <p className="text-sm text-gray-500 text-center">
-              Already have an account?{" "}
+              Don't have an accoubt yet?{" "}
               <Link
-                href="/sign-up"
+                href="/sign-in"
                 className="text-blue-500 hover:underline"
               >
-                Sign In
+                Sign Up today
               </Link>
             </p>
           </div>
