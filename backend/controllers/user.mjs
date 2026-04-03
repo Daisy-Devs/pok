@@ -44,21 +44,88 @@ export const registerUser = async (req, res) => {
       await user.save();
     }
 
+    // 🔐 Create JWT
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
+    // 🍪 Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: false, // 👉 set true in production (HTTPS)
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(201).json({ token, user: userObj });
+    // ❌ No need to send token in response
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: userObj
+    });
 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+
+// export const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password, phone } = req.body;
+
+//     if (!email || !password) {
+//       return res.status(400).json({ message: 'Email and password are required' });
+//     }
+
+//     let user = await User.findOne({ email });
+
+//     if (user) {
+//       // If user exists but no manual login yet → allow adding password
+//       if (!user.password) {
+//         const hashedPassword = await bcrypt.hash(password, 10);
+
+//         user.password = hashedPassword;
+//         if (!user.providers.includes('manual')) {
+//           user.providers.push('manual');
+//         }
+
+//         await user.save();
+//       } else {
+//         return res.status(400).json({ message: 'User already exists' });
+//       }
+//     } else {
+//       const hashedPassword = await bcrypt.hash(password, 10);
+
+//       user = new User({
+//         name,
+//         email,
+//         password: hashedPassword,
+//         phone,
+//         providers: ['manual']
+//       });
+
+//       await user.save();
+//     }
+
+//     const token = jwt.sign(
+//       { userId: user._id },
+//       process.env.JWT_SECRET,
+//       { expiresIn: '7d' }
+//     );
+
+//     const userObj = user.toObject();
+//     delete userObj.password;
+
+//     res.status(201).json({ token, user: userObj });
+
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
 
 // export const googleAuth = async (req, res) => {
 //   try {
