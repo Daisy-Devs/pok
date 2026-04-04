@@ -1,6 +1,6 @@
 export default function HeroSection() {
   return (
-    <div className="min-h-screen bg-[#f6f7fb] flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6">
       <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-10 items-center">
 
         {/* LEFT CONTENT */}
