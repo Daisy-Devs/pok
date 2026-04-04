@@ -93,7 +93,7 @@
   /* UI elements */
   --border: #C6C6CD;
   --input: #E0E3E5;
-  --ring: oklch(0.708 0 0);
+  --ring: rgba(192, 193, 240, 0.82);
 
   /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);

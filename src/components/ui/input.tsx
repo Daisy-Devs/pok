@@ -6,19 +6,19 @@ import { cn } from "@/src/lib/utils";
 // VARIANTS
 // -----------------------------------------------------------------------------
 const inputVariants = cva(
-  "w-full min-w-0 rounded-sm border bg-transparent transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20",
+  "w-full min-w-0 rounded-sm border bg-transparent transition-colors outline-none placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-2 aria-invalid:ring-destructive/20 focus-visible:ring-2",
   {
     variants: {
       variant: {
         default:
-          "border-input focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50",
+          "border-input focus-visible:border-ring/50  focus-visible:ring-ring/50",
 
         outline:
-          "border-gray-400 focus-visible:border-black focus-visible:ring-2",
+          "border-gray-400 focus-visible:border-ring/50 focus-visible:ring-ring/50",
 
-        ghost: "border-transparent bg-transparent focus-visible:ring-2",
+        ghost: "border-transparent bg-transparent ",
 
-        filled: "bg-input border-transparent focus-visible:ring-2",
+        filled: "bg-input border-transparent ",
 
         error: "border-destructive focus-visible:ring-destructive/40",
       },
@@ -26,7 +26,7 @@ const inputVariants = cva(
       size: {
         sm: "h-9 px-3 text-sm",
         default: "h-11 px-4 text-base",
-        lg: "h-13 px-5 text-lg",
+        lg: "h-13 px-5 text-base",
       },
     },
 
@@ -66,7 +66,7 @@ function Input({
   return (
     <div className="space-y-1 w-full">
       {label && (
-        <label htmlFor={inputId} className="text-xl font-medium">
+        <label htmlFor={inputId} className="text-xs font-semibold uppercase">
           {label}
         </label>
       )}

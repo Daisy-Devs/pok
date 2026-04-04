@@ -48,11 +48,11 @@ export default function SignIn() {
           <div className="space-y-4">
             <Input
               variant="outline"
-              placeholder="suchita@gmail.com"
+              placeholder={nomenclature.ENTER_EMAIL}
               label="Email"
             />
 
-            <Input variant="outline" placeholder="12345678" label="Password" />
+            <Input variant="outline" type="password" placeholder={nomenclature.ENTER_PASSWORD} label="Password" />
           </div>
 
           {/* BUTTON */}
@@ -90,8 +90,8 @@ export default function SignIn() {
             </div>
 
             <p className="text-sm text-gray-500 text-center">
-              Don't have an accoubt yet?{" "}
-              <Link href="/sign-in" className="text-blue-500 hover:underline">
+              {`Don't have an accoubt yet? `}
+              <Link href="/sign-up" className="text-blue-500 hover:underline">
                 Sign Up today
               </Link>
             </p>

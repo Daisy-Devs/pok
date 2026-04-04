@@ -4,7 +4,9 @@ export const nomenclature={
  EXPLORE_CAMPAIGNS:"Explore Campaigns",
  ABOUT_US:"About Us",
  SIGN_IN:"Sign In",
+ SIGNING_IN:"Signing In...",
  SIGN_UP:"Sign Up",
+ SIGNING_UP:"Signing Up...",
  NGO_PORTAL:"NGO Portal",
  SOC_2_COMPLIANT:"🔒 SOC 2 COMPLIANT",
  END_TO_END_ENCRYPTED:"🔒 END-TO-END ENCRYPTED",
@@ -28,4 +30,8 @@ export const nomenclature={
  WALLET_SETUP:"Step 3: Wallet Setup",
  WALLET_SETUP_DESCRIPTION:"Choose how you would like to receive donations.",
  PROTOCOL_TRANSPARENCY:"Protocol Transparency",
+ ENTER_FULL_NAME:"Enter your full name",
+ ENTER_EMAIL:"Enter your email address",
+ ENTER_PASSWORD:"Enter your password",
+ ENTER_PHONE:"Enter your phone number",
 }

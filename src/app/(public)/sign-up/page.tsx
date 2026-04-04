@@ -2,11 +2,34 @@
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { nomenclature } from "@/src/constants/nomenclature";
+import { useRouter } from "next/navigation";
+import { useDonorSignUpMutation } from "@/src/store/services/donorAuthApi";
+import { toast } from "sonner";
 
 export default function SignUp() {
-  // const [donorSignUp,{isLoading,error}]=useDonorSignUpMutation()
+  const [signUpData, setSignUpData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+  });
+  const router = useRouter();
+  const [donorSignUp, { isLoading, error }] = useDonorSignUpMutation();
+  const handleSignUp = () => {
+    donorSignUp(signUpData)
+      .unwrap()
+      .then((res) => {
+        toast.success("Sign up successful! Please sign in to continue.");
+        console.log(res);
+        router.push("/sign-in");
+      })
+      .catch((err) => {
+        console.log("Error during sign up:", err, error, signUpData);
+        toast.error("Sign up failed. Please try again.");
+      });
+  };
   return (
     <div className="grid min-h-screen  overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
@@ -33,9 +56,9 @@ export default function SignUp() {
       </div>
 
       {/* RIGHT SIDE */}
-<div className="flex items-start lg:items-center justify-center px-4 sm:px-6 lg:px-10 py-6 lg:py-0">
-<div className="w-full max-w-xl space-y-4 sm:space-y-5 lg:space-y-6 max-h-screen">
-            {/* HEADER */}
+      <div className="flex items-start lg:items-center justify-center px-4 sm:px-6 lg:px-10 py-6 lg:py-0">
+        <div className="w-full max-w-xl space-y-4 sm:space-y-5 lg:space-y-6 max-h-screen">
+          {/* HEADER */}
           <div className="space-y-1 text-center md:text-left">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
               Create Account
@@ -48,15 +71,27 @@ export default function SignUp() {
           {/* FORM */}
           <div className="space-y-4">
             <Input
-              size="lg"
+              size={"lg"}
               variant="outline"
-              placeholder="Suchita"
+              value={signUpData.name}
+              onChange={(e) => {
+                setSignUpData((prev) => {
+                  return { ...prev, name: e.target.value };
+                });
+              }}
+              placeholder={nomenclature.ENTER_FULL_NAME}
               label="Full Name"
             />
 
             <Input
               variant="outline"
-              placeholder="suchi@gmail.com"
+              value={signUpData.email}
+              onChange={(e) => {
+                setSignUpData((prev) => {
+                  return { ...prev, email: e.target.value };
+                });
+              }}
+              placeholder={nomenclature.ENTER_EMAIL}
               label="Email Address"
               size="lg"
             />
@@ -64,14 +99,26 @@ export default function SignUp() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 variant="outline"
-                placeholder="1234567890"
+                value={signUpData.phone}
+                onChange={(e) => {
+                  setSignUpData((prev) => {
+                    return { ...prev, phone: e.target.value };
+                  });
+                }}
+                placeholder={nomenclature.ENTER_PHONE}
                 label="Phone Number"
                 size="lg"
               />
               <Input
                 variant="outline"
+                value={signUpData.password}
+                onChange={(e) => {
+                  setSignUpData((prev) => {
+                    return { ...prev, password: e.target.value };
+                  });
+                }}
                 type="password"
-                placeholder="••••••••"
+                placeholder={nomenclature.ENTER_PASSWORD}
                 label="Password"
                 size="lg"
               />
@@ -80,9 +127,20 @@ export default function SignUp() {
 
           {/* BUTTON */}
           <div className="flex justify-center">
-            <Link href="/sign-up">
-              <Button variant="blue" size="long" text={nomenclature.SIGN_UP} />
-            </Link>
+            <Button
+              variant="blue"
+              disabled={
+                isLoading ||
+                signUpData.name == "" ||
+                signUpData.email == "" ||
+                signUpData.password == ""
+              }
+              size="long"
+              text={isLoading ? nomenclature.SIGNING_UP : nomenclature.SIGN_UP}
+              onClick={() => {
+                handleSignUp();
+              }}
+            />
           </div>
 
           {/* SOCIAL LOGIN */}
