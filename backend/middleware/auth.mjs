@@ -3,26 +3,33 @@ import { User } from '../models/user.mjs';
 
 export const authMiddleware = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    let token;
 
-    // check header format
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // ✅ 1. Check cookie first
+    if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+
+    // ✅ 2. Fallback to Authorization header (optional)
+    else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const token = authHeader.split(' ')[1];
-
-    // verify token
+    // ✅ Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // optional: check if user still exists
+    // ✅ Check user
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {
       return res.status(401).json({ message: 'User no longer exists' });
     }
 
-    // attach user info
+    // ✅ Attach user
     req.user = user;
     req.userId = user._id;
 
