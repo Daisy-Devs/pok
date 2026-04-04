@@ -16,6 +16,7 @@ import Image from "next/image";
 import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
+import Heading from "@/src/components/Heading";
 
 const CampaignInfoSection = () => {
   const title = splitTitle("Clean water for communities");
@@ -38,12 +39,7 @@ const CampaignInfoSection = () => {
               icon={<CheckCircle2 className="w-4 h-4 color-secondary-dark" />}
             />
           </div>
-          <h1 className="font-extrabold text-tertiary text-6xl leading-none mt-4">
-            {title.firstHalf}
-          </h1>
-          <h1 className="font-extrabold text-primary text-6xl leading-none">
-            {title.secondHalf}
-          </h1>
+          <Heading first={title.firstHalf} second={title.secondHalf} />
         </div>
 
         <Carousel

@@ -9,7 +9,7 @@ const statCardVariants = cva(
       variant: {
         sm: "h-33 text-sm p-4",
         md: "h-52.5 text-sm p-6",
-        lg: "h-70 text-base p-8",
+        lg: "h-60 text-base p-6",
       },
       intent: {
         default: "bg-white",

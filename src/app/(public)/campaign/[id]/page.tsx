@@ -1,10 +1,7 @@
-import { StatCard } from '@/src/components/StatCard'
-import { nomenclature } from '@/src/constants/nomenclature'
 import CampaignInfoSection from '@/src/features/campaign/components/CampaignInfoSection'
 import LiveDonationActivity from '@/src/features/campaign/components/LiveDonationActivity'
 import ProtocolTransparency from '@/src/features/campaign/components/ProtocolTransparency'
 import SeeTheChange from '@/src/features/campaign/components/SeeTheChange'
-import { ScrollText } from 'lucide-react'
 
 interface CampaignProps {
   params: { id: string }
