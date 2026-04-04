@@ -11,7 +11,6 @@ export const createOrgAndCampaign = async (req, res) => {
       profileImageUrl,
       walletAddress,
       documents,
-
       title,
       missionStatement,
       cause,
@@ -49,18 +48,25 @@ export const createOrgAndCampaign = async (req, res) => {
 
     await campaign.save();
 
-    // 🔐 CREATE WALLET TOKEN HERE (IMPORTANT)
+    // 🔐 Create wallet token
     const walletToken = jwt.sign(
       { walletAddress, organizationId: organization._id },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
+    // 🍪 Set cookie instead of sending token
+    res.cookie('walletToken', walletToken, {
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
     res.status(201).json({
       message: 'Campaign created successfully',
       organization,
-      campaign,
-      walletToken   // 👈 send to frontend
+      campaign
     });
 
   } catch (error) {

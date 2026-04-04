@@ -3,12 +3,14 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema(
   {
     name: { type: String },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, unique: true, sparse: true },
     password: { type: String }, // not required for social login
     phone: { type: String },
+    googleId: { type: String, unique: true, sparse: true },
+    appleId: { type: String, unique: true, sparse: true },
     providers: {
       type: [String],
-      enum: ['manual', 'google', 'apple', 'facebook'],
+      enum: ['manual', 'google', 'apple'],
       default: ['manual']
     },
     resetPasswordToken: String,

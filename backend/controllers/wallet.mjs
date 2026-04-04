@@ -8,16 +8,22 @@ export const connectWallet = async (req, res) => {
       return res.status(400).json({ message: 'Wallet address required' });
     }
 
-    // 🔐 Create wallet session token (1 day)
     const walletToken = jwt.sign(
       { walletAddress },
       process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
+    // 🍪 Set cookie
+    res.cookie('walletToken', walletToken, {
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
     res.status(200).json({
       message: 'Wallet connected',
-      walletToken,
       walletAddress
     });
 

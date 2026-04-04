@@ -5,7 +5,8 @@ import {
   googleAuth,
   forgotPassword,
   getUsers,
-  resetPassword
+  resetPassword,
+  appleAuth
 } from '../controllers/user.mjs';
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 router.post('/google', googleAuth);
+router.post('/apple', appleAuth);
 router.post('/forgotPassword', forgotPassword);
 router.post('/resetPassword', resetPassword)
 router.get('/', getUsers)
