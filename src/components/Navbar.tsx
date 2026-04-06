@@ -3,15 +3,17 @@
 import { nomenclature } from "@/src/constants/nomenclature";
 import { Bell, UserCircle2, Menu } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { use } from "react";
 import { Button } from "./ui/button";
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { useAppSelector } from "../store/store";
+import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
 
 
 const Navbar = () => {
-  const isLoggedIn = false;
+  const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const pathname = usePathname();
 
   return (

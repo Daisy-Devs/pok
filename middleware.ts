@@ -2,9 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('token')?.value;
   const { pathname } = request.nextUrl;
-
+  const token = request.cookies.has('token');
   if (
     pathname.startsWith('/ngo/register') ||
     pathname.startsWith('/ngo/sign-in')
@@ -18,11 +17,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/ngo/sign-in', request.url));
     }
 
-    const user = JSON.parse(atob(token.split('.')[1]));
-
-    if (user.role !== 'NGO') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
   }
 
   // 🔒 Protect payment/donation routes (example)

@@ -4,8 +4,79 @@ import Link from "next/link";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
+import { useState } from "react";
+import {
+  useDonorGoogleAuthMutation,
+  useDonorSignInMutation,
+} from "@/src/store/services/donorAuthApi";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { useRouter } from "next/navigation";
+import { useGoogleLogin } from "@react-oauth/google";
 
 export default function SignIn() {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [donorSignIn, { isLoading }] = useDonorSignInMutation();
+  const [donorGoogleAuth, { isLoading: isGoogleLoading, error }] =
+    useDonorGoogleAuthMutation();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const googleSignInSuccessful = (token: any) => {
+    console.log("tok", token);    
+    donorGoogleAuth({ token })
+      .then((res) => {
+        toast.success("Sign-in successful!");
+        console.log("ress",res);
+        router.push("/");
+        dispatch(
+          loggedIn({
+            name: "Google User",
+            email: "aa@aa.com",
+            phone: "123-456-7890",
+            role: "Donor",
+          }),
+        );
+      })
+      .catch((err) => {
+        console.log("Google auth failed:", err);
+        toast.error("Google auth failed. ");
+      });
+  };
+  const googleLogin = useGoogleLogin({
+    onSuccess: async(proi) =>{ googleSignInSuccessful(proi)},
+    onError: (errorResponse) => {
+      console.log("eer",errorResponse);
+      
+      toast.error("Google Sign-in failed. " + errorResponse);
+    },
+    flow:'auth-code',
+  });
+  const handleSignIn = () => {
+    donorSignIn(formData)
+      .unwrap()
+      .then((res) => {
+        console.log("Sign-in successful", res);
+        toast.success("Sign-in successful!");
+        dispatch(
+          loggedIn({
+            name: res.name,
+            email: res.email,
+            phone: res.phone,
+            role: "Donor",
+          }),
+        );
+        router.push("/");
+      })
+      .catch((error) => {
+        console.log("Sign-in failed:", error);
+        toast.error("Sign-in failed. ", error);
+      });
+  };
+
   return (
     <div className="  grid min-h-screen overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
@@ -47,19 +118,36 @@ export default function SignIn() {
           {/* FORM */}
           <div className="space-y-4">
             <Input
+              value={formData.email}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
               variant="outline"
               placeholder={nomenclature.ENTER_EMAIL}
               label="Email"
             />
 
-            <Input variant="outline" type="password" placeholder={nomenclature.ENTER_PASSWORD} label="Password" />
+            <Input
+              value={formData.password}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, password: e.target.value }))
+              }
+              variant="outline"
+              type="password"
+              placeholder={nomenclature.ENTER_PASSWORD}
+              label="Password"
+            />
           </div>
 
           {/* BUTTON */}
           <div className="flex justify-center">
-            <Link href="/">
-              <Button variant="blue" size="long" text={nomenclature.SIGN_IN} />
-            </Link>
+            <Button
+              variant="blue"
+              size="long"
+              text={isLoading ? nomenclature.SIGNING_IN : nomenclature.SIGN_IN}
+              disabled={isLoading}
+              onClick={handleSignIn}
+            />
           </div>
 
           {/* SOCIAL LOGIN */}
@@ -71,6 +159,7 @@ export default function SignIn() {
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
               <Button
+                onClick={() => googleLogin()}
                 variant="grey"
                 size="only_icon"
                 leftImageSrc={"/Auth/google.svg"}
