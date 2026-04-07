@@ -35,7 +35,7 @@ export default function HeroSection() {
                   className="font-bold"
                   text="SOC2 Type II Certified Security"
                   variant={"purple"}
-                  size={"normal"}
+                  size={'default'}
                   leftIcon={<ShieldCheck size={18} />}
                 />
               </div>

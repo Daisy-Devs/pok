@@ -13,7 +13,7 @@ const buttonVariants = cva(
         blue: "bg-primary text-white hover:bg-primary/80 focus-visible:ring-[#ffffff] font-semibold text-sm px-6 py-3 rounded-md",
         blue_light:
           "bg-primary-light text-black hover:bg-primary/50 focus-visible:ring-[#ffffff]",
-        grey: "bg-background-secondary text-tertiary font-semibold hover:bg-primary/50 focus-visible:ring-[#ffffff]",
+        grey: "bg-background-secondary text-tertiary font-semibold hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]",
         white:
           "bg-white text-primary hover:bg-primary/50 hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]", //shadow
         green:
@@ -26,10 +26,10 @@ const buttonVariants = cva(
           "inline-flex items-center px-3 py-1 rounded-full bg-primary-light text-#07006C text-xs font-medium",
       },
       size: {
-        only_icon: "w-10 h-10 p-0 rounded-full",
-        normal: "px-[14px] py-[8px]",
-        long: "px-[80px] py-[8px]",
-        short:'px-[12px] py-[2px]'
+        default: "h-10 px-4 py-2",
+        sm: "h-9 px-3",
+        lg: "h-11 px-8",
+        short: "h-7 px-3 text-xs",
       },
       withIcon: {
         true: "flex",
@@ -42,7 +42,7 @@ const buttonVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "normal",
+      size: "default",
       withIcon: false,
       iconOnly: false,
     },
@@ -166,7 +166,9 @@ function Button({
       <span className="flex items-center gap-2">
         {leftIcon && <span className={imageClassName}>{leftIcon}</span>}
         {renderImage(leftImageSrc, hoverLeftImageSrc, "left-icon")}
-        {text && <span className={textClassName}>{text}</span>}
+        {(text || props.children) && (
+          <span className={textClassName}>{text ?? props.children}</span>
+        )}{" "}
         {renderImage(rightImageSrc, hoverRightImageSrc, "right-icon")}
         {rightIcon && <span className={imageClassName}>{rightIcon}</span>}
       </span>

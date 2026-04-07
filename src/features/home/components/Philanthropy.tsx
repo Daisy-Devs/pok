@@ -109,13 +109,13 @@ export default function Philanthropy() {
                 <Button
                 text="Connect Wallet"
                 variant={'blue'}
-                size={'normal'}/>
+                size={'default'}/>
                   
                 
                 <Button
                 text="Learn More"
-                variant={'outline'}
-                size={'normal'}/>
+                variant={'white'}
+                size={'default'}/>
                   
                 
               </div>
