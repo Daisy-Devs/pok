@@ -10,8 +10,8 @@ import React, { useState } from "react";
 const NGORegistration = () => {
   const [activeStep, setActiveStep] = useState("1");
   return (
-    <div className="flex gap-6 py-6 px-30">
-      <div className="w-1/4 space-y-6">
+    <div className="flex sm:flex-col md:flex-row gap-6 py-7 md:px-30 sm:w-full md:w-auto">
+      <div className="w-0 sm:w-1/4 sm:space-y-6 hidden sm:block">
         <div>
           <h1 className="text-xl font-extrabold text-tertiary">
             {nomenclature.NGO_REGISTRATION}
@@ -54,7 +54,7 @@ const NGORegistration = () => {
           </p>
         </div>
       </div>
-     {activeStep=='1' && <RegistrationForm1 changeStep={setActiveStep}  />}
+     {activeStep=='1' && <RegistrationForm1 changeStep={setActiveStep}/>}
      {activeStep=='2' && <RegistrationForm2 changeStep={setActiveStep}/>}
      {activeStep=='3' && <RegistrationForm3  changeStep={setActiveStep}/>}
     </div>

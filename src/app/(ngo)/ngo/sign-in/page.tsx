@@ -2,11 +2,10 @@
 import { Button } from '@/src/components/ui/button'
 import { nomenclature } from '@/src/constants/nomenclature'
 import { WalletIcon } from 'lucide-react'
-import React from 'react'
 
 const NGOSignIn = () => {
   return (
-    <div className='flex justify-center items-center bg-background'>
+    <div className='flex flex-col justify-center items-center bg-background'>
         <div className="bg-card rounded-2xl shadow-md p-8 max-w-md text-center flex flex-col items-center">
         
         <div className="w-12 h-12 mx-auto mb-4 flex items-center justify-center rounded-xl bg-background-secondary">

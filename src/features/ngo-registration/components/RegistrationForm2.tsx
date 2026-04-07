@@ -20,9 +20,9 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
         title={nomenclature.MISSION_DETAILS}
         description={nomenclature.MISSION_DETAILS_DESCRIPTION}
       />
-      <Input placeholder="e.g. Global Health Initiative" />
+      <Input label="Cause/campaign title" placeholder="e.g. Global Health Initiative" />
 
-      <Input placeholder={nomenclature.MISSION_STATEMENT_PLACEHOLDER} />
+      <Input label="Mission Statement" placeholder={nomenclature.MISSION_STATEMENT_PLACEHOLDER} />
 
       <SelectCause setCause={setSelectedCause} cause={selectedCause} />
       <UploadBox
