@@ -14,7 +14,7 @@ const PublicLayout = ({children}: {
         <Navbar />
         <div className="flex-col">
           <AppSidebar />
-          <main className="flex-1 bg-background overflow-y-auto h-screen">
+          <main className="flex-1 bg-background overflow-y-auto">
             {children}
           </main>
           <Footer />

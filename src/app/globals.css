@@ -77,6 +77,7 @@
   --secondary: #6FFBBE;
   --secondary-dark: #009668;
   --secondary-foreground: var(--text-color);
+  --secondary-mute: ##7C839B;
 
   /* Tertiary */
   --tertiary: #131B2E;

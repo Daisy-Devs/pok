@@ -31,7 +31,7 @@ const Navbar = () => {
       <div className="hidden md:flex items-center gap-6">
         <Link
           href="/"
-          className={`font-semiboldtext-sm hover:underline underline-offset-8 ${
+          className={`font-semibold text-sm hover:underline underline-offset-8 ${
             pathname === "/" && "text-primary underline decoration-primary decoration-3"
           }`}
         >

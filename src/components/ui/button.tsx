@@ -10,23 +10,26 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
-        blue: "bg-primary text-white hover:bg-primary/80 focus-visible:ring-[#ffffff]",
+        blue: "bg-primary text-white hover:bg-primary/80 focus-visible:ring-[#ffffff] font-semibold text-sm px-6 py-3 rounded-md",
         blue_light:
           "bg-primary-light text-black hover:bg-primary/50 focus-visible:ring-[#ffffff]",
         grey: "bg-background-secondary text-tertiary font-semibold hover:bg-primary/50 focus-visible:ring-[#ffffff]",
         white:
-          "bg-white text-primary hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
+          "bg-white text-primary hover:bg-primary/50 hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]", //shadow
         green:
-          "bg-secondary text-secondary-dark hover:bg-primary/50 focus-visible:ring-[#ffffff]", //shadow
+          "bg-secondary text-secondary-dark rounded-full font-bold text-sm ", //shadow
         ghost:
           "text-primary hover:text-primary underline-offset-4 hover:underline ",
         outline:
-          "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff]",
+          "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff] font-semibold text-sm px-3 py-1 ",
+        purple:
+          "inline-flex items-center px-3 py-1 rounded-full bg-primary-light text-#07006C text-xs font-medium",
       },
       size: {
         only_icon: "w-10 h-10 p-0 rounded-full",
         normal: "px-[14px] py-[8px]",
         long: "px-[80px] py-[8px]",
+        short:'px-[12px] py-[2px]'
       },
       withIcon: {
         true: "flex",
