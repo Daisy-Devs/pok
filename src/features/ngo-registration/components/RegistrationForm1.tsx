@@ -11,19 +11,19 @@ interface RegistrationForm1Props {
 }
 const RegistrationForm1: React.FC<RegistrationForm1Props> = ({changeStep}) => {
   return (
-    <div className="flex-1 bg-white rounded-2xl shadow-sm p-6 space-y-6">
+    <div className="flex flex-col bg-white rounded-2xl shadow-sm p-6 space-y-6">
       <FormTitle
         title={nomenclature.ORGANIZATION_DETAILS}
         description={nomenclature.ORGANIZATION_DETAILS_DESCRIPTION}
       />
-      <Input placeholder="e.g. Global Health Initiative" />
+      <Input label="Legal Organization Name" required placeholder="e.g. Global Health Initiative" />
 
       <div className="grid grid-cols-2 gap-4">
-        <Input placeholder="12-3456789" />
+        <Input placeholder="12-3456789" required label="EIN / Tax ID"/>
         <DropdownMenu />
       </div>
 
-      <Input placeholder="https://www.organization.org" />
+      <Input label="Official Website" placeholder="https://www.organization.org" />
 
       <UploadBox
         fieldName="Company profile picture"

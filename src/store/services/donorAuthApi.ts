@@ -25,7 +25,19 @@ export const donorAuthApi= apiSlice.injectEndpoints({
                 body,
             }),
         }),
+        donorLogout:builder.mutation({
+            query: () => ({
+                url: ENDPOINTS.donorAuth.logout,
+                method: "POST",
+            }),
+        }),
+        validateUserAuth:builder.query({
+            query: () => ({
+                url: ENDPOINTS.donorAuth.validateAuth,
+                method: "GET",
+            }),
+        }),
     })
 })
 
-export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation} = donorAuthApi;
+export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation,useDonorLogoutMutation,useValidateUserAuthQuery} = donorAuthApi;
