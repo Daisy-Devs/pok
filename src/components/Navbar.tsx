@@ -6,23 +6,41 @@ import Link from "next/link";
 import { Button } from "./ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
 import { useDispatch } from "react-redux";
 import { loggedOut } from "../store/services/slice/authSlice";
-
+import { useDonorLogoutMutation } from "../store/services/donorAuthApi";
+import { toast } from "sonner";
 
 const Navbar = () => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const pathname = usePathname();
-  const dispatch= useDispatch()
+  const dispatch = useDispatch();
   const router = useRouter();
+  const [donorLogout, { isError, error }] = useDonorLogoutMutation();
+  const handleLogout = async () => {
+    const res = await donorLogout({});
+    if (isError) {
+      console.log(error);
+      toast.error("Logout failed");
+      return;
+    }
+    console.log("logged out", res);
+    dispatch(loggedOut());
+    router.push("/sign-in");
+    toast.success("Logout successful");
+  };
   return (
     <div className="h-16 px-6 flex items-center justify-between ring-2 ring-border bg-background">
-      
       <div className="flex items-center gap-3">
-        <SidebarTrigger className="md:hidden"/>
+        <SidebarTrigger className="md:hidden" />
         <Link href="/">
           <p className="text-xl font-extrabold text-tertiary">
             {nomenclature.PRODUCT_NAME}
@@ -34,7 +52,8 @@ const Navbar = () => {
         <Link
           href="/"
           className={`font-semiboldtext-sm hover:underline underline-offset-8 ${
-            pathname === "/" && "text-primary underline decoration-primary decoration-3"
+            pathname === "/" &&
+            "text-primary underline decoration-primary decoration-3"
           }`}
         >
           {nomenclature.HOME}
@@ -73,11 +92,17 @@ const Navbar = () => {
 
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
+                  <Link href="/profile">View Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/">Connect Wallet</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500" onClick={()=>{dispatch(loggedOut())
-                  router.push("/sign-in")
-                }}>
+                <DropdownMenuItem
+                  className="text-red-500"
+                  onClick={() => {
+                    handleLogout();
+                  }}
+                >
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -86,7 +111,7 @@ const Navbar = () => {
         ) : (
           <>
             <Link href="/">
-              <Button variant={'outline'} text={nomenclature.NGO_PORTAL} />
+              <Button variant={"outline"} text={nomenclature.NGO_PORTAL} />
             </Link>
             <Link href="/sign-in">
               <Button text={nomenclature.SIGN_IN} />

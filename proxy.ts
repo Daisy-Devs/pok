@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { toast } from 'sonner';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.has('token');
+  console.log(token);
+  toast.success(token);
   if (
     pathname.startsWith('/ngo/register') ||
     pathname.startsWith('/ngo/sign-in')
