@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
+import { sendResponse } from '../utils/response.mjs';
 
 export const connectWallet = async (req, res) => {
   try {
     const { walletAddress } = req.body;
 
     if (!walletAddress) {
-      return res.status(400).json({ message: 'Wallet address required' });
+      return sendResponse(res, 400, 'Wallet address required');
     }
 
     const walletToken = jwt.sign(
@@ -22,12 +23,9 @@ export const connectWallet = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    res.status(200).json({
-      message: 'Wallet connected',
-      walletAddress
-    });
+    return sendResponse(res, 200, 'Wallet connected', walletAddress)
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };

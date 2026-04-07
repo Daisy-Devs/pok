@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import appleSignin from 'apple-signin-auth';
 import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/user.mjs';
+import { sendResponse } from '../utils/response.mjs';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -12,15 +13,13 @@ export const registerUser = async (req, res) => {
     const { name, email, password, phone } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return sendResponse(res, 400, 'Email and password are required');
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
 
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({
-        message: 'Password must be 8-15 chars, include uppercase, lowercase, number, and special character'
-      });
+      return sendResponse(res, 400, 'Password must be 8-15 chars, include uppercase, lowercase, number, and special character');
     }
 
     let user = await User.findOne({ email });
@@ -37,7 +36,7 @@ export const registerUser = async (req, res) => {
 
         await user.save();
       } else {
-        return res.status(400).json({ message: 'User already exists' });
+        return sendResponse(res, 400, 'User already exists');
       }
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -71,14 +70,10 @@ export const registerUser = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    // ❌ No need to send token in response
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: userObj
-    });
+    return sendResponse(res, 201, 'User registered successfully', userObj);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -87,7 +82,7 @@ export const googleAuth = async (req, res) => {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({ message: 'No Google token provided' });
+      return sendResponse(res, 400, 'No Google token provided');
     }
 
     // 🔐 Verify Google token
@@ -100,7 +95,7 @@ export const googleAuth = async (req, res) => {
     const { sub, name, email, email_verified } = payload;
 
     if (!email_verified) {
-      return res.status(400).json({ message: 'Google email not verified' });
+      return sendResponse(res, 400, 'Google email not verified');
     }
 
     // ✅ Find user by googleId OR email
@@ -146,7 +141,7 @@ export const googleAuth = async (req, res) => {
     // 🍪 Set cookie
     res.cookie('token', jwtToken, {
       httpOnly: true,
-      secure: false, // 👉 true in production (HTTPS)
+      secure: false, // 👉 true in production
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -154,14 +149,11 @@ export const googleAuth = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({
-      message: 'Google login successful',
-      user: userObj
-    });
+    return sendResponse(res, 200, 'Google login successful', userObj);
 
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: 'Invalid Google token' });
+    return sendResponse(res, 401, 'Invalid Google token');
   }
 };
 
@@ -223,21 +215,19 @@ export const loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Email and password are required' });
+      return sendResponse(res, 400, 'Email and password are required');
     }
 
     const user = await User.findOne({ email });
 
     if (!user || !user.password) {
-      return res.status(400).json({
-        message: 'Invalid credentials or use social login'
-      });
+      return sendResponse(res, 400, 'Invalid credentials or use social login');
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return sendResponse(res, 400, 'Invalid credentials');
     }
 
     const token = jwt.sign(
@@ -257,13 +247,10 @@ export const loginUser = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({
-      message: 'Login successful',
-      user: userObj
-    });
+    return sendResponse(res, 200, 'Login successful', userObj);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -272,7 +259,7 @@ export const appleAuth = async (req, res) => {
     const { identityToken } = req.body;
 
     if (!identityToken) {
-      return res.status(400).json({ message: 'No Apple token provided' });
+      return sendResponse(res, 400, 'No Apple token provided');
     }
 
     // 🔐 Verify Apple token
@@ -334,14 +321,11 @@ export const appleAuth = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({
-      message: 'Apple login successful',
-      user: userObj
-    });
+    return sendResponse(res, 200, 'Apple Login successful', userObj);
 
   } catch (error) {
     console.error(error);
-    res.status(401).json({ message: 'Invalid Apple token' });
+    return sendResponse(res, 401, 'Invalid Apple token');
   }
 };
 
@@ -352,14 +336,12 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return sendResponse(res, 400, 'User not found');
     }
 
     // ✅ IMPORTANT CONDITION (your doubt)
     if (!user.password) {
-      return res.status(400).json({
-        message: "This account uses Google login. Please login with Google."
-      });
+      return sendResponse(res, 400, 'This account uses Google login. Please login with Google.');
     }
 
     // generate raw token
@@ -381,12 +363,10 @@ export const forgotPassword = async (req, res) => {
     // TODO: Send email here
     console.log("Reset URL:", resetURL);
 
-    res.status(200).json({
-      message: "Password reset link sent to email"
-    });
+    return sendResponse(res, 200, 'Password reset link sent to email');
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -407,9 +387,7 @@ export const resetPassword = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({
-        message: "Invalid or expired token"
-      });
+      return sendResponse(res, 400, 'Invalid or expired token');
     }
 
     // set new password
@@ -426,12 +404,53 @@ export const resetPassword = async (req, res) => {
 
     await user.save();
 
-    res.status(200).json({
-      message: "Password reset successful"
-    });
+    return sendResponse(res, 200, 'Password reset successfu');
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
+  }
+};
+
+export const logoutUser = (req, res) => {
+  res.clearCookie('token', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false // 👉 true in production
+  });
+
+  return sendResponse(res, 200, 'User logged out successfully');
+};
+
+export const logoutWallet = (req, res) => {
+  res.clearCookie('walletToken', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false // 👉 true in production
+  });
+
+  return sendResponse(res, 200, 'Wallet disconnected successfully');
+};
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const token = req.cookies.token;
+
+    if (!token) {
+      return sendResponse(res, 401, 'Not logged in');
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select('-password');
+
+    if (!user) {
+      return sendResponse(res, 401, 'User not found');
+    }
+
+    return sendResponse(res, 200, 'User fetched', user);
+
+  } catch (error) {
+    return sendResponse(res, 401, 'Invalid or expired token');
   }
 };
 
@@ -441,12 +460,12 @@ export const getUsers = async (req, res) => {
       .select('-password -resetPasswordToken -resetPasswordExpires -__v')
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return sendResponse(res, 200, 'Users fetched successfully', {
       count: users.length,
       users
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
