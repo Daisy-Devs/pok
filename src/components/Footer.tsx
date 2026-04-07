@@ -3,8 +3,9 @@ import React from "react";
 import Link from "next/link";
 
 
-import { FaInstagram } from "react-icons/fa";
 import { Share2 } from "lucide-react";
+import { nomenclature } from "../constants/nomenclature";
+import Image from "next/image";
 
 export default function Footer() {
   return (
@@ -12,7 +13,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* LEFT: Brand */}
         <div className="text-center sm:text-left">
-          <h1 className="font-semibold text-gray-800">Proof of Kindness</h1>
+          <h1 className="font-semibold text-gray-800">{nomenclature.PRODUCT_NAME}</h1>
           <p className="text-sm">
             © {new Date().getFullYear()} Built on Ethereum
           </p>
@@ -30,7 +31,7 @@ export default function Footer() {
             Help Center
           </Link>
           <div className="flex flex-wrap justify-center sm:justify-end gap-4 text-sm">
-            <FaInstagram size={20} className="cursor-pointer" />
+            <Image width={'20'} height={'20'} alt="insta" src={'/Auth/instagram.svg'}/>
             <Share2 size={20} className="cursor-pointer" />
           </div>
         </div>

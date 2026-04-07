@@ -1,0 +1,128 @@
+import { Button } from "@/src/components/ui/button";
+import Image from "next/image";
+import React from "react";
+
+export default function Philanthropy() {
+  return (
+    <div>
+      <section
+        className="py-10 relative overflow-hidden"
+        style={{ background: "linear-gradient(180deg,#f9f9ff 0%,#fff 100%)" }}
+      >
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="mb-12">
+            <h2 className="text-3xl font-black text-secondary-color mb-3">
+              Re-engineering Philanthropy
+            </h2>
+            <p className="text-foreground text-[15px] max-w-md">
+              We use zero-knowledge proofs to solve the three biggest hurdles in
+              global giving.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-5">
+            {/* Anonymous Contributions */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
+              <div className="w-11 h-11 bg-primary-light rounded-xl flex items-center justify-center mb-5">
+                <Image
+                  src={"/home/shieldcheck.svg"}
+                  width={20}
+                  height={20}
+                  alt="gridIcon"
+                />
+              </div>
+              <h3 className="text-2xl font-bold text-secondary-color mb-3">
+                Anonymous Contributions
+              </h3>
+              <p className="text-sm text-foreground leading-relaxed max-w-md">
+                Donate without revealing your identity or wallet address. Using
+                ZK-Snarks, we ensure your privacy while maintaining a clear
+                audit trail for the receiving NGO.
+              </p>
+            </div>
+
+            {/* Near-Zero Fees */}
+            <div
+              className="rounded-2xl p-7 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]"
+              style={{
+                background: "linear-gradient(135deg,#1e1b3a 0%,#0f0e1f 100%)",
+              }}
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 opacity-10 rounded-full blur-3xl" />
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 relative z-10 bg-secondary-mute">
+                <Image
+                  src={"/home/bolt.svg"}
+                  width={20}
+                  height={20}
+                  alt="gridIcon"
+                />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3 relative z-10">
+                Near-Zero Fees
+              </h3>
+              <p className="text-sm text-gray-400 leading-relaxed mb-6 relative z-10">
+                Avoid the 5–10% overhead of traditional platforms.
+                PhilanthroChain leverages L2 tech to keep fees under 0.1%.
+              </p>
+              <span className="relative z-10 block mt-4 pt-3 border-t border-gray-700 text-xs font-bold text-green-400 uppercase tracking-widest">
+                Save $950 on every $10k donated
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_3fr] gap-5 mt-4">
+            {" "}
+            {/* Verifiable Impact */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
+              <div className="w-11 h-11 bg-background-secondary rounded-xl flex items-center justify-center mb-5">
+                <Image
+                  src={"/home/verify.svg"}
+                  width={24}
+                  height={24}
+                  alt="gridIcon"
+                />{" "}
+              </div>
+              <h3 className="text-lg font-bold text-secondary-color mb-3">
+                Verifiable Impact
+              </h3>
+              <p className="text-sm text-foreground leading-relaxed">
+                Track every dollar from transaction to on-the-ground execution
+                via immutable smart contract milestones.
+              </p>
+              <div className="flex gap-2 mt-6">
+                <div className="h-1.5 w-16 rounded-full bg-secondary" />
+                <div className="h-1.5 w-16 rounded-full bg-secondary" />
+                <div className="h-1.5 w-16 rounded-full bg-secondary" />
+              </div>
+            </div>
+            {/* Ready to Impact CTA */}
+            <div className="bg-gray-50 border border-gray-100 rounded-2xl p-7 flex flex-col justify-center items-center text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
+              <h3 className="text-4xl font-black text-secondary-color mb-3">
+                Ready to make an impact?
+              </h3>
+              <p className="text-sm text-foreground mb-6 leading-relaxed">
+                Join over 50,000 anonymous donors who are changing the world
+                through transparent crypto philanthropy.
+              </p>
+              <div className="flex items-center justify-center gap-3">
+                {" "}
+                <Button
+                text="Connect Wallet"
+                variant={'blue'}
+                size={'normal'}/>
+                  
+                
+                <Button
+                text="Learn More"
+                variant={'outline'}
+                size={'normal'}/>
+                  
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
