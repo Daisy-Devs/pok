@@ -6,55 +6,26 @@ import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useState } from "react";
 import {
-  useDonorGoogleAuthMutation,
   useDonorSignInMutation,
 } from "@/src/store/services/donorAuthApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { useRouter } from "next/navigation";
-import { useGoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [donorSignIn, { isLoading }] = useDonorSignInMutation();
-  const [donorGoogleAuth, { isLoading: isGoogleLoading, error }] =
-    useDonorGoogleAuthMutation();
+  const [donorSignIn, { isLoading,error:erora }] = useDonorSignInMutation();
+  const {googleAuthSuccessful,isGoogleLoading}= useGoogleAuth();
   const dispatch = useDispatch();
   const router = useRouter();
-  const googleSignInSuccessful = (token: any) => {
-    console.log("tok", token);    
-    donorGoogleAuth({ token })
-      .then((res) => {
-        toast.success("Sign-in successful!");
-        console.log("ress",res);
-        router.push("/");
-        dispatch(
-          loggedIn({
-            name: "Google User",
-            email: "aa@aa.com",
-            phone: "123-456-7890",
-            role: "Donor",
-          }),
-        );
-      })
-      .catch((err) => {
-        console.log("Google auth failed:", err);
-        toast.error("Google auth failed. ");
-      });
-  };
-  const googleLogin = useGoogleLogin({
-    onSuccess: async(proi) =>{ googleSignInSuccessful(proi)},
-    onError: (errorResponse) => {
-      console.log("eer",errorResponse);
-      
-      toast.error("Google Sign-in failed. " + errorResponse);
-    },
-    flow:'auth-code',
-  });
+
+
   const handleSignIn = () => {
     donorSignIn(formData)
       .unwrap()
@@ -69,9 +40,9 @@ export default function SignIn() {
             role: "Donor",
           }),
         );
-        router.push("/");
+        router.replace("/");
       })
-      .catch((error) => {
+      .catch((error) => {        
         console.log("Sign-in failed:", error);
         toast.error("Sign-in failed. ", error);
       });
@@ -145,8 +116,10 @@ export default function SignIn() {
               variant="blue"
               size="long"
               text={isLoading ? nomenclature.SIGNING_IN : nomenclature.SIGN_IN}
-              disabled={isLoading}
-              onClick={handleSignIn}
+              disabled={isLoading||formData.email==""||formData.password==""||isGoogleLoading}
+              onClick={()=>{
+                handleSignIn();
+              }}
             />
           </div>
 
@@ -158,26 +131,22 @@ export default function SignIn() {
               <div className="flex-1 h-px bg-gray-300" />
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Button
-                onClick={() => googleLogin()}
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/google.svg"}
-              />
-
-              <Button
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/apple.svg"}
-              />
-
-              <Button
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/facebook.svg"}
-              />
+            <GoogleLogin
+            size="large"
+            text={"signin_with"}
+            logo_alignment="center"
+            shape="rectangular"
+              onSuccess={(credentialResponse) => {
+                if (!credentialResponse.credential) {
+                  toast.error("No credential returned from Google.");
+                  return;
+                }
+                // credentialResponse.credential IS the id_token your backend expects
+                googleAuthSuccessful(credentialResponse?.credential);
+              }}
+              onError={() => toast.error("Google Sign-in failed.")}
+            />
             </div>
-
             <p className="text-sm text-gray-500 text-center">
               {`Don't have an accoubt yet? `}
               <Link href="/sign-up" className="text-blue-500 hover:underline">

@@ -1,21 +1,23 @@
 "use client";
 
 import { nomenclature } from "@/src/constants/nomenclature";
-import { Bell, UserCircle2, Menu } from "lucide-react";
+import { Bell, UserCircle2 } from "lucide-react";
 import Link from "next/link";
-import React, { use } from "react";
 import { Button } from "./ui/button";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
+import { useDispatch } from "react-redux";
+import { loggedOut } from "../store/services/slice/authSlice";
 
 
 const Navbar = () => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const pathname = usePathname();
-
+  const dispatch= useDispatch()
+  const router = useRouter();
   return (
     <div className="h-16 px-6 flex items-center justify-between ring-2 ring-border bg-background">
       
@@ -73,7 +75,9 @@ const Navbar = () => {
                 <DropdownMenuItem asChild>
                   <Link href="/">Connect Wallet</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-red-500">
+                <DropdownMenuItem className="text-red-500" onClick={()=>{dispatch(loggedOut())
+                  router.push("/sign-in")
+                }}>
                   Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>

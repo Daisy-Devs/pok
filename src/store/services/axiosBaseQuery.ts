@@ -26,8 +26,8 @@ export const axiosBaseQuery: BaseQueryFn<
     const err = error as AxiosError;
     return {
       error: {
-        status: err.response?.status,
-        data: err.response?.data || err.message,
+        status: err,
+        data: err
       },
     };
   }

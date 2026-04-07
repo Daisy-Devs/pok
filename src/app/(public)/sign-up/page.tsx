@@ -7,6 +7,8 @@ import { nomenclature } from "@/src/constants/nomenclature";
 import { useRouter } from "next/navigation";
 import { useDonorSignUpMutation } from "@/src/store/services/donorAuthApi";
 import { toast } from "sonner";
+import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
+import { GoogleLogin } from "@react-oauth/google";
 
 export default function SignUp() {
   const [signUpData, setSignUpData] = useState({
@@ -17,6 +19,7 @@ export default function SignUp() {
   });
   const router = useRouter();
   const [donorSignUp, { isLoading, error }] = useDonorSignUpMutation();
+    const {googleAuthSuccessful,isGoogleLoading}= useGoogleAuth();
   const handleSignUp = () => {
     donorSignUp(signUpData)
       .unwrap()
@@ -133,7 +136,9 @@ export default function SignUp() {
                 isLoading ||
                 signUpData.name == "" ||
                 signUpData.email == "" ||
-                signUpData.password == ""
+                signUpData.phone == "" ||
+                signUpData.password == ""||
+                isGoogleLoading
               }
               size="long"
               text={isLoading ? nomenclature.SIGNING_UP : nomenclature.SIGN_UP}
@@ -151,24 +156,21 @@ export default function SignUp() {
               <div className="flex-1 h-px bg-gray-300" />
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
-              <Button
-                onClick={() => {}}
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/google.svg"}
-              />
-
-              <Button
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/apple.svg"}
-              />
-
-              <Button
-                variant="grey"
-                size="only_icon"
-                leftImageSrc={"/Auth/facebook.svg"}
-              />
+          <GoogleLogin
+            size="large"
+            text={"signup_with"}
+            logo_alignment="center"
+            shape="rectangular"
+              onSuccess={(credentialResponse) => {
+                if (!credentialResponse.credential) {
+                  toast.error("No credential returned from Google.");
+                  return;
+                }
+                // credentialResponse.credential IS the id_token your backend expects
+                googleAuthSuccessful(credentialResponse?.credential);
+              }}
+              onError={() => toast.error("Google Sign-up failed.")}
+            />
             </div>
 
             <p className="text-sm text-gray-500 text-center">
