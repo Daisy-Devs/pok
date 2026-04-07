@@ -5,6 +5,7 @@ import appleSignin from 'apple-signin-auth';
 import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/user.mjs';
 import { sendResponse } from '../utils/response.mjs';
+import { sendEmail } from '../utils/sendEmail.mjs';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -333,21 +334,29 @@ export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
+    if (!email) {
+      return sendResponse(res, 400, 'Email is required');
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
       return sendResponse(res, 400, 'User not found');
     }
 
-    // ✅ IMPORTANT CONDITION (your doubt)
+    // ❌ Block Google-only users
     if (!user.password) {
-      return sendResponse(res, 400, 'This account uses Google login. Please login with Google.');
+      return sendResponse(
+        res,
+        400,
+        'This account uses Google login. Please login with Google.'
+      );
     }
 
-    // generate raw token
+    // 🔐 Generate token
     const resetToken = crypto.randomBytes(32).toString('hex');
 
-    // hash token (store only hashed)
+    // 🔐 Hash token before saving
     const hashedToken = crypto
       .createHash('sha256')
       .update(resetToken)
@@ -358,10 +367,18 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
+    // 🔗 Create reset URL
     const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    // TODO: Send email here
-    console.log("Reset URL:", resetURL);
+    // 📧 Send email
+    await sendEmail(
+      user.email,
+      'Password Reset',
+      `Reset your password using this link (valid for 15 minutes): ${resetURL}`
+    );
+
+    // 🧪 (Optional debug)
+    console.log('Reset URL:', resetURL);
 
     return sendResponse(res, 200, 'Password reset link sent to email');
 
@@ -375,12 +392,29 @@ export const resetPassword = async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 
-    // hash incoming token
+    if (!password) {
+      return sendResponse(res, 400, 'Password is required');
+    }
+
+    // 🔐 Password validation (strong password)
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,15}$/;
+
+    if (!passwordRegex.test(password)) {
+      return sendResponse(
+        res,
+        400,
+        'Password must be 8-15 chars, include uppercase, lowercase, number, and special character'
+      );
+    }
+
+    // 🔐 Hash incoming token
     const hashedToken = crypto
       .createHash('sha256')
       .update(token)
       .digest('hex');
 
+    // 🔍 Find user
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() }
@@ -390,21 +424,21 @@ export const resetPassword = async (req, res) => {
       return sendResponse(res, 400, 'Invalid or expired token');
     }
 
-    // set new password
+    // 🔐 Set new password
     user.password = await bcrypt.hash(password, 10);
 
-    // clear reset fields
+    // 🧹 Clear reset fields
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
-    // ensure manual login is enabled
+    // 🔄 Ensure manual login exists
     if (!user.providers.includes('manual')) {
       user.providers.push('manual');
     }
 
     await user.save();
 
-    return sendResponse(res, 200, 'Password reset successfu');
+    return sendResponse(res, 200, 'Password reset successful');
 
   } catch (error) {
     return sendResponse(res, 500, error.message);
