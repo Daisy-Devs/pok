@@ -1,5 +1,6 @@
 import { Campaign, Organization } from '../models/index.mjs';
 import { v4 as uuidv4 } from 'uuid';
+import { sendResponse } from '../utils/response.mjs';
 
 export const createOrgAndCampaign = async (req, res) => {
   try {
@@ -63,14 +64,13 @@ export const createOrgAndCampaign = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    res.status(201).json({
-      message: 'Campaign created successfully',
+    return sendResponse(res, 201, 'Campaign created successfully', {
       organization,
       campaign
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -99,13 +99,10 @@ export const createCampaign = async (req, res) => {
 
     await campaign.save();
 
-    res.status(201).json({
-      message: 'Campaign created successfully',
-      campaign
-    });
+    return sendResponse(res, 201, 'Campaign created successfully', campaign);
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -124,14 +121,12 @@ export const updateCampaign = async (req, res) => {
     const campaign = await Campaign.findOne({ id });
 
     if (!campaign) {
-      return res.status(404).json({ message: 'Campaign not found' });
+      return sendResponse(res, 404, 'Campaign not found');
     }
 
     // ❌ Restriction: Only draft can be updated
     if (campaign.status !== 'draft') {
-      return res.status(400).json({
-        message: 'Only draft campaigns can be updated'
-      });
+      return sendResponse(res, 400, 'Only draft campaigns can be updated');
     }
 
     // ✅ Update allowed fields
@@ -146,13 +141,10 @@ export const updateCampaign = async (req, res) => {
 
     await campaign.save();
 
-    res.status(200).json({
-      message: 'Campaign updated successfully',
-      campaign
-    });
+    return sendResponse(res, 200, 'campaigns updated successfully', campaign)
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -163,13 +155,13 @@ export const getAllCampaigns = async (req, res) => {
       .populate('organization', 'name email walletAddress profileImageUrl') // ✅ org details
       .sort({ createdAt: -1 });
 
-    res.status(200).json({
+    return sendResponse(res, 200, 'campaigns fetched successfully', {
       count: campaigns.length,
       campaigns
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -183,15 +175,15 @@ export const getCampaignsByOrganization = async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!campaigns.length) {
-      return res.status(404).json({ message: 'No campaigns found for this organization' });
+      return sendResponse(res, 404, 'No campaigns found for this organization');
     }
 
-    res.status(200).json({
+    return sendResponse(res, 200, 'campaigns fetched successfully', {
       count: campaigns.length,
       campaigns
     });
 
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendResponse(res, 500, error.message);
   }
 };
