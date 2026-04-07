@@ -19,10 +19,10 @@ export const donorAuthApi= apiSlice.injectEndpoints({
            
         }),
         donorGoogleAuth:builder.mutation({
-            query: (token) => ({
+            query: (body) => ({
                 url: ENDPOINTS.donorAuth.google,
                 method: "POST",
-                body: token ,
+                body,
             }),
         }),
     })

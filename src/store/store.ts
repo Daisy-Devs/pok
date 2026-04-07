@@ -1,17 +1,37 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { apiSlice } from './services/apiSlice';
 import { authSlice } from './services/slice/authSlice';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
+import storage from 'redux-persist/es/storage';
+import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 
-export const store=configureStore({
-  reducer: {
-   [apiSlice.reducerPath]: apiSlice.reducer,
-   auth: authSlice.reducer
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware),
+const persistConfig = {
+  key: 'root',
+  storage,
+  whitelist: ['auth'],
+  blacklist: ['api'], // exclude RTK Query cache entirely
+}
+
+const rootReducer = combineReducers({
+  [apiSlice.reducerPath]: apiSlice.reducer,
+  auth: authSlice.reducer,
 });
 
-export type RootState = ReturnType<typeof store.getState>;
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
+export const store=configureStore({
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Required: ignore redux-persist internal actions
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(apiSlice.middleware),
+});
+
+export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
