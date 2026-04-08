@@ -1,4 +1,5 @@
 import Heading from '@/src/components/Heading'
+import { nomenclature } from '@/src/constants/nomenclature'
 import { splitTitle } from '@/src/lib/utils'
 import Image from 'next/image'
 import React from 'react'
@@ -7,12 +8,10 @@ const Hero = ({text}:{text:string}) => {
     const title=splitTitle(text)
   return (
            <section className="grid md:grid-cols-2 gap-10 md:items-center">
-          <div className='md:pl-28'>
+          <div className='pl-9 md:pl-6'>
             <Heading first={title.firstHalf} second={title.secondHalf} size="lg" />
             <p className="mt-6 text-lg">
-              Empowering digital authenticity through secure blockchain technology.
-              We are building the infrastructure for a world where every contribution
-              is verifiable and every impact is measurable.
+              {nomenclature.ABOUT_DESCRIPTION}
             </p>
           </div>
 

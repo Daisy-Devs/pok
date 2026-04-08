@@ -18,9 +18,9 @@ const AboutUs = () => {
           The Team
         </h3>
 
-        <div className="grid md:grid-cols-4 gap-6 px-25 md:px-1">
+        <div className="grid md:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="text-center">
+            <div key={i} className="text-center flex flex-col items-center">
               <div className="w-50 md:w-full h-40 bg-gray-200 rounded-xl mb-3" />
               <p className="font-medium text-secondaryText">Member Name</p>
               <p className="text-sm">Role Title</p>
