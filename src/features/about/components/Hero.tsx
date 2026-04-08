@@ -6,8 +6,8 @@ import React from 'react'
 const Hero = ({text}:{text:string}) => {
     const title=splitTitle(text)
   return (
-           <section className="grid md:grid-cols-2 gap-10 items-center">
-          <div className='pl-28'>
+           <section className="grid md:grid-cols-2 gap-10 md:items-center">
+          <div className='md:pl-28'>
             <Heading first={title.firstHalf} second={title.secondHalf} size="lg" />
             <p className="mt-6 text-lg">
               Empowering digital authenticity through secure blockchain technology.

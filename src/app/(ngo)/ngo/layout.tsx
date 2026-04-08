@@ -29,7 +29,7 @@ export default function NGOLayout({ children }: { children: React.ReactNode }) {
             pageTitle={"Dashboard Overview"}
             walletAddress={"0x1234"}
           />
-          <main className="bg-background w-full overflow-y-auto p-4 h-screen">
+          <main className="bg-background w-full overflow-y-auto p-4">
             {children}
           </main>
           <Footer />
