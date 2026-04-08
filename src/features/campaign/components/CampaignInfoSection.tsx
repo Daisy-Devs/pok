@@ -28,9 +28,9 @@ const CampaignInfoSection = () => {
   ];
 
   return (
-    <div className="flex items-center gap-10 px-6">
-      <div className="flex flex-col gap-6">
-        <div>
+    <div className="flex flex-col md:flex-row items-center gap-10 xl:gap-35 md:px-6">
+      <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
+        <div className="flex flex-col justify-center">
           <div className="flex gap-3">
             <Pill text="Active Campaign" variant="primary" />
             <Pill
@@ -43,7 +43,7 @@ const CampaignInfoSection = () => {
         </div>
 
         <Carousel
-          className="w-159"
+          className="w-80 md:w-159 xl:w-full"
           plugins={[
             Autoplay({
               delay: 2000,
@@ -53,7 +53,7 @@ const CampaignInfoSection = () => {
           <CarouselContent className="-ml-2">
             {images.map((image, index) => (
               <CarouselItem key={index} className="pl-2 basis-full">
-                <div className="relative w-full h-80 overflow-hidden rounded-xl">
+                <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
                   <Image
                     src={image}
                     alt={"image" + index}
@@ -68,12 +68,12 @@ const CampaignInfoSection = () => {
           <CarouselPrevious className="left-5" />
           <CarouselNext className="right-5" />
         </Carousel>
-        <p className="text-primaryText text-base font-normal w-159">
+        <p className="text-primaryText text-base font-normal w-80 md:w-159">
           {`Leverage decentralized transparency to provide sustainable filtration
   systems to remote villages. Every Satoshi is tracked from your wallet to the
   well.`}
         </p>
-        <div>
+        <div className="w-full">
           <p className="uppercase text-sm font-bold mb-1">funding progress</p>
           <ProgressWithLabel
             className="w-full h-3"
@@ -88,7 +88,7 @@ const CampaignInfoSection = () => {
             }
           />
         </div>
-        <div className="flex gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 md:flex-row gap-6">
           <StatCard
             variant="sm"
             intent={"subtle"}
