@@ -5,28 +5,60 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useState } from "react";
-import {
-  useDonorSignInMutation,
-} from "@/src/store/services/donorAuthApi";
+import { useDonorSignInMutation } from "@/src/store/services/donorAuthApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
+import { Eye, EyeOff } from "lucide-react";
+
+const validators = {
+  email: (value: string) => {
+    if (!value) return "Email is required";
+    if (!/^\S+@\S+\.\S+$/.test(value)) return "Invalid email format";
+    return "";
+  },
+  password: (value: string) => {
+    if (!value) return "Password is required";
+    if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,15}$/.test(value)
+    ) {
+      return "8–15 chars, include upper, lower, number & special character";
+    }
+    return "";
+  },
+};
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [donorSignIn, { isLoading,error:erora }] = useDonorSignInMutation();
-  const {googleAuthSuccessful,isGoogleLoading}= useGoogleAuth();
+  const [errors, setErrors] = useState<{
+    email?: string;
+    password?: string;
+  }>({});
+  const [donorSignIn, { isLoading, error: erora }] = useDonorSignInMutation();
+  const { googleAuthSuccessful, isGoogleLoading } = useGoogleAuth();
   const dispatch = useDispatch();
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
+  const validate = () => {
+    const newErrors = Object.fromEntries(
+      Object.entries(formData).map(([key, value]) => [
+        key,
+        validators[key as keyof typeof validators](value),
+      ]),
+    );
+    setErrors(newErrors);
+    return Object.values(newErrors).every((e) => !e);
+  };
 
   const handleSignIn = () => {
+    if (!validate()) return;
     donorSignIn(formData)
       .unwrap()
       .then((res) => {
@@ -42,7 +74,7 @@ export default function SignIn() {
         );
         router.replace("/");
       })
-      .catch((error) => {        
+      .catch((error) => {
         console.log("Sign-in failed:", error);
         toast.error("Sign-in failed. ", error);
       });
@@ -96,6 +128,8 @@ export default function SignIn() {
               variant="outline"
               placeholder={nomenclature.ENTER_EMAIL}
               label="Email"
+              size={"lg"}
+              error={errors.email}
             />
 
             <Input
@@ -104,9 +138,22 @@ export default function SignIn() {
                 setFormData((prev) => ({ ...prev, password: e.target.value }))
               }
               variant="outline"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder={nomenclature.ENTER_PASSWORD}
               label="Password"
+              size={"lg"}
+              error={errors.password}
+              rightElement={
+                formData.password && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                )
+              }
             />
           </div>
 
@@ -114,10 +161,15 @@ export default function SignIn() {
           <div className="flex justify-center">
             <Button
               variant="blue"
-              size="long"
+              size="lg"
               text={isLoading ? nomenclature.SIGNING_IN : nomenclature.SIGN_IN}
-              disabled={isLoading||formData.email==""||formData.password==""||isGoogleLoading}
-              onClick={()=>{
+              disabled={
+                isLoading ||
+                formData.email == "" ||
+                formData.password == "" ||
+                isGoogleLoading
+              }
+              onClick={() => {
                 handleSignIn();
               }}
             />
@@ -131,21 +183,21 @@ export default function SignIn() {
               <div className="flex-1 h-px bg-gray-300" />
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
-            <GoogleLogin
-            size="large"
-            text={"signin_with"}
-            logo_alignment="center"
-            shape="rectangular"
-              onSuccess={(credentialResponse) => {
-                if (!credentialResponse.credential) {
-                  toast.error("No credential returned from Google.");
-                  return;
-                }
-                // credentialResponse.credential IS the id_token your backend expects
-                googleAuthSuccessful(credentialResponse?.credential);
-              }}
-              onError={() => toast.error("Google Sign-in failed.")}
-            />
+              <GoogleLogin
+                size="large"
+                text={"signin_with"}
+                logo_alignment="center"
+                shape="rectangular"
+                onSuccess={(credentialResponse) => {
+                  if (!credentialResponse.credential) {
+                    toast.error("No credential returned from Google.");
+                    return;
+                  }
+                  // credentialResponse.credential IS the id_token your backend expects
+                  googleAuthSuccessful(credentialResponse?.credential);
+                }}
+                onError={() => toast.error("Google Sign-in failed.")}
+              />
             </div>
             <p className="text-sm text-gray-500 text-center">
               {`Don't have an accoubt yet? `}

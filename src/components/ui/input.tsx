@@ -46,6 +46,7 @@ export interface InputProps
     VariantProps<typeof inputVariants> {
   label?: string;
   error?: string;
+  rightElement?: React.ReactNode;
 }
 
 // -----------------------------------------------------------------------------
@@ -59,6 +60,7 @@ function Input({
   label,
   error,
   id,
+  rightElement,
   ...props
 }: InputProps) {
   const inputId = id || React.useId();
@@ -70,21 +72,29 @@ function Input({
           {label}
         </label>
       )}
+      <div className="relative">
+        <input
+          id={inputId}
+          type={type}
+          data-slot="input"
+          aria-invalid={!!error}
+          className={cn(
+            inputVariants({
+              variant: error ? "error" : variant,
+              size,
+            }),
+            rightElement && "pr-10",
+            className,
+          )}
+          {...props}
+        />
 
-      <input
-        id={inputId}
-        type={type}
-        data-slot="input"
-        aria-invalid={!!error}
-        className={cn(
-          inputVariants({
-            variant: error ? "error" : variant,
-            size,
-          }),
-          className,
+        {rightElement && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {rightElement}
+          </div>
         )}
-        {...props}
-      />
+      </div>
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
