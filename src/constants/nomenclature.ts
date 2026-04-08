@@ -34,4 +34,5 @@ export const nomenclature={
  ENTER_EMAIL:"Enter your email address",
  ENTER_PASSWORD:"Enter your password",
  ENTER_PHONE:"Enter your phone number",
+ JOIN_THE_MOVEMENT:"Join 4,000+ donors who have abandoned traditional charity for high-frequency on-chain philanthropy.",
 }

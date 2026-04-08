@@ -22,9 +22,9 @@ export default function DonationCard() {
   const individuals = amount ? Math.round(parseFloat(amount) * 2500).toLocaleString() : "0";
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-xl p-7 w-full max-w-sm font-sans">
-        <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-center p-4 xl:p-10">
+      <div className="bg-white rounded-3xl shadow-xl p-7 w-full max-w-sm xl:max-w-md font-sans">
+        <div className="flex items-center justify-between mb-6 xl:space-y-4">
           <h1 className="text-2xl w-full font-bold text-secondaryText tracking-tight">Make an Impact</h1>
           <div className="flex items-center gap-2">
             <span className="text-xs text-primaryText">Donate Anonymously</span>

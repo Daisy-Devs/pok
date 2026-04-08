@@ -2,8 +2,8 @@ import React from "react";
 
 const DecentralizingTrust = () => {
   return (
-    <div className="flex flex-row bg-background-secondary rounded-3xl py-32 px-8">
-      <div className="flex flex-row gap-4">
+    <div className="flex flex-col-reverse md:flex-row bg-background-secondary rounded-3xl py-32 px-8">
+      <div className="flex flex-col md:flex-row gap-4">
         <div className="bg-white rounded-2xl shadow-sm flex flex-col justify-end pl-4 pb-4 min-w-70 aspect-square">
           <p className="text-4xl font-bold text-primary">0%</p>
           <p className="mt-2 text-sm">Unauthorized Data</p>
