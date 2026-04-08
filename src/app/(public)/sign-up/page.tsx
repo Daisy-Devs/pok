@@ -9,6 +9,36 @@ import { useDonorSignUpMutation } from "@/src/store/services/donorAuthApi";
 import { toast } from "sonner";
 import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { GoogleLogin } from "@react-oauth/google";
+import { Eye, EyeOff } from "lucide-react";
+
+const validators = {
+  name: (value: string) => {
+    if (!value.trim()) return "Full name is required";
+    return "";
+  },
+
+  email: (value: string) => {
+    if (!value) return "Email is required";
+    if (!/^\S+@\S+\.\S+$/.test(value)) return "Invalid email format";
+    return "";
+  },
+
+  phone: (value: string) => {
+    if (!value) return "Phone number is required";
+    if (!/^\d{10}$/.test(value)) return "Phone must be 10 digits";
+    return "";
+  },
+
+  password: (value: string) => {
+    if (!value) return "Password is required";
+    if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,15}$/.test(value)
+    ) {
+      return "8–15 chars, include upper, lower, number & special character";
+    }
+    return "";
+  },
+};
 
 export default function SignUp() {
   const [signUpData, setSignUpData] = useState({
@@ -17,10 +47,33 @@ export default function SignUp() {
     password: "",
     phone: "",
   });
+
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    password?: string;
+    phone?: string;
+  }>({});
+
   const router = useRouter();
   const [donorSignUp, { isLoading, error }] = useDonorSignUpMutation();
-    const {googleAuthSuccessful,isGoogleLoading}= useGoogleAuth();
+  const { googleAuthSuccessful, isGoogleLoading } = useGoogleAuth();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const validate = () => {
+    const newErrors = Object.fromEntries(
+      Object.entries(signUpData).map(([key, value]) => [
+        key,
+        validators[key as keyof typeof validators](value),
+      ]),
+    );
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every((e) => !e);
+  };
+
   const handleSignUp = () => {
+    if (!validate()) return;
     donorSignUp(signUpData)
       .unwrap()
       .then((res) => {
@@ -97,6 +150,7 @@ export default function SignUp() {
               placeholder={nomenclature.ENTER_EMAIL}
               label="Email Address"
               size="lg"
+              error={errors.email}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,6 +165,7 @@ export default function SignUp() {
                 placeholder={nomenclature.ENTER_PHONE}
                 label="Phone Number"
                 size="lg"
+                error={errors.phone}
               />
               <Input
                 variant="outline"
@@ -120,10 +175,22 @@ export default function SignUp() {
                     return { ...prev, password: e.target.value };
                   });
                 }}
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder={nomenclature.ENTER_PASSWORD}
                 label="Password"
                 size="lg"
+                error={errors.password}
+                rightElement={
+                  signUpData.password && (
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  )
+                }
               />
             </div>
           </div>
@@ -137,10 +204,10 @@ export default function SignUp() {
                 signUpData.name == "" ||
                 signUpData.email == "" ||
                 signUpData.phone == "" ||
-                signUpData.password == ""||
+                signUpData.password == "" ||
                 isGoogleLoading
               }
-              size="long"
+              size="lg"
               text={isLoading ? nomenclature.SIGNING_UP : nomenclature.SIGN_UP}
               onClick={() => {
                 handleSignUp();
@@ -156,21 +223,21 @@ export default function SignUp() {
               <div className="flex-1 h-px bg-gray-300" />
             </div>
             <div className="flex justify-center gap-4 flex-wrap">
-          <GoogleLogin
-            size="large"
-            text={"signup_with"}
-            logo_alignment="center"
-            shape="rectangular"
-              onSuccess={(credentialResponse) => {
-                if (!credentialResponse.credential) {
-                  toast.error("No credential returned from Google.");
-                  return;
-                }
-                // credentialResponse.credential IS the id_token your backend expects
-                googleAuthSuccessful(credentialResponse?.credential);
-              }}
-              onError={() => toast.error("Google Sign-up failed.")}
-            />
+              <GoogleLogin
+                size="large"
+                text={"signup_with"}
+                logo_alignment="center"
+                shape="rectangular"
+                onSuccess={(credentialResponse) => {
+                  if (!credentialResponse.credential) {
+                    toast.error("No credential returned from Google.");
+                    return;
+                  }
+                  // credentialResponse.credential IS the id_token your backend expects
+                  googleAuthSuccessful(credentialResponse?.credential);
+                }}
+                onError={() => toast.error("Google Sign-up failed.")}
+              />
             </div>
 
             <p className="text-sm text-gray-500 text-center">
