@@ -1,9 +1,9 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import { apiSlice } from './services/apiSlice';
 import { authSlice } from './services/slice/authSlice';
 import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from '../lib/persistStorage';
+import { apiSlice } from './services/slice/apiSlice';
 
 const persistConfig = {
   key: 'root',

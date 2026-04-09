@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "@/src/lib/api/endpoints";
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "./slice/apiSlice";
 
 export const donorAuthApi= apiSlice.injectEndpoints({
     endpoints: (builder) => ({
@@ -37,7 +37,22 @@ export const donorAuthApi= apiSlice.injectEndpoints({
                 method: "GET",
             }),
         }),
+        forgotPassword:builder.mutation({
+            query: (body) => ({
+                url: ENDPOINTS.donorAuth.forgotPassword,
+                method: "POST",
+                body,
+            }),
+        }),
+        resetPassword:builder.mutation({
+            query: ({token,body}) =>{                
+                return ({
+                url: `${ENDPOINTS.donorAuth.resetPassword}/${token}`,
+                method: "POST",
+                body,
+            })},
+        }),
     })
 })
 
-export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation,useDonorLogoutMutation,useValidateUserAuthQuery} = donorAuthApi;
+export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation,useDonorLogoutMutation,useValidateUserAuthQuery,useForgotPasswordMutation,useResetPasswordMutation} = donorAuthApi;
