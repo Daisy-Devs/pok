@@ -3,6 +3,7 @@ import React from "react";
 import ImpactWidget from "./ImpactWidget";
 import { Button } from "@/src/components/ui/button";
 import { ShieldCheck } from "lucide-react";
+import { nomenclature } from "@/src/constants/nomenclature";
 
 export default function HeroSection() {
   return (
@@ -33,7 +34,7 @@ export default function HeroSection() {
                 
                 <Button
                   className="font-bold"
-                  text="SOC2 Type II Certified Security"
+                  text={nomenclature.HOME_BADGE}
                   variant={"purple"}
                   size={'default'}
                   leftIcon={<ShieldCheck size={18} />}
@@ -50,15 +51,13 @@ export default function HeroSection() {
               </h1>
 
               <p className="fade-in-3 text-foreground text-[15px] leading-relaxed mb-10 max-w-md">
-                The first decentralized custodian platform enabling secure,
-                private, and verifiable crypto contributions to vetted NGOs
-                worldwide with near-zero fees.
+                {nomenclature.HOME_PARA}
               </p>
 
               <div className="fade-in-4 flex items-center gap-3">
-                <Button text="Start Donating" variant={"blue"} />
+                <Button text={nomenclature.DONATE} variant={"blue"} />
 
-                <Button text="Register as NGO" variant={'white'} />
+                <Button text={nomenclature.REGISTER} variant={'white'} />
               </div>
             </div>
 

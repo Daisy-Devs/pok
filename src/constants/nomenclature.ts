@@ -35,5 +35,18 @@ export const nomenclature={
  ENTER_PASSWORD:"Enter your password",
  ENTER_PHONE:"Enter your phone number",
  JOIN_THE_MOVEMENT:"Join 4,000+ donors who have abandoned traditional charity for high-frequency on-chain philanthropy.",
- ABOUT_DESCRIPTION:"Empowering digital authenticity through secure blockchain technology. We are building the infrastructure for a world where every contribution is verifiable and every impact is measurable."
+ ABOUT_DESCRIPTION:"Empowering digital authenticity through secure blockchain technology. We are building the infrastructure for a world where every contribution is verifiable and every impact is measurable.",
+ HOME_BADGE:"SOC2 Type II Certified Security",
+ DONATE:"Start Donating",
+ REGISTER:"Register as NGO",
+ PHILANTHROPY:"Re-engineering Philanthropy",
+ PHILANTHROPY_PARA:"We use zero-knowledge proofs to solve the three biggest hurdles in global giving.",
+ CONTRIBUTE:"Anonymous Contributions",
+ CONTRIBUTE_PARA:"Donate without revealing your identity or wallet address. Using ZK-Snarks, we ensure your privacy while maintaining a clear audit trail for the receiving NGO.",
+ ZERO_FEES:"Near-Zero Fees",
+ ZERO_FEES_PARA:"Avoid the 5–10% overhead of traditional platforms. PhilanthroChain leverages L2 tech to keep fees under 0.1%.",
+
+
+
+ HOME_PARA:"The first decentralized custodian platform enabling secure, private, and verifiable crypto contributions to vetted NGOs worldwide with near-zero fees.",
 }

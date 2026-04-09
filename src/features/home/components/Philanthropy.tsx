@@ -1,4 +1,5 @@
 import { Button } from "@/src/components/ui/button";
+import { nomenclature } from "@/src/constants/nomenclature";
 import Image from "next/image";
 import React from "react";
 
@@ -12,11 +13,10 @@ export default function Philanthropy() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-12">
             <h2 className="text-3xl font-black text-secondary-color mb-3">
-              Re-engineering Philanthropy
+              {nomenclature.PHILANTHROPY}
             </h2>
             <p className="text-foreground text-[15px] max-w-md">
-              We use zero-knowledge proofs to solve the three biggest hurdles in
-              global giving.
+              {nomenclature.PHILANTHROPY_PARA}
             </p>
           </div>
 
@@ -32,12 +32,10 @@ export default function Philanthropy() {
                 />
               </div>
               <h3 className="text-2xl font-bold text-secondary-color mb-3">
-                Anonymous Contributions
+                {nomenclature.CONTRIBUTE}
               </h3>
               <p className="text-sm text-foreground leading-relaxed max-w-md">
-                Donate without revealing your identity or wallet address. Using
-                ZK-Snarks, we ensure your privacy while maintaining a clear
-                audit trail for the receiving NGO.
+                {nomenclature.CONTRIBUTE_PARA}
               </p>
             </div>
 
@@ -58,11 +56,10 @@ export default function Philanthropy() {
                 />
               </div>
               <h3 className="text-xl font-bold text-white mb-3 relative z-10">
-                Near-Zero Fees
+                {nomenclature.ZERO_FEES}
               </h3>
               <p className="text-sm text-gray-400 leading-relaxed mb-6 relative z-10">
-                Avoid the 5–10% overhead of traditional platforms.
-                PhilanthroChain leverages L2 tech to keep fees under 0.1%.
+                {nomenclature.ZERO_FEES_PARA}
               </p>
               <span className="relative z-10 block mt-4 pt-3 border-t border-gray-700 text-xs font-bold text-green-400 uppercase tracking-widest">
                 Save $950 on every $10k donated
@@ -107,17 +104,11 @@ export default function Philanthropy() {
               <div className="flex items-center justify-center gap-3">
                 {" "}
                 <Button
-                text="Connect Wallet"
-                variant={'blue'}
-                size={'default'}/>
-                  
-                
-                <Button
-                text="Learn More"
-                variant={'white'}
-                size={'default'}/>
-                  
-                
+                  text="Connect Wallet"
+                  variant={"blue"}
+                  size={"default"}
+                />
+                <Button text="Learn More" variant={"white"} size={"default"} />
               </div>
             </div>
           </div>
