@@ -47,6 +47,7 @@ export interface InputProps
   label?: string;
   error?: string;
   rightElement?: React.ReactNode;
+  leftElement?: React.ReactNode;
 }
 
 // -----------------------------------------------------------------------------
@@ -60,6 +61,7 @@ function Input({
   label,
   error,
   id,
+  leftElement,
   rightElement,
   ...props
 }: InputProps) {
@@ -73,6 +75,12 @@ function Input({
         </label>
       )}
       <div className="relative">
+        {leftElement && (
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            {leftElement}
+          </div>
+        )}
+
         <input
           id={inputId}
           type={type}
@@ -83,6 +91,7 @@ function Input({
               variant: error ? "error" : variant,
               size,
             }),
+            leftElement && "pl-10",
             rightElement && "pr-10",
             className,
           )}

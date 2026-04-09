@@ -1,25 +1,25 @@
 import { Campaign } from "../types";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
+import { ProgressWithLabel } from "@/src/components/ui/progress";
 
 const progressColor = "bg-primary";
 const categoryStyle = "bg-white text-secondary-dark font-bold";
 
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   return (
-    <Card
-      variant="campaign"
-      className="hover:shadow-md transition border "
-    >
+    <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
-      <div className="relative h-44 overflow-hidden">
+      <div className="relative  overflow-hidden">
         <img
           src={campaign.image}
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 
         {/* ✅ FIXED */}
-        <span className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${categoryStyle}`}>
+        <span
+          className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${categoryStyle}`}
+        >
           {campaign.category}
         </span>
       </div>
@@ -33,25 +33,24 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         </p>
 
         <div>
-          <div className="flex justify-between text-xs mb-1">
-            <span>Progress</span>
-            <span>{campaign.progress}%</span>
-          </div>
-
-          <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            {/* ✅ FIXED */}
-            <div
-              className={`${progressColor} h-full rounded-full`}
-              style={{ width: `${campaign.progress}%` }}
-            />
-          </div>
+          <ProgressWithLabel
+            className="w-full h-3"
+            value={campaign.progress}
+            label={
+              <span>
+                <span className="font-bold text-sm text-secondaryText">
+                  Progress
+                </span>{" "}
+              </span>
+            }
+          />
         </div>
 
         <div className="flex justify-between items-center">
           <p className="font-bold">
             {campaign.raised} {campaign.currency}
           </p>
-          <Button text="Donate"/>
+          <Button text="Donate" />
         </div>
       </div>
     </Card>

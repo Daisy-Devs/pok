@@ -8,8 +8,8 @@ import {
 
 export default function SortDropdown() {
   return (
-    <Select defaultValue="recent">
-      <SelectTrigger className="w-36 h-8">
+    <Select defaultValue="recent" >
+      <SelectTrigger className="w-36 h-8 bg-background-secondary text-extrabold">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

@@ -16,7 +16,7 @@ export default function CategoryFilter({
 ];
 
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar">
   {categories.map((cat) => {
     const isActive = active === cat;
 
@@ -26,7 +26,7 @@ export default function CategoryFilter({
         onClick={() => setActive(cat)}
         variant={isActive ? "blue" : "grey"}
         size="short"
-        className="rounded-full"
+        className="rounded-full whitespace-nowrap shrink-0"
       >
         {cat}
       </Button>
