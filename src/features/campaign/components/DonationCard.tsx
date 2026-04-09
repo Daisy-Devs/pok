@@ -81,7 +81,7 @@ export default function DonationCard() {
           </p>
         </div>
 
-        <Button text="Confirm Donation" size={"long"} className="h-15 w-full rounded-xl font-semibold text-lg"/>
+        <Button text="Confirm Donation" size={"lg"} className="h-15 w-full rounded-xl font-semibold text-lg"/>
 
         <p className="mt-6 text-center text-xs text-primaryText leading-tight">
           By clicking confirm, you agree to our Terms of Service. Your transaction will be permanently recorded on the Ethereum Blockchain.

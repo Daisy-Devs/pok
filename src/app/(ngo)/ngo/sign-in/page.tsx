@@ -20,7 +20,7 @@ const NGOSignIn = () => {
           {nomenclature.ORGANIZATION_LOGIN_DESCRIPTION}
         </p>
 
-       <Button text='Sign In with Metamask' size={'long'} leftIcon={<WalletIcon size={20} color='#FFFFFF' />} className="mt-6"/>
+       <Button text='Sign In with Metamask' size={'lg'} leftIcon={<WalletIcon size={20} color='#FFFFFF' />} className="mt-6"/>
 
         <div className="mt-6 bg-background-secondary w-xs rounded-lg p-4 text-sm text-foreground">
           {nomenclature.NEW_TO_POK+" "}<br/>

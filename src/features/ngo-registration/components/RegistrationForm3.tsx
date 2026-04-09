@@ -20,7 +20,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
         description={nomenclature.WALLET_SETUP_DESCRIPTION}
       />
 
-      <Button size={'normal'} className="p-6 text-base" variant="grey" text="Metamask" leftIcon={<Image src='/metamask.svg' width={25} height={25} alt='metamask' />} rightIcon={<ChevronRight size={16} color="#45464D" />}/>
+      <Button size={'default'} className="p-6 text-base" variant="grey" text="Metamask" leftIcon={<Image src='/metamask.svg' width={25} height={25} alt='metamask' />} rightIcon={<ChevronRight size={16} color="#45464D" />}/>
 
       <div className="flex justify-between items-center pt-4">
         <Button
