@@ -79,7 +79,7 @@ const NGOSignIn = () => {
           {nomenclature.NEW_TO_POK + " "}
           <br />
           <span className="text-primary cursor-pointer hover:underline">
-            {nomenclature.SIGN_IN}
+            {nomenclature.SIGN_UP}
           </span>
         </div>
       </div>
