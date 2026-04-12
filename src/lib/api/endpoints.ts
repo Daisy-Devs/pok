@@ -8,4 +8,11 @@ export const ENDPOINTS = {
     forgotPassword: "/user/forgotPassword",
     validateAuth: "/user/me",
   },
+  ngoAuth: {
+    registerNgo: "/campaign/orgAndCampaign",
+  },
+  wallet: {
+    walletLogout: "/user/wallet/logout",
+    connectWallet: "/wallet/connect",
+  },
 };

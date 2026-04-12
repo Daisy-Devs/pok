@@ -52,7 +52,20 @@ export const donorAuthApi= apiSlice.injectEndpoints({
                 body,
             })},
         }),
+        connectWallet:builder.mutation({
+            query: (body) => ({
+                url: ENDPOINTS.wallet.connectWallet,
+                method: "POST",
+                body,
+            }),
+        }),
+        walletLogout:builder.mutation({
+            query: () => ({
+                url: ENDPOINTS.wallet.walletLogout,
+                method: "POST",
+            }),
+        }),
     })
 })
 
-export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation,useDonorLogoutMutation,useValidateUserAuthQuery,useForgotPasswordMutation,useResetPasswordMutation} = donorAuthApi;
+export const {useDonorGoogleAuthMutation,useDonorSignInMutation,useDonorSignUpMutation,useDonorLogoutMutation,useValidateUserAuthQuery,useForgotPasswordMutation,useResetPasswordMutation,useConnectWalletMutation,useWalletLogoutMutation} = donorAuthApi;

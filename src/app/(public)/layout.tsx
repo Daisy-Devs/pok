@@ -14,14 +14,13 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
     // Only call API if persisted state says user is authenticated
-  const { isError } = useValidateUserAuthQuery({}, {
+  const {  isError } = useValidateUserAuthQuery({}, {
     skip: !isLoggedIn, // ← skips the call if not authenticated
   });
 
   useEffect(() => {
     if (isError) {
       console.log("Logging out!caught");
-      
       dispatch(loggedOut());
     }
   }, [isError, dispatch]);

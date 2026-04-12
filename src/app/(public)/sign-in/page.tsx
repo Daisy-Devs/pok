@@ -53,7 +53,6 @@ export default function SignIn() {
           loggedIn({
             name: res.name,
             email: res.email,
-            phone: res.phone,
             role: "Donor",
           }),
         );
