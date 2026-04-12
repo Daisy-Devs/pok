@@ -5,7 +5,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useRouter } from "next/navigation";
-import { useDonorSignUpMutation } from "@/src/store/services/donorAuthApi";
+import { useDonorSignUpMutation } from "@/src/store/services/api/donorAuthApi";
 import { toast } from "sonner";
 import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { GoogleLogin } from "@react-oauth/google";

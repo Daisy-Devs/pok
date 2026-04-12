@@ -3,6 +3,7 @@ import axios, { AxiosResponse } from "axios";
 const client= axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,       // sends httpOnly cookie automatically
+  adapter: 'fetch', 
   timeout: 10_000,
   headers: {
     "Content-Type": "application/json",

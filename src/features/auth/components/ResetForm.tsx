@@ -2,7 +2,7 @@
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { validators } from "@/src/constants/validation";
-import { useResetPasswordMutation } from "@/src/store/services/donorAuthApi";
+import { useResetPasswordMutation } from "@/src/store/services/api/donorAuthApi";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { toast } from "sonner";

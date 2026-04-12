@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { useConnectWalletMutation } from "@/src/store/services/donorAuthApi";
+import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { WalletIcon } from "lucide-react";
 import Image from "next/image";
@@ -17,9 +17,8 @@ const NGOSignIn = () => {
   const { mutate: disconnect } = useDisconnect();
   const dispatch = useDispatch();
   const router = useRouter();
-      
 
-  const handleWalletConnect = async() => {
+  const handleWalletConnect = async () => {
     if (isConnected) {
       disconnect();
       return;
@@ -33,13 +32,16 @@ const NGOSignIn = () => {
             walletAddress: data.accounts[0],
           }).then((res) => {
             console.log(res);
-            dispatch(loggedIn({
-              name:"NGO",
-              email:"",
-              role:"NGO"
-            }));
-           router.replace("/ngo");
-          })
+            dispatch(
+              loggedIn({
+                name: "NGO",
+                email: "",
+                role: "NGO",
+              }),
+            );
+            document.cookie = `role=NGO; path=/; max-age=${60 * 60 * 24}`;
+            router.replace("/ngo");
+          });
         },
         onError: (error) => {
           console.log(error);
@@ -67,7 +69,9 @@ const NGOSignIn = () => {
           text="Sign In with Metamask"
           size={"lg"}
           disabled={isLoading}
-          leftIcon={<Image src='/metamask.svg' width={25} height={25} alt='metamask' />}
+          leftIcon={
+            <Image src="/metamask.svg" width={25} height={25} alt="metamask" />
+          }
           className="mt-6"
         />
 

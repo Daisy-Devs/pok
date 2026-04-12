@@ -16,7 +16,7 @@ import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
 import { useDispatch } from "react-redux";
 import { loggedOut } from "../store/services/slice/authSlice";
-import { useDonorLogoutMutation } from "../store/services/donorAuthApi";
+import { useDonorLogoutMutation } from "../store/services/api/donorAuthApi";
 import { toast } from "sonner";
 
 const Navbar = () => {
@@ -34,6 +34,7 @@ const Navbar = () => {
     }
     console.log("logged out", res);
     dispatch(loggedOut());
+    document.cookie = `role=; path=/; max-age=0;`;
     router.push("/sign-in");
     toast.success("Logout successful");
   };
@@ -52,7 +53,8 @@ const Navbar = () => {
         <Link
           href="/"
           className={`font-semibold text-sm hover:underline underline-offset-8 ${
-            pathname === "/" && "text-primary underline decoration-primary decoration-3"
+            pathname === "/" &&
+            "text-primary underline decoration-primary decoration-3"
           }`}
         >
           {nomenclature.HOME}
@@ -109,7 +111,7 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link href="/">
+            <Link href="/ngo/sign-in">
               <Button variant={"outline"} text={nomenclature.NGO_PORTAL} />
             </Link>
             <Link href="/sign-in">

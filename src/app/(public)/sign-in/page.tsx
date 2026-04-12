@@ -5,7 +5,7 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useState } from "react";
-import { useDonorSignInMutation, useForgotPasswordMutation } from "@/src/store/services/donorAuthApi";
+import { useDonorSignInMutation, useForgotPasswordMutation } from "@/src/store/services/api/donorAuthApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
