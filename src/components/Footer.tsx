@@ -31,7 +31,7 @@ export default function Footer() {
             Help Center
           </Link>
           <div className="flex flex-wrap justify-center sm:justify-end gap-4 text-sm">
-            <Image width={'20'} height={'20'} alt="insta" src={'/Auth/instagram.svg'}/>
+            <Image width={'10'} height={'10'} alt="insta" src={'/Auth/instagram.svg'} className="h-5 w-5"/>
             <Share2 size={20} className="cursor-pointer" />
           </div>
         </div>
