@@ -5,6 +5,7 @@ import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { WalletIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
@@ -78,9 +79,11 @@ const NGOSignIn = () => {
         <div className="mt-6 bg-background-secondary w-xs rounded-lg p-4 text-sm text-foreground">
           {nomenclature.NEW_TO_POK + " "}
           <br />
+          <Link href="/ngo/register">
           <span className="text-primary cursor-pointer hover:underline">
             {nomenclature.SIGN_UP}
           </span>
+          </Link>
         </div>
       </div>
     </div>
