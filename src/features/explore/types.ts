@@ -1,10 +1,22 @@
+// Backend response type
+export interface CampaignApi {
+  id: string;
+  title: string;
+  missionStatement: string;
+  cause: string;
+  imageUrl: string;
+  goalAmount: number;
+  raisedAmount?: number;
+}
+
+// UI type (used by CampaignCard)
 export interface Campaign {
-  id: number;
-  category: "ENVIRONMENT" | "EDUCATION" | "HEALTH" | "DISASTER RELIEF";
+  id: string;
   title: string;
   description: string;
-  progress: number;
-  raised: string;
-  currency: string;
+  category: string;
   image: string;
+  progress: number;
+  raised: number;
+  currency: string;
 }

@@ -7,5 +7,8 @@ export const ENDPOINTS = {
     resetPassword: "/user/reset-password",
     forgotPassword: "/user/forgotPassword",
     validateAuth: "/user/me",
+    reconnectWallet: "/wallet/connect",
+    donors: "/user/",
+    allCampaigns: "/campaign/",
   },
 };

@@ -1,30 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import HeroSection from "@/src/features/explore/components/HeroSection";
 import CampaignGrid from "@/src/features/explore/components/CampaignGrid";
 import CategoryFilter from "@/src/features/explore/components/CategoryFilter";
 import SortDropdown from "@/src/features/explore/components/SortDropdown";
-import { campaigns } from "@/src/features/explore/components/data/campaigns";
 import NetworkBanner from "@/src/features/explore/components/NetworkBanner";
 import SearchBar from "@/src/features/explore/components/SearchProp";
+import { useGetAllCampaignsQuery } from "@/src/store/services/donorAuthApi";
+import { Campaign, CampaignApi } from "@/src/features/explore/types";
 
 export default function ExplorePage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  const filtered = campaigns.filter((c) => {
-    const matchesCategory =
-      activeCategory === "All" || c.category === activeCategory;
+  const { data, isLoading, error } = useGetAllCampaignsQuery({});
 
-    const matchesSearch =
-      c.title.toLowerCase().includes(search.toLowerCase()) ||
-      c.description.toLowerCase().includes(search.toLowerCase()) ||
-      c.category.toLowerCase().includes(search.toLowerCase());
+  useEffect(() => {
+    if (data) {
+      console.log("Campaigns Loading", data);
+    }
+  }, [data]);
 
-    return matchesCategory && matchesSearch;
-  });
+  const campaigns: Campaign[] = useMemo(() => {
+    return (
+      data?.data?.campaigns?.map((c: CampaignApi) => ({
+        id: c.id,
+        title: c.title,
+        description: c.missionStatement,
+        category: c.cause,
+        image: c.imageUrl,
+        progress: c.goalAmount
+          ? ((c.raisedAmount || 0) / c.goalAmount) * 100
+          : 0,
+        raised: c.raisedAmount || 0,
+        currency: "ETH",
+      })) || []
+    );
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    return campaigns.filter((c) => {
+      const matchesCategory =
+        activeCategory === "All" || c.category === activeCategory;
+
+      const matchesSearch =
+        c.title.toLowerCase().includes(search.toLowerCase()) ||
+        c.description.toLowerCase().includes(search.toLowerCase()) ||
+        c.category.toLowerCase().includes(search.toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [campaigns, activeCategory, search]);
+
+  if (isLoading) return <p>Loading campaigns...</p>;
+  if (error) return <p>Failed to load campaigns</p>;
 
   return (
     <div className="bg-white min-h-screen  ">

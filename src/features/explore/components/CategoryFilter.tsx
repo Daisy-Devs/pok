@@ -7,31 +7,25 @@ export default function CategoryFilter({
   active: string;
   setActive: (val: string) => void;
 }) {
-  const categories = [
-  "All",
-  "ENVIRONMENT",
-  "EDUCATION",
-  "DISASTER RELIEF",
-  "HEALTH",
-];
+  const cause = ["All", "Education", "Hunger Relief"];
 
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar">
-  {categories.map((cat) => {
-    const isActive = active === cat;
+      {cause.map((cat) => {
+        const isActive = active === cat;
 
-    return (
-      <Button
-        key={cat}
-        onClick={() => setActive(cat)}
-        variant={isActive ? "blue" : "grey"}
-        size="short"
-        className="rounded-full whitespace-nowrap shrink-0"
-      >
-        {cat}
-      </Button>
-    );
-  })}
-</div>
+        return (
+          <Button
+            key={cat}
+            onClick={() => setActive(cat)}
+            variant={isActive ? "blue" : "grey"}
+            size="short"
+            className="rounded-full whitespace-nowrap shrink-0"
+          >
+            {cat}
+          </Button>
+        );
+      })}
+    </div>
   );
 }
