@@ -174,7 +174,7 @@ export const googleAuthV1 = async (req, res) => {
     const { name, email, email_verified } = payload;
 
     if (!email_verified) {
-      return res.status(400).json({ message: 'Google email not verified' });
+      return sendResponse(res, 400, "Google email not verified");
     }
 
     let user = await User.findOne({ email });
@@ -203,11 +203,14 @@ export const googleAuthV1 = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    res.status(200).json({ token: jwtToken, user: userObj });
+    sendResponse(res, 200, "Login successful", {
+      token: jwtToken,
+      user: userObj
+    });
 
   } catch (error) {
     console.log(error); // 👈 VERY IMPORTANT
-    res.status(401).json({ message: 'Invalid Google token' });
+    return sendResponse(res, 401, "Invalid Google token");
   }
 };
 

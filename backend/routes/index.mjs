@@ -1,20 +1,21 @@
 import express from 'express';
 import campaignRoute from './campaign.mjs';
 import userRoute from './user.mjs';
-import donationRecordRoute from './donationRecord.mjs';
+import donationRoute from './donation.mjs';
 import walletRoute from './wallet.mjs';
+import { sendResponse } from '../utils/response.mjs';
 
 const router = express.Router();
 
 // Home route
 router.get('/', (req, res) => {
-  res.status(200).json('Welcome to the Backend Server');
+  return sendResponse(res, 200, 'Welcome to the Backend Server');
 });
 
 // Routes
 router.use('/campaign', campaignRoute);
 router.use('/user', userRoute);
-router.use('/donationRecord', donationRecordRoute);
+router.use('/donation', donationRoute);
 router.use('/wallet', walletRoute)
 
 export default router;
