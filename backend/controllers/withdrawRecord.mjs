@@ -1,4 +1,5 @@
 import { WithdrawRecord } from "../models/withdrawRecord.mjs";
+import { sendResponse } from "../utils/response.mjs";
 
 export const getAllWithdrawals = async (req, res) => {
   try {
