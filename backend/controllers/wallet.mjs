@@ -95,7 +95,8 @@ export const loginWithWallet = async (req, res) => {
     const token = jwt.sign(
       {
         ngoId: ngo._id,
-        wallet: walletAddress
+        wallet: walletAddress,
+        role: "ngo"
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
