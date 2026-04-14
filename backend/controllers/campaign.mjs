@@ -1,16 +1,19 @@
 import { Campaign, Organization } from '../models/index.mjs';
 import { v4 as uuidv4 } from 'uuid';
 import { sendResponse } from '../utils/response.mjs';
+import { campaignQueue } from "../queues/campaignQueue.mjs";
+import { ethers } from "ethers";
 
 export const createOrgAndCampaign = async (req, res) => {
   try {
+    const walletAddress = req.ngo.walletAddress;
+
     const {
       organizationName,
       email,
       country,
       website,
       profileImageUrl,
-      walletAddress,
       documents,
       title,
       missionStatement,
@@ -20,48 +23,48 @@ export const createOrgAndCampaign = async (req, res) => {
       status
     } = req.body;
 
+    // 1️⃣ FIND OR CREATE ORGANIZATION
     let organization = await Organization.findOne({ email });
 
     if (!organization) {
-      organization = new Organization({
+      organization = await Organization.create({
         name: organizationName,
         email,
         country,
         website,
         profileImageUrl,
-        walletAddress,
+        walletAddress, // trusted from SIWE
         documents
       });
-
-      await organization.save();
+    } else {
+      // enforce 1 wallet per NGO
+      if (organization.walletAddress !== walletAddress) {
+        return sendResponse(res, 404, "Wallet does not match registered NGO account");
+      }
     }
 
-    const campaign = new Campaign({
-      id: `campaign-${uuidv4()}`,
+    // 2️⃣ CREATE CAMPAIGN ID (UUID)
+    const campaignId = `campaign-${uuidv4()}`; // ✅ FIXED
+    const campaignIdBytes32 = ethers.id(campaignId);
+
+    // 3️⃣ SAVE CAMPAIGN
+    const campaign = await Campaign.create({
+      id: campaignId,
+      campaignIdBytes32,
       organization: organization._id,
       title,
       missionStatement,
       cause,
       imageUrl,
       goalAmount,
-      status: status || 'draft'
+      status: status || "draft"
     });
 
-    await campaign.save();
-
-    // 🔐 Create wallet token
-    const walletToken = jwt.sign(
-      { walletAddress, organizationId: organization._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1d' }
-    );
-
-    // 🍪 Set cookie instead of sending token
-    res.cookie('walletToken', walletToken, {
-      httpOnly: true,
-      secure: false, // true in production
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000
+    // 4️⃣ QUEUE BLOCKCHAIN TASK
+    await campaignQueue.addJob({
+      campaignId,
+      campaignIdBytes32,
+      ngoWallet: walletAddress
     });
 
     return sendResponse(res, 201, 'Campaign created successfully', {

@@ -1,17 +1,17 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import routes from './routes/index.mjs';
 
-dotenv.config();
+import { startAllListeners } from "./services/index.mjs";
+import { startWorker } from "./queueConsume/campaignQueueConsume.mjs";
 
 const app = express();
 
-// ✅ CORS (IMPORTANT for cookies)
+// ✅ CORS
 app.use(cors({
-  origin: "http://localhost:3000", // your frontend URL
+  origin: "http://localhost:3000",
   credentials: true
 }));
 
@@ -22,9 +22,17 @@ app.use(cookieParser());
 // ✅ Routes
 app.use('/', routes);
 
-// MongoDB connection
+// ✅ MongoDB connection + start listeners
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
+  .then(() => {
+    console.log('MongoDB connected');
+
+    // 🔥 START LISTENERS HERE
+    startAllListeners();
+
+    startWorker();
+
+  })
   .catch(err => console.log(err));
 
 // Basic route

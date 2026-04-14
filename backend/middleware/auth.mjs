@@ -16,7 +16,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+      return sendResponse(res, 401, "No token provided");
     }
 
     // ✅ Verify token
@@ -26,7 +26,7 @@ export const authMiddleware = async (req, res, next) => {
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {
-      return res.status(401).json({ message: 'User no longer exists' });
+      return sendResponse(res, 401, "User no longer exists");
     }
 
     // ✅ Attach user
@@ -37,9 +37,9 @@ export const authMiddleware = async (req, res, next) => {
 
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
+      return sendResponse(res, 401, "Token expired");
     }
 
-    res.status(401).json({ message: 'Invalid token' });
+    return sendResponse(res, 401, "Invalid token");
   }
 };

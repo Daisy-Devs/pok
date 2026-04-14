@@ -15,7 +15,7 @@ export const walletAuthMiddleware = (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ message: 'No wallet token provided' });
+      return sendResponse(res, 401, 'No wallet token providedn');
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -24,6 +24,6 @@ export const walletAuthMiddleware = (req, res, next) => {
     next();
 
   } catch (error) {
-    return res.status(401).json({ message: 'Wallet session expired or invalid' });
+    return sendResponse(res, 401, 'Wallet session expired or invalid');
   }
 };

@@ -1,12 +1,17 @@
-import { ethers } from 'ethers';
-import provider from '../utils/blockchain.js';
-import contractABI from '../abi/contract.json' assert { type: 'json' };
+import { ethers } from "ethers";
+import provider from "../utils/blockchain.mjs";
+import contractJson from "../abi/contract.json" with { type: "json" };
 
 const contractAddress = process.env.CONTRACT_ADDRESS;
 
+if (!contractAddress) {
+  throw new Error("❌ CONTRACT_ADDRESS missing in .env");
+}
+
+// ✅ FIX HERE
 const contract = new ethers.Contract(
   contractAddress,
-  contractABI,
+  contractJson, // 👈 DIRECT ABI ARRAY
   provider
 );
 
