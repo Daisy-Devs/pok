@@ -162,108 +162,6 @@ export const googleAuth = async (req, res) => {
   }
 };
 
-export const googleAuthV1 = async (req, res) => {
-  try {
-    const { token } = req.body;
-
-    const ticket = await client.verifyIdToken({
-      idToken: token
-      // ❌ removed audience check
-    });
-
-    const payload = ticket.getPayload();
-
-    console.log("Google Payload:", payload); // debug
-
-    const { name, email, email_verified } = payload;
-
-    if (!email_verified) {
-      return sendResponse(res, 400, "Google email not verified");
-    }
-
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      user = new User({
-        name,
-        email,
-        providers: ['google']
-      });
-
-      await user.save();
-    } else {
-      if (!user.providers.includes('google')) {
-        user.providers.push('google');
-        await user.save();
-      }
-    }
-
-    const jwtToken = jwt.sign(
-      { userId: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    sendResponse(res, 200, "Login successful", {
-      token: jwtToken,
-      user: userObj
-    });
-
-  } catch (error) {
-    console.log(error); // 👈 VERY IMPORTANT
-    return sendResponse(res, 401, "Invalid Google token");
-  }
-};
-
-export const loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return sendResponse(res, 400, 'Email and password are required');
-    }
-
-    const user = await User.findOne({ email });
-
-    if (!user || !user.password) {
-      return sendResponse(res, 400, 'Invalid credentials or use social login');
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return sendResponse(res, 400, 'Invalid credentials');
-    }
-
-    const token = jwt.sign(
-      { userId: user._id,
-        role: "donor"
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    // ✅ Set cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,        // true in production (HTTPS)
-      sameSite: 'none',    // needed for frontend (especially Google login)
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    const userObj = user.toObject();
-    delete userObj.password;
-
-    return sendResponse(res, 200, 'Login successful', userObj);
-
-  } catch (error) {
-    return sendResponse(res, 500, error.message);
-  }
-};
-
 export const appleAuth = async (req, res) => {
   try {
     const { identityToken } = req.body;
@@ -338,6 +236,52 @@ export const appleAuth = async (req, res) => {
   } catch (error) {
     console.error(error);
     return sendResponse(res, 401, 'Invalid Apple token');
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return sendResponse(res, 400, 'Email and password are required');
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user || !user.password) {
+      return sendResponse(res, 400, 'Invalid credentials or use social login');
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return sendResponse(res, 400, 'Invalid credentials');
+    }
+
+    const token = jwt.sign(
+      { userId: user._id,
+        role: "donor"
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // ✅ Set cookie
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: true,        // true in production (HTTPS)
+      sameSite: 'none',    // needed for frontend (especially Google login)
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    return sendResponse(res, 200, 'Login successful', userObj);
+
+  } catch (error) {
+    return sendResponse(res, 500, error.message);
   }
 };
 
@@ -463,16 +407,6 @@ export const logoutUser = (req, res) => {
   });
 
   return sendResponse(res, 200, 'User logged out successfully');
-};
-
-export const logoutWallet = (req, res) => {
-  res.clearCookie('walletToken', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: false // 👉 true in production
-  });
-
-  return sendResponse(res, 200, 'Wallet disconnected successfully');
 };
 
 export const getCurrentUser = async (req, res) => {
