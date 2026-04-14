@@ -35,11 +35,9 @@ export const getDonationsByCampaign = async (req, res) => {
 
 export const getDonationsByDonor = async (req, res) => {
   try {
-    const { wallet } = req.params;
+    const userId = req.userId;
 
-    const donations = await DonationRecord.find({
-      donor: wallet.toLowerCase()
-    }).sort({ createdAt: -1 });
+    const donations = await DonationRecord.find({ userId }).sort({ createdAt: -1 });
 
     return sendResponse(res, 200, 'Donor Donations fetched successfully', {
       count: donations.length,

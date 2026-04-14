@@ -6,7 +6,7 @@ import { Organization } from "../models/organization.mjs";
 
 export const connectWallet = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
     let { walletAddress } = req.body;
 
     if (!walletAddress) {
@@ -53,7 +53,7 @@ export const connectWallet = async (req, res) => {
 
 export const disconnectWallet = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.userId;
 
     const user = await User.findById(userId);
 
@@ -70,6 +70,62 @@ export const disconnectWallet = async (req, res) => {
   } catch (error) {
     console.error("Disconnect Wallet Error:", error);
     return sendResponse(res, 500, error.message);
+  }
+};
+
+export const loginWithWalletV1 = async (req, res) => {
+  try {
+    const { walletAddress } = req.body;
+
+    if (!walletAddress) {
+      return sendResponse(res, 400, "Wallet address required");
+    }
+
+    // 🔥 DEV MODE: skip signature check
+    if (process.env.NODE_ENV !== "production") {
+      console.log("⚠️ DEV MODE: Skipping signature verification");
+    } else {
+      // ✅ PRODUCTION (keep your original logic)
+      const { signature, message } = req.body;
+
+      const recovered = ethers.verifyMessage(message, signature);
+
+      if (recovered.toLowerCase() !== walletAddress.toLowerCase()) {
+        return sendResponse(res, 401, "Invalid signature");
+      }
+    }
+
+    // 2️⃣ Find or create NGO
+    let ngo = await Organization.findOne({ walletAddress });
+
+    if (!ngo) {
+      ngo = await Organization.create({ walletAddress });
+    }
+
+    // 3️⃣ Create JWT
+    const token = jwt.sign(
+      {
+        ngoId: ngo._id,
+        wallet: walletAddress,
+        role: "ngo"
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    // 4️⃣ Cookie
+    const isProd = process.env.NODE_ENV === "production";
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: "strict",
+      maxAge: 24 * 60 * 60 * 1000
+    });
+
+    return sendResponse(res, 200, "Login successful", ngo);
+
+  } catch (err) {
+    return sendResponse(res, 500, err.message);
   }
 };
 
