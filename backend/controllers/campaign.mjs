@@ -77,19 +77,23 @@ export const createOrgAndCampaign = async (req, res) => {
 
 export const createCampaign = async (req, res) => {
   try {
-    const {
-      organizationId,
-      title,
-      missionStatement,
-      cause,
-      imageUrl,
-      goalAmount,
-      status
-    } = req.body;
+    const ngoId = req.ngoId;
+    const walletAddress = req.walletAddress;
+    const { title, missionStatement, cause, imageUrl, goalAmount, status } = req.body;
+
+    const organization = await Organization.findById(ngoId);
+
+    if (!organization) {
+      return sendResponse(res, 404, "Organization not found");
+    }
+
+    if ( organization.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+      return sendResponse(res, 403, "Unauthorized NGO");
+    }
 
     const campaign = new Campaign({
       id: `campaign-${uuidv4()}`,
-      organization: organizationId,
+      organization: organization._id,
       title,
       missionStatement,
       cause,
@@ -109,6 +113,7 @@ export const createCampaign = async (req, res) => {
 
 export const updateCampaign = async (req, res) => {
   try {
+    const ngoId = req.ngoId;
     const { id } = req.params;
     const {
       title,
@@ -119,7 +124,10 @@ export const updateCampaign = async (req, res) => {
       status
     } = req.body;
 
-    const campaign = await Campaign.findOne({ id });
+    const campaign = await Campaign.findOne({
+      id,
+      organization: ngoId
+    });
 
     if (!campaign) {
       return sendResponse(res, 404, 'Campaign not found');

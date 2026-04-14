@@ -411,24 +411,9 @@ export const logoutUser = (req, res) => {
 
 export const getCurrentUser = async (req, res) => {
   try {
-    const token = req.cookies.token;
-
-    if (!token) {
-      return sendResponse(res, 401, 'Not logged in');
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.userId).select('-password');
-
-    if (!user) {
-      return sendResponse(res, 401, 'User not found');
-    }
-
-    return sendResponse(res, 200, 'User fetched', user);
-
+    return sendResponse(res, 200, 'User fetched', req.user);
   } catch (error) {
-    return sendResponse(res, 401, 'Invalid or expired token');
+    return sendResponse(res, 500, error.message);
   }
 };
 
