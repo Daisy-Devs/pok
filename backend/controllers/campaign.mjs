@@ -6,7 +6,7 @@ import { ethers } from "ethers";
 
 export const createOrgAndCampaign = async (req, res) => {
   try {
-    const walletAddress = req.ngo.walletAddress;
+    const walletAddress = req.walletAddress;
 
     const {
       organizationName,
@@ -37,12 +37,10 @@ export const createOrgAndCampaign = async (req, res) => {
         documents
       });
     } else {
-      // enforce 1 wallet per NGO
-      if (organization.walletAddress !== walletAddress) {
-        return sendResponse(res, 404, "Wallet does not match registered NGO account");
+      if (organization.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+        return sendResponse(res, 403, "Wallet does not match registered NGO account");
       }
     }
-
     // 2️⃣ CREATE CAMPAIGN ID (UUID)
     const campaignId = `campaign-${uuidv4()}`; // ✅ FIXED
     const campaignIdBytes32 = ethers.id(campaignId);
