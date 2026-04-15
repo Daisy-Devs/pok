@@ -4,7 +4,7 @@ import { apiSlice } from "../slice/apiSlice";
 export const campaignApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllCampaigns: builder.query({
-      query: () => ({ url: ENDPOINTS.donorAuth.allCampaigns, method: "GET" }),
+      query: () => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET" }),
     }),
   }),
 });

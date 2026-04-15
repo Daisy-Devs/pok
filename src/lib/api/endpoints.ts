@@ -9,7 +9,6 @@ export const ENDPOINTS = {
     validateAuth: "/user/me",
     reconnectWallet: "/wallet/connect",
     donors: "/user/",
-    allCampaigns: "/campaign/",
   },
   ngoAuth: {
     registerNgo: "/campaign/orgAndCampaign",
@@ -18,4 +17,8 @@ export const ENDPOINTS = {
     walletLogout: "/user/wallet/logout",
     connectWallet: "/wallet/connect",
   },
+  campaign:{
+    getAllCampaigns: "/campaign/",
+
+  }
 };
