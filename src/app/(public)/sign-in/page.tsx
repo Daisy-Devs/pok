@@ -5,7 +5,7 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useState } from "react";
-import { useDonorSignInMutation } from "@/src/store/services/donorAuthApi";
+import { useDonorSignInMutation, useForgotPasswordMutation } from "@/src/store/services/api/donorAuthApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
@@ -13,23 +13,7 @@ import { useRouter } from "next/navigation";
 import { GoogleLogin } from "@react-oauth/google";
 import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { Eye, EyeOff } from "lucide-react";
-
-const validators = {
-  email: (value: string) => {
-    if (!value) return "Email is required";
-    if (!/^\S+@\S+\.\S+$/.test(value)) return "Invalid email format";
-    return "";
-  },
-  password: (value: string) => {
-    if (!value) return "Password is required";
-    if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,15}$/.test(value)
-    ) {
-      return "8–15 chars, include upper, lower, number & special character";
-    }
-    return "";
-  },
-};
+import { validators } from "@/src/constants/validation";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -40,8 +24,9 @@ export default function SignIn() {
     email?: string;
     password?: string;
   }>({});
-  const [donorSignIn, { isLoading, error: erora }] = useDonorSignInMutation();
+  const [donorSignIn, { isLoading }] = useDonorSignInMutation();
   const { googleAuthSuccessful, isGoogleLoading } = useGoogleAuth();
+  const [forgotPassword,{isLoading:forgotPasswordLoading}]=useForgotPasswordMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -68,7 +53,6 @@ export default function SignIn() {
           loggedIn({
             name: res.name,
             email: res.email,
-            phone: res.phone,
             role: "Donor",
           }),
         );
@@ -133,6 +117,26 @@ export default function SignIn() {
             />
 
             <Input
+              oppositeLabel={
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log("forgot");
+                    try {
+                      forgotPassword({email:formData.email}).unwrap()
+                      toast.success("Reset link has been sent to your email.");
+                    } catch (error) {
+                      console.log(error);
+                      
+                      toast.error(error.data.message);
+                    }
+                  }}
+                  disabled={formData.email === ""||!!validators.email(formData.email)}
+                  className="bg-transparent text-primary text-xs font-bold click:bg-transparent hover:bg-transparent hover:cursor-pointer disabled:text-muted disabled:cursor-not-allowed" 
+                >
+                  <span>{nomenclature.FORGOT}</span>
+                </button>
+              }
               value={formData.password}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, password: e.target.value }))

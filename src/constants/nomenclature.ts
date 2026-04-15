@@ -34,6 +34,7 @@ export const nomenclature={
  ENTER_EMAIL:"Enter your email address",
  ENTER_PASSWORD:"Enter your password",
  ENTER_PHONE:"Enter your phone number",
+ FORGOT:"Forgot? ",
  JOIN_THE_MOVEMENT:"Join 4,000+ donors who have abandoned traditional charity for high-frequency on-chain philanthropy.",
  ABOUT_DESCRIPTION:"Empowering digital authenticity through secure blockchain technology. We are building the infrastructure for a world where every contribution is verifiable and every impact is measurable.",
  HOME_BADGE:"SOC2 Type II Certified Security",

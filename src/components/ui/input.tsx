@@ -45,6 +45,7 @@ export interface InputProps
     Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
     VariantProps<typeof inputVariants> {
   label?: string;
+  oppositeLabel?: React.ReactNode;
   error?: string;
   rightElement?: React.ReactNode;
   leftElement?: React.ReactNode;
@@ -59,6 +60,7 @@ function Input({
   variant,
   size,
   label,
+  oppositeLabel,
   error,
   id,
   leftElement,
@@ -69,12 +71,15 @@ function Input({
 
   return (
     <div className="space-y-1 w-full">
+      <div className="flex items-center justify-between">
       {label && (
         <label htmlFor={inputId} className="text-xs font-semibold uppercase">
           {label}
         </label>
       )}
-      <div className="relative">
+      {oppositeLabel && oppositeLabel}
+      </div>
+      <div className="relative"> 
         {leftElement && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
             {leftElement}

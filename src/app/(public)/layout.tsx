@@ -3,7 +3,7 @@ import AppSidebar from "@/src/components/AppSidebar";
 import Footer from "@/src/components/Footer";
 import Navbar from "@/src/components/Navbar";
 import { SidebarProvider } from "@/src/components/ui/sidebar";
-import { useValidateUserAuthQuery } from "@/src/store/services/donorAuthApi";
+import { useValidateUserAuthQuery } from "@/src/store/services/api/donorAuthApi";
 import { selectIsAuthenticated } from "@/src/store/services/selectors/authSelectors";
 import { loggedOut } from "@/src/store/services/slice/authSlice";
 import { useAppSelector } from "@/src/store/store";
@@ -14,14 +14,13 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const dispatch = useDispatch();
     // Only call API if persisted state says user is authenticated
-  const { isError } = useValidateUserAuthQuery({}, {
+  const {  isError } = useValidateUserAuthQuery({}, {
     skip: !isLoggedIn, // ← skips the call if not authenticated
   });
 
   useEffect(() => {
     if (isError) {
       console.log("Logging out!caught");
-      
       dispatch(loggedOut());
     }
   }, [isError, dispatch]);

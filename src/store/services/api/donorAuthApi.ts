@@ -1,5 +1,5 @@
 import { ENDPOINTS } from "@/src/lib/api/endpoints";
-import { apiSlice } from "./apiSlice";
+import { apiSlice } from "../slice/apiSlice";
 
 export const donorAuthApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -9,6 +9,12 @@ export const donorAuthApi = apiSlice.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          document.cookie = `role=Donor; path=/; max-age=${60 * 60 * 24}`;
+        } catch {}
+      },
     }),
     donorSignUp: builder.mutation({
       query: (details) => ({
@@ -36,11 +42,21 @@ export const donorAuthApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-    getAllCampaigns: builder.query({
-      query: () => ({
-        url: ENDPOINTS.donorAuth.allCampaigns,
-        method: "GET",
+    forgotPassword: builder.mutation({
+      query: (body) => ({
+        url: ENDPOINTS.donorAuth.forgotPassword,
+        method: "POST",
+        body,
       }),
+    }),
+    resetPassword: builder.mutation({
+      query: ({ token, body }) => {
+        return {
+          url: `${ENDPOINTS.donorAuth.resetPassword}/${token}`,
+          method: "POST",
+          body,
+        };
+      },
     }),
   }),
 });
@@ -51,5 +67,6 @@ export const {
   useDonorSignUpMutation,
   useDonorLogoutMutation,
   useValidateUserAuthQuery,
-  useGetAllCampaignsQuery,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
 } = donorAuthApi;

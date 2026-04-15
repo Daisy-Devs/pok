@@ -1,4 +1,4 @@
-import { useDonorGoogleAuthMutation } from "@/src/store/services/donorAuthApi";
+import { useDonorGoogleAuthMutation } from "@/src/store/services/api/donorAuthApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
