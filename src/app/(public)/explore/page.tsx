@@ -8,7 +8,7 @@ import CategoryFilter from "@/src/features/explore/components/CategoryFilter";
 import SortDropdown from "@/src/features/explore/components/SortDropdown";
 import NetworkBanner from "@/src/features/explore/components/NetworkBanner";
 import SearchBar from "@/src/features/explore/components/SearchProp";
-import { useGetAllCampaignsQuery } from "@/src/store/services/donorAuthApi";
+import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "@/src/features/explore/types";
 
 export default function ExplorePage() {
@@ -16,12 +16,6 @@ export default function ExplorePage() {
   const [search, setSearch] = useState("");
 
   const { data, isLoading, error } = useGetAllCampaignsQuery({});
-
-  useEffect(() => {
-    if (data) {
-      console.log("Campaigns Loading", data);
-    }
-  }, [data]);
 
   const campaigns: Campaign[] = useMemo(() => {
     return (

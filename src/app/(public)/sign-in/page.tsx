@@ -128,7 +128,7 @@ export default function SignIn() {
                     } catch (error) {
                       console.log(error);
                       
-                      toast.error(error.data.message);
+                      toast.error("something went wrong");
                     }
                   }}
                   disabled={formData.email === ""||!!validators.email(formData.email)}
