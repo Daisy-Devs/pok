@@ -1,31 +1,65 @@
-"use client"
-import { nomenclature } from '@/src/constants/nomenclature'
-import { Bell, WalletIcon } from 'lucide-react'
-import Link from 'next/link'
-import React from 'react'
+"use client";
+import { nomenclature } from "@/src/constants/nomenclature";
+import { Bell, WalletIcon } from "lucide-react";
+import React from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { useWalletLogoutMutation } from "../store/services/api/walletApi";
+import { toast } from "sonner";
+import { loggedOut } from "../store/services/slice/authSlice";
 
 interface NGOHeaderProps {
-    isLoggedIn: boolean,
-    pageTitle: string,
-    walletAddress: string
+  pageTitle: string;
+  walletAddress: string;
 }
-const NGOHeader:React.FC<NGOHeaderProps> = ({isLoggedIn,pageTitle,walletAddress}) => {
+const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const [walletLogout] = useWalletLogoutMutation();
+  const handleLogout = async () => {
+    try{
+    const res = await walletLogout({}).unwrap();
+    console.log("logged out", res);
+    dispatch(loggedOut());
+    router.replace("/ngo/sign-in");
+    toast.success("Logout successful");
+    
+    }catch(err){
+      console.log("logout error", err);
+      toast.error("Logout failed");
+    }
+  };
   return (
-    isLoggedIn ? <div className='flex justify-between p-5'>
-        <h3 className='text-2xl font-extrabold'>{pageTitle}</h3>
-        <div className='flex justify-center items-center'>
-            <Bell size={20} color='#45464D' />
-            <div className='flex gap-1.5 mx-2 p-2.5 bg-background-secondary rounded-full justify-center items-center'>
-                <WalletIcon size={20} color='#4648D4' />
-                <p className='font-semibold text-sm'>{walletAddress}</p>
+    <div className="flex justify-between p-5">
+      <h3 className="text-2xl font-extrabold">{pageTitle}</h3>
+      <div className="flex justify-center items-center">
+        <Bell size={20} color="#45464D" />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="flex gap-1.5 mx-2 p-2.5 bg-background-secondary rounded-full justify-center items-center">
+              <WalletIcon size={20} color="#4648D4" />
+              <p className="font-semibold text-sm">{walletAddress}</p>
             </div>
-        </div>
-    </div> : <div className='flex p-5'>        <Link href="/">
-          <p className="text-xl font-extrabold text-tertiary">
-            {nomenclature.PRODUCT_NAME.replaceAll(" ", "")}
-          </p>
-        </Link></div>
-  )
-}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem
+              onClick={() => {
+                handleLogout();
+              }}
+            >
+              {nomenclature.SIGN_OUT}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+};
 
-export default NGOHeader
+export default NGOHeader;

@@ -60,7 +60,7 @@ export default function SignIn() {
       })
       .catch((error) => {
         console.log("Sign-in failed:", error);
-        toast.error("Sign-in failed. ", error);
+        toast.error(`Sign-in failed. Reason: ${error?.data}`);
       });
   };
 
