@@ -10,6 +10,19 @@ export const walletApi= apiSlice.injectEndpoints({
                 body,
             }),
         }),
+        disconnectWallet:builder.mutation({
+            query: () => ({
+                url: ENDPOINTS.wallet.disconnectWallet,
+                method: "POST",
+            }),
+        }),
+        walletLogin:builder.mutation({
+            query: (body) => ({
+                url: ENDPOINTS.wallet.walletLogin,                
+                method: "POST",
+                body,
+            }),
+        }),
         walletLogout:builder.mutation({
             query: () => ({
                 url: ENDPOINTS.wallet.walletLogout,
@@ -19,4 +32,4 @@ export const walletApi= apiSlice.injectEndpoints({
     })
 })
 
-export const {useConnectWalletMutation,useWalletLogoutMutation} = walletApi;
+export const {useConnectWalletMutation,useDisconnectWalletMutation,useWalletLoginMutation,useWalletLogoutMutation} = walletApi;

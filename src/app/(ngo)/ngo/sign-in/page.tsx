@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
+import { useConnectWalletMutation, useWalletLoginMutation } from "@/src/store/services/api/walletApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { WalletIcon } from "lucide-react";
 import Image from "next/image";
@@ -14,7 +14,7 @@ const NGOSignIn = () => {
   const { isConnected } = useConnection();
   const { mutate } = useConnect();
   const connectors = useConnectors();
-  const [connectWallet, { isLoading }] = useConnectWalletMutation();
+  const [walletLogin, { isLoading }] = useWalletLoginMutation();
   const { mutate: disconnect } = useDisconnect();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -29,10 +29,10 @@ const NGOSignIn = () => {
       {
         onSuccess: (data) => {
           console.log(data);
-          connectWallet({
+          walletLogin({
             walletAddress: data.accounts[0],
           }).then((res) => {
-            console.log(res);
+            console.log("wallet login response:", res);
             dispatch(
               loggedIn({
                 name: "NGO",
@@ -40,7 +40,6 @@ const NGOSignIn = () => {
                 role: "NGO",
               }),
             );
-            document.cookie = `role=NGO; path=/; max-age=${60 * 60 * 24}`;
             router.replace("/ngo");
           });
         },

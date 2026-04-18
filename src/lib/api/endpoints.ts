@@ -14,8 +14,11 @@ export const ENDPOINTS = {
     registerNgo: "/campaign/orgAndCampaign",
   },
   wallet: {
-    walletLogout: "/user/wallet/logout",
+    walletLogout: "/wallet/logout",
+    walletLogin: "/wallet/login",
     connectWallet: "/wallet/connect",
+    disconnectWallet: "/wallet/disconnect",
+
   },
   campaign:{
     getAllCampaigns: "/campaign/",
