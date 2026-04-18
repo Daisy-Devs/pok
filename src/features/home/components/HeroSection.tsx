@@ -4,8 +4,12 @@ import ImpactWidget from "./ImpactWidget";
 import { Button } from "@/src/components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import { nomenclature } from "@/src/constants/nomenclature";
+import { useRouter } from "next/dist/client/components/navigation";
+
 
 export default function HeroSection() {
+  const router = useRouter();
+
   return (
     <div>
       <section
@@ -31,12 +35,11 @@ export default function HeroSection() {
             <div className="flex-1 max-w-xl">
               {/* SOC2 badge */}
               <div className="fade-in-1  mb-8 ">
-                
                 <Button
                   className="font-bold"
                   text={nomenclature.HOME_BADGE}
                   variant={"purple"}
-                  size={'default'}
+                  size={"default"}
                   leftIcon={<ShieldCheck size={18} />}
                 />
               </div>
@@ -55,9 +58,13 @@ export default function HeroSection() {
               </p>
 
               <div className="fade-in-4 flex items-center gap-3">
-                <Button text={nomenclature.DONATE} variant={"blue"} />
+                <Button
+                  text={nomenclature.DONATE}
+                  variant={"blue"}
+                  onClick={() => router.push("/explore")}
+                />
 
-                <Button text={nomenclature.REGISTER} variant={'white'} />
+                <Button text={nomenclature.REGISTER} variant={"white"} />
               </div>
             </div>
 
