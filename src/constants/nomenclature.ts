@@ -7,6 +7,7 @@ export const nomenclature={
  SIGNING_IN:"Signing In...",
  SIGN_UP:"Sign Up",
  SIGNING_UP:"Signing Up...",
+ SIGN_OUT:"Sign Out",
  NGO_PORTAL:"NGO Portal",
  SOC_2_COMPLIANT:"🔒 SOC 2 COMPLIANT",
  END_TO_END_ENCRYPTED:"🔒 END-TO-END ENCRYPTED",

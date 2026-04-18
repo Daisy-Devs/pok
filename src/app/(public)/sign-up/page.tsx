@@ -57,7 +57,7 @@ export default function SignUp() {
       })
       .catch((err) => {
         console.log("Error during sign up:", err, error, signUpData);
-        toast.error("Sign up failed. Please try again.");
+        toast.error(`Sign up failed.${err?.data ? ` Reason: ${err.data}. ` : ""}`);
       });
   };
   return (

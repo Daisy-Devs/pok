@@ -15,6 +15,7 @@ client.interceptors.response.use(
   (response:AxiosResponse) => response.data,
   error => {
     const status = error.response?.status;
+    
     if (status === 401) {
       // Handle unauthorized access, e.g., redirect to sign in page
       window.location.href = "/sign-in";
@@ -23,7 +24,7 @@ client.interceptors.response.use(
       // Handle forbidden access, e.g., show an error message
       alert("You do not have permission to perform this action.");
     }
-    return Promise.reject(error.message);
+    return Promise.reject(error);
 }
 );
 

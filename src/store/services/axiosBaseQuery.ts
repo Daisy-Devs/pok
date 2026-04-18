@@ -24,10 +24,18 @@ export const axiosBaseQuery: BaseQueryFn<
     return { data: result }; // client already returns response.data
   } catch (error) {
     const err = error as AxiosError;
+    if (!err.response) {
+      return {
+        error: {
+          status: "FETCH_ERROR",
+          data: err.message,
+        },
+      };
+    }
     return {
       error: {
-        status: err,
-        data: err
+        status: err.response.status,
+        data: err.response.data || err.message,
       },
     };
   }

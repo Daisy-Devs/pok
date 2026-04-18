@@ -34,7 +34,6 @@ const Navbar = () => {
     }
     console.log("logged out", res);
     dispatch(loggedOut());
-    document.cookie = `role=; path=/; max-age=0;`;
     router.push("/sign-in");
     toast.success("Logout successful");
   };

@@ -12,7 +12,6 @@ export const donorAuthApi = apiSlice.injectEndpoints({
       async onQueryStarted(_, { queryFulfilled }) {
         try {
           await queryFulfilled;
-          document.cookie = `role=Donor; path=/; max-age=${60 * 60 * 24}`;
         } catch {}
       },
     }),

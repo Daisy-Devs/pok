@@ -20,7 +20,6 @@ export default function NGOLayout({ children }: { children: React.ReactNode }) {
         {isLoggedIn && <Sidebar className="sm:display-none" />}
         <div>
           <NGOHeader
-            isLoggedIn={isLoggedIn}
             pageTitle={"Dashboard Overview"}
             walletAddress={hideWalletAddress(address)}
           />
