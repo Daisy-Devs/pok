@@ -9,13 +9,10 @@ interface CampaignProps {
 const Campaign= async({params}: CampaignProps) => {
   const {id} = await params
 
-/*     const campaign = await fetch(`https://api.example.com/campaign/${id}`, {
-    cache: "no-store",
-  }).then((res) => res.json()); */
   return (
     <div className='flex flex-col space-y-20 py-15'>
-      <CampaignInfoSection/>
-      <ProtocolTransparency/>
+      <CampaignInfoSection campaignId={id}/>
+      <ProtocolTransparency />
       <LiveDonationActivity/>
       <SeeTheChange/>
       </div>
