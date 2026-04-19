@@ -3,8 +3,50 @@ import { ListChecks } from "lucide-react";
 import { nomenclature } from "@/src/constants/nomenclature";
 import Image from "next/image";
 import React from "react";
+import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
+import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/dist/client/components/navigation";
+import { loggedIn } from "@/src/store/services/slice/authSlice";
 
 export default function Philanthropy() {
+  const { isConnected } = useConnection();
+  const { mutate } = useConnect();
+  const connectors = useConnectors();
+  const { mutate: disconnect } = useDisconnect();
+  const [connectWallet, { isLoading }] = useConnectWalletMutation();
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const handleWalletConnect = async () => {
+    if (isConnected) {
+      disconnect();
+      return;
+    }
+    mutate(
+      { connector: connectors[0] },
+      {
+        onSuccess: (data) => {
+          connectWallet({
+            walletAddress: data.accounts[0],
+          }).then((res) => {
+            dispatch(
+              loggedIn({
+                name: "Donor",
+                email: "",
+                role: "DONOR",
+              }),
+            );
+            document.cookie = `role=DONOR; path=/; max-age=${60 * 60 * 24}`;
+            router.push("/explore");
+          });
+        },
+        onError: (error) => {
+          console.log(error);
+        },
+      },
+    );
+  };
+
   return (
     <div>
       <section
@@ -74,7 +116,7 @@ export default function Philanthropy() {
             {/* Verifiable Impact */}
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
               <div className="w-11 h-11 bg-background-secondary rounded-xl flex items-center justify-center mb-5">
-                <ListChecks className="text-primary"/>{" "}
+                <ListChecks className="text-primary" />{" "}
               </div>
               <h3 className="text-lg font-bold text-secondary-color mb-3">
                 Verifiable Impact
@@ -101,9 +143,11 @@ export default function Philanthropy() {
               <div className="flex items-center justify-center gap-3">
                 {" "}
                 <Button
-                  text="Connect Wallet"
+                  text={isConnected ? "Disconnect Wallet" : "Connect Wallet"}
                   variant={"blue"}
                   size={"default"}
+                  onClick={handleWalletConnect}
+                  disabled={isLoading}
                 />
                 <Button text="Learn More" variant={"white"} size={"default"} />
               </div>

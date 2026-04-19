@@ -2,11 +2,16 @@ import { Campaign } from "../types";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
+import { useRouter } from "next/navigation";
 
 const progressColor = "bg-primary";
 const categoryStyle = "bg-white text-secondary-dark font-bold";
 
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
+  const router = useRouter();
+  const handleDonate = (id: string) => {
+    router.push(`/campaign/${id}`);
+  };
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
@@ -50,7 +55,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
           <p className="font-bold">
             {campaign.raised} {campaign.currency}
           </p>
-          <Button text="Donate" />
+          <Button onClick={() => handleDonate(campaign.id)} text="Donate" />
         </div>
       </div>
     </Card>

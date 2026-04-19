@@ -17,27 +17,47 @@ import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
+import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 
-const CampaignInfoSection = () => {
-  const title = splitTitle("Clean water for communities");
+interface Props {
+  campaignId: string;
+}
+
+const CampaignInfoSection = ({ campaignId }: Props) => {
+  const { data, isLoading, error } = useGetAllCampaignsQuery({});
+  if (isLoading) return <p>Loading campaign...</p>;
+  if (error) return <p>Failed to load campaign.</p>;
+
+  const campaign = data?.data?.campaigns?.find(
+    (c: any) => c.id === campaignId || c._id === campaignId,
+  );
+  if (!campaign) return <p>Campaign not found.</p>;
+  const title = splitTitle(campaign.title);
+  const progress = campaign.goalAmount
+    ? ((campaign.raisedAmount || 0) / campaign.goalAmount) * 100
+    : 0;
 
   const images = [
     "https://images.unsplash.com/photo-1536939459926-301728717817",
     "https://images.unsplash.com/photo-1738969596294-cf44e5091c18",
     "https://images.unsplash.com/photo-1559079236-2e64f89c7764",
   ];
+const isActive = campaign.status === "active";
+const nearGoal = progress >= 75;
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-10 xl:gap-35 md:px-6">
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
         <div className="flex flex-col justify-center">
           <div className="flex gap-3">
-            <Pill text="Active Campaign" variant="primary" />
-            <Pill
-              text="Goal Near"
-              variant="secondary"
-              icon={<CheckCircle2 className="w-4 h-4 color-secondary-dark" />}
-            />
+             {isActive && <Pill text="Active Campaign" variant="primary" />}
+             {nearGoal && (
+              <Pill
+                text="Goal Near"
+                variant="secondary"
+                icon={<CheckCircle2 className="w-4 h-4 color-secondary-dark" />}
+              />
+            )}
           </div>
           <Heading first={title.firstHalf} second={title.secondHalf} />
         </div>
@@ -69,21 +89,19 @@ const CampaignInfoSection = () => {
           <CarouselNext className="right-5" />
         </Carousel>
         <p className="text-primaryText text-base font-normal w-80 md:w-159">
-          {`Leverage decentralized transparency to provide sustainable filtration
-  systems to remote villages. Every Satoshi is tracked from your wallet to the
-  well.`}
+          {campaign.missionStatement}
         </p>
         <div className="w-full">
           <p className="uppercase text-sm font-bold mb-1">funding progress</p>
           <ProgressWithLabel
             className="w-full h-3"
-            value={60}
+            value={progress}
             label={
               <span className="text-primaryText text-lg">
                 <span className="font-extrabold text-2xl text-secondaryText">
-                  $18,500
+                  {campaign.raisedAmount || 0} ETH
                 </span>{" "}
-                of $20,000 raised
+                of {campaign.goalAmount} ETH raised
               </span>
             }
           />
@@ -92,8 +110,8 @@ const CampaignInfoSection = () => {
           <StatCard
             variant="sm"
             intent={"subtle"}
-            label="Water Purified"
-            value={"450k L"}
+            label="Cause"
+            value={campaign.cause}
             icon={
               <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
             }
@@ -101,8 +119,8 @@ const CampaignInfoSection = () => {
           <StatCard
             variant="sm"
             intent={"subtle"}
-            label="Water Purified"
-            value={"450k L"}
+            label="Goal"
+            value={`${campaign.goalAmount} ETH`}
             icon={
               <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
             }
@@ -110,8 +128,8 @@ const CampaignInfoSection = () => {
           <StatCard
             variant="sm"
             intent={"subtle"}
-            label="Water Purified"
-            value={"450k L"}
+            label="Raised"
+            value={`${campaign.raisedAmount || 0} ETH`}
             icon={
               <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
             }

@@ -1,6 +1,9 @@
-import React from 'react'
-import CauseCard from './CauseCard';
-import { ArrowRight } from 'lucide-react';
+import React from "react";
+import CauseCard from "./CauseCard";
+import { ArrowRight } from "lucide-react";
+import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
+import { Campaign, CampaignApi } from "../../explore/types";
+import CampaignCard from "../../explore/components/CampaignCard";
 
 type Tag = {
   label: string;
@@ -12,7 +15,7 @@ type Cause = {
   description: string;
   raised: string;
   percentage: number;
-  image?: string; // ✅ add this
+  image?: string;
   tags: Tag[];
 };
 
@@ -56,20 +59,43 @@ const CAUSES: Cause[] = [
 ];
 
 export default function CampaignCauses() {
+  const { data, isLoading, isError } = useGetAllCampaignsQuery({});
+  const campaigns: Campaign[] =
+    data?.data?.campaigns?.map((c: CampaignApi) => ({
+      id: c.id,
+      title: c.title,
+      description: c.missionStatement,
+      category: c.cause,
+      image: c.imageUrl,
+      progress: Math.floor(((c.raisedAmount || 0) / c.goalAmount) * 100),
+      raised: c.raisedAmount || 0,
+      currency: "ETH",
+    })) || [];
+
+  const topCampaigns = campaigns
+    .sort((a, b) => b.progress - a.progress)
+    .slice(0, 3);
+
+  if (isLoading) return <p className="text-center py-10">Loading...</p>;
+  if (isError)
+    return <p className="text-center py-10">Error loading campaigns</p>;
+
   return (
     <div>
-        <section id="causes" className="py-12 bg-white">
+      <section id="causes" className="py-12 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex items-start justify-between mb-10 gap-6">
             <div>
-              <h2 className="text-3xl font-black text-gray-900 mb-2">Urgent Causes Ready for Your Impact</h2>
+              <h2 className="text-3xl font-black text-gray-900 mb-2">
+                Urgent Causes Ready for Your Impact
+              </h2>
               <p className="text-gray-500 text-[15px] max-w-md">
-                Direct support where it&apos;s needed most. Your contribution bypasses red tape and goes
-                straight to the front lines.
+                Direct support where it&apos;s needed most. Your contribution
+                bypasses red tape and goes straight to the front lines.
               </p>
             </div>
             <a
-              href="#"
+              href="/explore"
               className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 whitespace-nowrap mt-1 transition-colors shrink-0"
             >
               Explore All Causes
@@ -77,13 +103,13 @@ export default function CampaignCauses() {
             </a>
           </div>
 
-         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {CAUSES.map((cause: Cause, i: number) => (
-            <CauseCard key={i} cause={cause} />
-          ))}
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {topCampaigns.map((campaign) => (
+              <CampaignCard key={campaign.id} campaign={campaign} />
+            ))}
+          </div>
         </div>
       </section>
     </div>
-  )
+  );
 }

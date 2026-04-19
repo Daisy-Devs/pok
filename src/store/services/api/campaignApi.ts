@@ -11,8 +11,15 @@ export const campaignApi = apiSlice.injectEndpoints({
       }),
     }),
     getAllCampaigns: builder.query({
-      query: () => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET" }),
+      query: () => ({ url: ENDPOINTS.campaign.allCampaigns, method: "GET" }),
+    }),
+    getAllOrganizations: builder.query({
+      query: (id: string) => ({
+        url: ENDPOINTS.campaign.allOrganizations.replace(":organizationId", id),
+        method: "GET",
+      }),
     }),
   }),
 });
-export const { useRegisterNgoMutation, useGetAllCampaignsQuery } = campaignApi;
+export const { useRegisterNgoMutation, useGetAllCampaignsQuery, useGetAllOrganizationsQuery } =
+  campaignApi;
