@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { useConnectWalletMutation, useWalletLoginMutation } from "@/src/store/services/api/walletApi";
+import {  useWalletLoginMutation } from "@/src/store/services/api/walletApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { WalletIcon } from "lucide-react";
 import Image from "next/image";

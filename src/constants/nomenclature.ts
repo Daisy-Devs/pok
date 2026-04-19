@@ -24,6 +24,7 @@ export const nomenclature={
  MISSION_DETAILS:"Step 2: Mission & Causes",
  MISSION_DETAILS_DESCRIPTION:"Tell us about the change you want to see in the world.",
  MISSION_STATEMENT:"Mission Statement",
+ GOAL_AMOUNT:"Goal Amount",
  MISSION_STATEMENT_PLACEHOLDER:"Describe your NGO's primary goals, target community, and the change you aim to create...",
  CAUSE:"Cause",
  CAUSE_PLACEHOLDER:"Write your cause here...",

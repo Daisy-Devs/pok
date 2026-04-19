@@ -10,7 +10,7 @@ import {
 import React from "react";
 
 interface SelectCauseProps {
-  setCause: React.Dispatch<React.SetStateAction<string>>;
+  setCause:(cause: string) => void; 
   cause: string;
 }
 const SelectCause: React.FC<SelectCauseProps> = ({ setCause, cause }) => {

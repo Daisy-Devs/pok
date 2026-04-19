@@ -70,7 +70,7 @@ function Input({
   const inputId = id || React.useId();
 
   return (
-    <div className="space-y-1 w-full">
+    <div className="space-y-2 w-full">
       <div className="flex items-center justify-between">
       {label && (
         <label htmlFor={inputId} className="text-xs font-semibold uppercase">

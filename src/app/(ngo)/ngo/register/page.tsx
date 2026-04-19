@@ -4,11 +4,29 @@ import RegistrationForm1 from "@/src/features/ngo-registration/components/Regist
 import RegistrationForm2 from "@/src/features/ngo-registration/components/RegistrationForm2";
 import RegistrationForm3 from "@/src/features/ngo-registration/components/RegistrationForm3";
 import { Step } from "@/src/features/ngo-registration/components/Step";
+import { NgoRegistrationFormData } from "@/src/features/ngo-registration/types";
 import { ShieldCheck } from "lucide-react";
 import React, { useState } from "react";
 
 const NGORegistration = () => {
   const [activeStep, setActiveStep] = useState("1");
+
+  const [ngoData, setNgoData] = useState<NgoRegistrationFormData>({
+  organizationName: "",
+  taxId: "",
+  email: "",
+  country: "",
+  website: "",
+  profileImageUrl: "",
+  walletAddress: "",
+  documents: [
+  ],
+  title: "",
+  missionStatement: "",
+  cause: "",
+  imageUrl: [],
+  goalAmount: 0
+  });
   return (
     <div className="flex sm:flex-col md:flex-row gap-6 py-7 md:px-30 sm:w-full md:w-auto">
       <div className="w-0 sm:w-1/4 sm:space-y-6 hidden sm:block">
@@ -54,9 +72,9 @@ const NGORegistration = () => {
           </p>
         </div>
       </div>
-     {activeStep=='1' && <RegistrationForm1 changeStep={setActiveStep}/>}
-     {activeStep=='2' && <RegistrationForm2 changeStep={setActiveStep}/>}
-     {activeStep=='3' && <RegistrationForm3  changeStep={setActiveStep}/>}
+     {activeStep=='1' && <RegistrationForm1 changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData} />}
+     {activeStep=='2' && <RegistrationForm2 changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData}/>}
+     {activeStep=='3' && <RegistrationForm3  changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData}/>}
     </div>
   );
 };

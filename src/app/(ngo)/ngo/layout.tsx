@@ -1,5 +1,4 @@
 "use client";
-import type { Metadata } from "next";
 import "../../globals.css";
 import { Sidebar, SidebarProvider } from "@/src/components/ui/sidebar";
 import NGOHeader from "@/src/components/NGOHeader";
