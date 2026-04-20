@@ -22,6 +22,10 @@ export const ENDPOINTS = {
   },
   campaign:{
     getAllCampaigns: "/campaign/",
-
-  }
+  },
+  documents: {
+    uploadCompanyProfileImage: "/cloudinary/profile",
+    uploadCampaignImages: "/cloudinary/causeImages",
+    uploadSupportingNgoDocuments: "/cloudinary/documents",
+  },
 };
