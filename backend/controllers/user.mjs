@@ -55,9 +55,7 @@ export const registerUser = async (req, res) => {
 
     // 🔐 Create JWT
     const token = jwt.sign(
-      { userId: user._id,
-        role: "donor"
-      },
+      { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -73,7 +71,7 @@ export const registerUser = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    return sendResponse(res, 201, 'User registered successfully', userObj);
+    return sendResponse(res, 201, 'User registered successfully', {userObj, role: "donor"});
 
   } catch (error) {
     return sendResponse(res, 500, error.message);
@@ -213,9 +211,7 @@ export const appleAuth = async (req, res) => {
 
     // 🔐 Create JWT
     const token = jwt.sign(
-      { userId: user._id,
-        role: "donor"
-      },
+      { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -231,7 +227,7 @@ export const appleAuth = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    return sendResponse(res, 200, 'Apple Login successful', userObj);
+    return sendResponse(res, 200, 'Apple Login successful', {userObj, role: "donor"});
 
   } catch (error) {
     console.error(error);
@@ -260,9 +256,7 @@ export const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id,
-        role: "donor"
-      },
+      { userId: user._id },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -278,7 +272,7 @@ export const loginUser = async (req, res) => {
     const userObj = user.toObject();
     delete userObj.password;
 
-    return sendResponse(res, 200, 'Login successful', userObj);
+    return sendResponse(res, 200, 'Login successful', {userObj, role: "donor"});
 
   } catch (error) {
     return sendResponse(res, 500, error.message);

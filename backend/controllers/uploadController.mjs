@@ -45,7 +45,6 @@ export const uploadDocuments = async (req, res) => {
   }
 };
 
-
 export const uploadCauseImages = async (req, res) => {
   try {
     const files = req.files; // upload.array("images", 5)
