@@ -1,6 +1,7 @@
 export const ENDPOINTS = {
   donorAuth: {
-    google: "/user/google", // sign in/up with google
+    google: "/user/google",
+    apple: "/user/apple",
     signup: "/user/register",
     signin: "/user/login",
     logout: "/user/logout",
@@ -18,10 +19,16 @@ export const ENDPOINTS = {
     walletLogin: "/wallet/login",
     connectWallet: "/wallet/connect",
     disconnectWallet: "/wallet/disconnect",
-
   },
-  campaign:{
+  campaign: {
     getAllCampaigns: "/campaign/",
-
-  }
+    getAllOrganizations: "/campaign/organizations/:organizationId",
+  },
+  donation: {
+    getAllDonations: "/donation/",
+    getDonationsByCampaign: "/donation/:campaignId",
+    getDonationsByDonor: "/donation/user",
+    getAllWithdrawals: "/donation/withdraw",
+    getWithdrawalsByCampaign: "/donation/withdraw/:campaignId",
+  },
 };
