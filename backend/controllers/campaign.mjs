@@ -33,6 +33,31 @@ export const createOrgAndCampaign = async (req, res) => {
       return sendResponse(res, 400, "All campaign fields are required");
     }
 
+    // ✅ URL validation
+    const isValidUrl = (url) =>
+      typeof url === "string" && url.startsWith("https://res.cloudinary.com/");
+
+    if (profileImageUrl && !isValidUrl(profileImageUrl)) {
+      return sendResponse(res, 400, "Invalid profile image URL");
+    }
+
+    if (imageUrl?.some(url => !isValidUrl(url))) {
+      return sendResponse(res, 400, "Invalid campaign image URL");
+    }
+
+    if (documents?.some(doc => !doc.name || !isValidUrl(doc.url))) {
+      return sendResponse(res, 400, "Invalid documents");
+    }
+
+    // ✅ limits
+    if (imageUrl?.length > 5) {
+      return sendResponse(res, 400, "Max 5 campaign images allowed");
+    }
+
+    if (documents?.length > 5) {
+      return sendResponse(res, 400, "Max 5 documents allowed");
+    }
+
     // ✅ 2. FIND OR CREATE + UPDATE (clean pattern)
     let organization = await Organization.findOne({ walletAddress });
 

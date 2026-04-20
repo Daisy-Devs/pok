@@ -3,6 +3,7 @@ import campaignRoute from './campaign.mjs';
 import userRoute from './user.mjs';
 import donationRoute from './donation.mjs';
 import walletRoute from './wallet.mjs';
+import cloudinaryRoute from './cloudinary.mjs';
 import { sendResponse } from '../utils/response.mjs';
 
 const router = express.Router();
@@ -17,5 +18,6 @@ router.use('/campaign', campaignRoute);
 router.use('/user', userRoute);
 router.use('/donation', donationRoute);
 router.use('/wallet', walletRoute)
+router.use('/cloudinary', cloudinaryRoute)
 
 export default router;
