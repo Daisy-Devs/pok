@@ -10,6 +10,7 @@ export const createOrgAndCampaign = async (req, res) => {
 
     const {
       organizationName,
+      taxId,
       email,
       country,
       website,
@@ -24,8 +25,8 @@ export const createOrgAndCampaign = async (req, res) => {
     } = req.body;
 
     // ✅ 1. VALIDATION
-    if (!organizationName || !email || !country) {
-      return sendResponse(res, 400, "Name, email, and country are required");
+    if (!organizationName ||!taxId ||!email || !country) {
+      return sendResponse(res, 400, "Name, Tax Id, email, and country are required");
     }
 
     if (!title || !missionStatement || !cause || !goalAmount) {
@@ -40,6 +41,7 @@ export const createOrgAndCampaign = async (req, res) => {
     }
 
     organization.name = organizationName;
+    organization.taxId = taxId;
     organization.email = email;
     organization.country = country;
     organization.website = website;
