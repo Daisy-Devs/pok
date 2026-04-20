@@ -4,7 +4,7 @@ import { ngoAuth } from '../middleware/ngoAuth.mjs';
 
 const router = express.Router();
 
-router.post('/orgAndCampaign', createOrgAndCampaign);
+router.post('/orgAndCampaign', ngoAuth, createOrgAndCampaign);
 router.post('/create', ngoAuth, createCampaign);
 router.post('/:id', ngoAuth, updateCampaign);
 
