@@ -18,6 +18,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="relative  overflow-hidden">
         <img
           src={campaign.image}
+          alt={campaign.title || "Campaign image"}
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 

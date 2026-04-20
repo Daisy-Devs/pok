@@ -12,6 +12,7 @@ import Cause from "@/src/features/profile/components/Cause";
 import Details from "@/src/features/profile/components/Details";
 import { ProfileActivity } from "@/src/features/profile/types";
 import { timeAgo } from "@/src/lib/utils";
+import { useGetDonationsByDonorQuery } from "@/src/store/services/api/donationApi";
 import {
   ChevronRight,
   HandHeart,
@@ -21,36 +22,23 @@ import {
 } from "lucide-react";
 
 const Profile = () => {
-  const profileActivities: ProfileActivity[] = [
-    {
-      cause: "Save the Children",
-      amount: 14.82,
-      date: "2023-06-01T12:34:56Z",
-      organization: "UNICEF",
-      etherScanLink: "https://etherscan.io/tx/0x1234567890abcdef",
-    },
-    {
-      cause: "Save the Children",
-      amount: 14.82,
-      date: "2023-06-01T12:34:56Z",
-      organization: "UNICEF",
-      etherScanLink: "https://etherscan.io/tx/0x1234567890abcdef",
-    },
-    {
-      cause: "Save the Children",
-      amount: 14.82,
-      date: "2023-06-01T12:34:56Z",
-      organization: "UNICEF",
-      etherScanLink: "https://etherscan.io/tx/0x1234567890abcdef",
-    },
-    {
-      cause: "Save the Children",
-      amount: 14.82,
-      date: "2023-06-01T12:34:56Z",
-      organization: "UNICEF",
-      etherScanLink: "https://etherscan.io/tx/0x1234567890abcdef",
-    },
-  ];
+  const {
+    data: donations = [],
+    isLoading,
+    isError,
+  } = useGetDonationsByDonorQuery();
+
+  const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+  const causeCount = new Set(donations.map((d) => d.campaignId)).size;
+  const memberSince = donations.length
+    ? new Date(
+        donations
+          .map((d) => new Date(d.date).getTime())
+          .sort((a, b) => a - b)[0],
+      ).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : "—";
+
+  const profileActivities: ProfileActivity[] = [];
   return (
     <div className="flex flex-col gap-3 w-full py-12 px-5 space-y-9">
       <Details />
@@ -64,7 +52,7 @@ const Profile = () => {
               Total Donated
             </p>
             <p className="text-xl font-extrabold text-secondaryText leading-tight">
-              14.82 ETH
+              {totalDonated.toFixed(4)} ETH
             </p>
             <p className="text-sm font-semibold text-emerald-600 mt-0.5">
               ≈ $34,210.50 USD
@@ -81,7 +69,7 @@ const Profile = () => {
               Causes Supported
             </p>
             <p className="text-xl font-extrabold text-neutral-900 leading-tight">
-              12 Campaigns
+              {causeCount} Campaign{causeCount !== 1 ? "s" : ""}
             </p>
           </div>
         </div>
@@ -95,7 +83,7 @@ const Profile = () => {
               Member Since
             </p>
             <p className="text-xl font-extrabold text-secondaryText leading-tight">
-              May 2022
+              {memberSince}
             </p>
           </div>
         </div>
@@ -106,43 +94,47 @@ const Profile = () => {
         <h1 className="text-secondaryText text-xl font-extrabold w-full bg-white p-3 rounded-sm">
           Recent Impacts
         </h1>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-110">Cause/Campaign</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {profileActivities.map((activity) => (
-              <TableRow key={activity.cause + activity.organization}>
-                <TableCell className="font-medium">
-                  {
-                    <Cause
-                      cause={activity.cause}
-                      organization={activity.organization}
-                    />
-                  }
-                </TableCell>
-                <TableCell className="font-semibold text-secondaryText text-base">
-                  {activity.amount}
-                </TableCell>
-                <TableCell>{timeAgo(activity.date)}</TableCell>
-                <TableCell>
-                  <a
-                    href={activity.etherScanLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ChevronRight size={12} />
-                  </a>
-                </TableCell>
+        {isError ? (
+          <p className="text-red-500 text-sm p-3">Failed to load donations.</p>
+        ) : donations.length === 0 ? (
+          <p className="text-neutral-400 text-sm p-3">No donations yet.</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-110">Cause/Campaign</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {donations.map((donation, idx) => (
+                <TableRow key={`${donation.campaignId}-${idx}`}>
+                  <TableCell className="font-medium">
+                    <Cause
+                      cause={donation.cause}
+                      organization={donation.organization}
+                    />
+                  </TableCell>
+                  <TableCell className="font-semibold text-secondaryText text-base">
+                    {donation.amount} ETH
+                  </TableCell>
+                  <TableCell>{timeAgo(donation.date)}</TableCell>
+                  <TableCell>
+                    <a
+                      href={donation.etherScanLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ChevronRight size={12} />
+                    </a>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   );
