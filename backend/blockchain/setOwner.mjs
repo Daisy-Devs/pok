@@ -1,21 +1,24 @@
-import { ethers } from "ethers";
 import { contract } from "../config/contract.mjs";
 
-export const setCampaignOnChain = async (campaignId, ngoWallet, signer) => {
-  const contractWithSigner = contract.connect(signer);
+export const setCampaignOnChain = async (job, signer) => {
+  try {
+    const { campaignIdBytes32, ngoWallet } = job;
 
-  const campaignIdBytes32 =
-    ethers.encodeBytes32String(campaignId);
+    const contractWithSigner = contract.connect(signer);
 
-  const tx = await contractWithSigner.setCampaignOwner(
-    campaignIdBytes32,
-    ngoWallet
-  );
+    const tx = await contractWithSigner.setCampaignOwner(
+      campaignIdBytes32,
+      ngoWallet
+    );
 
-  await tx.wait();
+    await tx.wait();
 
-  return {
-    txHash: tx.hash,
-    campaignIdBytes32
-  };
+    return {
+      txHash: tx.hash,
+      campaignIdBytes32
+    };
+  } catch (error) {
+    console.error("Blockchain error:", error);
+    throw error;
+  }
 };

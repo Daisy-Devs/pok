@@ -23,29 +23,37 @@ export const createOrgAndCampaign = async (req, res) => {
       status
     } = req.body;
 
-    // 1️⃣ FIND OR CREATE ORGANIZATION
-    let organization = await Organization.findOne({ email });
+    // ✅ 1. VALIDATION
+    if (!organizationName || !email || !country) {
+      return sendResponse(res, 400, "Name, email, and country are required");
+    }
+
+    if (!title || !missionStatement || !cause || !goalAmount) {
+      return sendResponse(res, 400, "All campaign fields are required");
+    }
+
+    // ✅ 2. FIND OR CREATE + UPDATE (clean pattern)
+    let organization = await Organization.findOne({ walletAddress });
 
     if (!organization) {
-      organization = await Organization.create({
-        name: organizationName,
-        email,
-        country,
-        website,
-        profileImageUrl,
-        walletAddress, // trusted from SIWE
-        documents
-      });
-    } else {
-      if (organization.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-        return sendResponse(res, 403, "Wallet does not match registered NGO account");
-      }
+      organization = new Organization({ walletAddress });
     }
-    // 2️⃣ CREATE CAMPAIGN ID (UUID)
-    const campaignId = `campaign-${uuidv4()}`; // ✅ FIXED
+
+    organization.name = organizationName;
+    organization.email = email;
+    organization.country = country;
+    organization.website = website;
+    organization.profileImageUrl = profileImageUrl;
+    organization.documents = documents;
+    organization.isProfileComplete = true;
+
+    await organization.save();
+
+    // ✅ 3. CREATE CAMPAIGN ID
+    const campaignId = `campaign-${uuidv4()}`;
     const campaignIdBytes32 = ethers.id(campaignId);
 
-    // 3️⃣ SAVE CAMPAIGN
+    // ✅ 4. CREATE CAMPAIGN
     const campaign = await Campaign.create({
       id: campaignId,
       campaignIdBytes32,
@@ -55,17 +63,18 @@ export const createOrgAndCampaign = async (req, res) => {
       cause,
       imageUrl,
       goalAmount,
-      status: status || "draft"
+      status: status || "draft",
+      onChainStatus: "pending"
     });
 
-    // 4️⃣ QUEUE BLOCKCHAIN TASK
+    // ✅ 5. QUEUE BLOCKCHAIN JOB
     await campaignQueue.addJob({
-      campaignId,
       campaignIdBytes32,
       ngoWallet: walletAddress
     });
 
-    return sendResponse(res, 201, 'Campaign created successfully', {
+    // ✅ 6. RESPONSE
+    return sendResponse(res, 201, "Campaign created successfully", {
       organization,
       campaign
     });

@@ -2,27 +2,40 @@ import { campaignQueue } from "../queues/campaignQueue.mjs";
 import { ethers } from "ethers";
 import contract from "../config/contract.mjs";
 
-export const startWorker = () => {
+export const startWorker = async () => {
   console.log("🚀 Worker started...");
 
-  setInterval(async () => {
+  const privateKey = process.env.PRIVATE_KEY;
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const signer = new ethers.Wallet(privateKey, provider);
+  const contractWithSigner = contract.connect(signer);
+
+  while (true) {
+    let data = null;
+
     try {
       const job = await campaignQueue.getJob();
 
-      if (!job) return;
+      if (!job) {
+        await new Promise((r) => setTimeout(r, 3000));
+        continue;
+      }
 
-      const data = JSON.parse(job);
+      data = job;
 
       console.log("📦 Processing:", data);
 
-      const privateKey = process.env.PRIVATE_KEY;
+      // ✅ ADD THIS HERE (VERY IMPORTANT)
+      const campaign = await Campaign.findOne({
+        campaignIdBytes32: data.campaignIdBytes32
+      });
 
-      const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+      if (!campaign || campaign.onChain) {
+        console.log("⏭️ Already processed or missing, skipping");
+        continue;
+      }
 
-      const signer = new ethers.Wallet(privateKey, provider);
-
-      const contractWithSigner = contract.connect(signer);
-
+      // ✅ ONLY AFTER CHECK → call blockchain
       const tx = await contractWithSigner.setCampaignOwner(
         data.campaignIdBytes32,
         data.ngoWallet
@@ -32,10 +45,39 @@ export const startWorker = () => {
 
       console.log("✅ Blockchain updated:", tx.hash);
 
-      // TODO: update MongoDB here if needed
+      await Campaign.updateOne(
+        { campaignIdBytes32: data.campaignIdBytes32 },
+        {
+          txHash: tx.hash,
+          onChain: true,
+          onChainStatus: "success"
+        }
+      );
 
     } catch (err) {
       console.error("❌ Worker error:", err.message);
+
+      if (data) {
+        const campaign = await Campaign.findOne({
+          campaignIdBytes32: data.campaignIdBytes32
+        });
+
+        if (campaign) {
+          const retryCount = campaign.retryCount || 0;
+
+          if (retryCount < 3) {
+            await Campaign.updateOne(
+              { campaignIdBytes32: data.campaignIdBytes32 },
+              { $inc: { retryCount: 1 } }
+            );
+          } else {
+            await Campaign.updateOne(
+              { campaignIdBytes32: data.campaignIdBytes32 },
+              { onChainStatus: "failed" }
+            );
+          }
+        }
+      }
     }
-  }, 3000);
+  }
 };
