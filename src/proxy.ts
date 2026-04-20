@@ -2,19 +2,27 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export const config = {
-  matcher: ['/ngo/:path*'], //TODO: add donate '/campaigns/:path*/donate'
+  matcher: ['/ngo/:path*','/profile'], //TODO: add donate '/campaigns/:path*/donate'
+  
 };
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.has("token")||request.cookies.has("walletToken")||false;
+  const token = request.cookies.has("token")||false;
   const isDonor = request.cookies.get("role")?.value=='Donor'||false;
-
+  
   if (
     pathname.startsWith('/ngo/register') ||
     pathname.startsWith('/ngo/sign-in')
   ) {
     if (token && !isDonor) {
       return NextResponse.redirect(new URL('/ngo', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/profile')) {
+    if (!token && isDonor) {
+      return NextResponse.redirect(new URL('/sign-in', request.url));
     }
     return NextResponse.next();
   }
