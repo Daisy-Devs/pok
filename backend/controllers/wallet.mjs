@@ -106,8 +106,7 @@ export const loginWithWalletV1 = async (req, res) => {
     const token = jwt.sign(
       {
         ngoId: ngo._id,
-        wallet: walletAddress,
-        role: "ngo"
+        wallet: walletAddress
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -162,8 +161,7 @@ export const loginWithWallet = async (req, res) => {
     const token = jwt.sign(
       {
         ngoId: ngo._id,
-        wallet: walletAddress,
-        role: "ngo"
+        wallet: walletAddress
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
@@ -178,7 +176,7 @@ export const loginWithWallet = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     });
 
-    return sendResponse(res, 200, 'Login successful', ngo);    
+    return sendResponse(res, 200, "Login successful", { ngo, role: "ngo" });
 
   } catch (err) {
     return sendResponse(res, 500, err.message);
