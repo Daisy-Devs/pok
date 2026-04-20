@@ -20,11 +20,17 @@ const Details = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
   const { data: user, isLoading } = useValidateUserAuthQuery({});
-  console.log(user);
+  const { isConnected, address } = useConnection();
+  const { mutate } = useConnect();
+  const connectors = useConnectors();
+  const { mutate: disconnect } = useDisconnect();
+  const [connectWallet, { isLoading: isWalletLoading }] =
+    useConnectWalletMutation();
+  const dispatch = useDispatch();
+  
+
   const displayName = user?.data?.name ?? user?.data?.username ?? "Anonymous";
-  const walletAddress = user?.data?.walletAddress ?? user?.data?.address ?? "";
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -33,24 +39,15 @@ const Details = () => {
     reader.readAsDataURL(file);
   };
 
-  const shortAddress = walletAddress ? hideWalletAddress(walletAddress) : "—";
+  const shortAddress = address ? hideWalletAddress(address) : "—";
 
   const copyAddress = async () => {
-    if (!walletAddress) return;
-    await navigator.clipboard.writeText(walletAddress);
+    if (!address) return;
+    await navigator.clipboard.writeText(address);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
 
-  const { isConnected } = useConnection();
-  const { mutate } = useConnect();
-  const connectors = useConnectors();
-  const { mutate: disconnect } = useDisconnect();
-
-  const [connectWallet, { isLoading: isWalletLoading }] =
-    useConnectWalletMutation();
-
-  const dispatch = useDispatch();
   const handleWalletConnect = () => {
     if (isConnected) {
       disconnect();
@@ -132,7 +129,7 @@ const Details = () => {
             <span className="text-sm">
               {isLoading ? "Loading…" : shortAddress}
             </span>
-            {walletAddress && (
+            {address && (
               <button
                 onClick={copyAddress}
                 className="text-primaryText hover:text-secondaryText transition-colors"
