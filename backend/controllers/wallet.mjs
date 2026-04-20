@@ -133,6 +133,17 @@ export const loginWithWallet = async (req, res) => {
   try {
     const { walletAddress, signature, message } = req.body;
 
+    if (!walletAddress) {
+      return sendResponse(res, 400, "Missing walletAddress");
+    }
+
+    if (!signature) {
+      return sendResponse(res, 400, "Missing signature");
+    }
+
+    if (!message) {
+      return sendResponse(res, 400, "Missing message");
+    }
     // 1. Verify signature
     const recovered = ethers.verifyMessage(message, signature);
 
