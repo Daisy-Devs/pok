@@ -23,7 +23,15 @@ const CampaignSchema = new mongoose.Schema(
       type: String,
       enum: ['draft', 'active', 'completed'],
       default: 'draft'
-    }
+    },
+    txHash: { type: String },
+    onChain: { type: Boolean, default: false },
+    onChainStatus: {
+      type: String,
+      enum: ["pending", "success", "failed"],
+      default: "pending"
+    },
+    retryCount: { type: Number, default: 0 }
   },
   { timestamps: true }
 );
