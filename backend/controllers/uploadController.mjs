@@ -1,47 +1,77 @@
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
 
+import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
+
 export const uploadDocuments = async (req, res) => {
   try {
-    const files = req.files; // upload.array("documents", 5)
+    const files = req.files;
 
-    // ✅ Min / Max count
-    if (!files || files.length === 0) {
-      return res.status(400).json({ message: "At least 1 document required" });
+    // ✅ 1. Validate count
+    if (!files || files.length < 1 || files.length > 5) {
+      return res.status(400).json({
+        message: "Upload between 1 and 5 files"
+      });
     }
 
-    if (files.length > 5) {
-      return res.status(400).json({ message: "Max 5 documents allowed" });
-    }
+    // Allowed types
+    const allowedTypes = [
+      "application/pdf",
+      "image/png",
+      "image/jpeg",
+      "image/jpg"
+    ];
 
-    // ✅ Validate each file
+    const uploadedFiles = [];
+
+    // ✅ 2. Validate each file
     for (const file of files) {
-      if (file.mimetype !== "application/pdf") {
-        return res.status(400).json({ message: "Only PDF files allowed" });
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({
+          message: "Only PDF and image files are allowed"
+        });
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        return res.status(400).json({ message: "Each PDF must be <= 10MB" });
+      // PDF limit
+      if (
+        file.mimetype === "application/pdf" &&
+        file.size > 10 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          message: "Each PDF must be <= 10MB"
+        });
       }
+
+      // Image limit
+      if (
+        file.mimetype.startsWith("image/") &&
+        file.size > 2 * 1024 * 1024
+      ) {
+        return res.status(400).json({
+          message: "Each image must be <= 2MB"
+        });
+      }
+
+      // Upload
+      const url = await uploadToCloudinary(file.buffer);
+
+      uploadedFiles.push({
+        name: file.originalname,
+        url,
+        type: file.mimetype.startsWith("image/") ? "image" : "pdf"
+      });
     }
 
-    // ✅ Upload all
-    const urls = await Promise.all(
-      files.map(file => uploadToCloudinary(file.buffer))
-    );
-
-    // ✅ Format response
-    const documents = urls.map((url, i) => ({
-      name: files[i].originalname,
-      url
-    }));
-
+    // ✅ 3. Response
     return res.status(200).json({
-      message: "Documents uploaded successfully",
-      documents
+      message: "Files uploaded successfully",
+      documents: uploadedFiles
     });
 
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    console.error(err);
+    return res.status(500).json({
+      message: "Internal server error"
+    });
   }
 };
 
