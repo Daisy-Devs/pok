@@ -7,19 +7,32 @@ export const campaignApi = apiSlice.injectEndpoints({
       query: (data) => ({
         url: ENDPOINTS.ngoAuth.registerNgo,
         method: "POST",
-        body: data,        
+        body: data,
       }),
     }),
     getAllCampaigns: builder.query({
       query: () => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET" }),
     }),
+    getCampaignById: builder.query({
+      query: (id: string) => ({
+        url: ENDPOINTS.campaign.getCampaignById.replace(":id", id),
+        method: "GET",
+      }),
+    }),
     getAllOrganizations: builder.query({
       query: (id: string) => ({
-        url: ENDPOINTS.campaign.getAllOrganizations.replace(":organizationId", id),
+        url: ENDPOINTS.campaign.getAllOrganizations.replace(
+          ":organizationId",
+          id,
+        ),
         method: "GET",
       }),
     }),
   }),
 });
-export const { useRegisterNgoMutation, useGetAllCampaignsQuery, useGetAllOrganizationsQuery } =
-  campaignApi;
+export const {
+  useRegisterNgoMutation,
+  useGetAllCampaignsQuery,
+  useGetCampaignByIdQuery,
+  useGetAllOrganizationsQuery,
+} = campaignApi;

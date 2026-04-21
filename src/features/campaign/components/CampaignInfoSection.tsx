@@ -17,20 +17,18 @@ import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
-import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
+import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
 
 interface Props {
   campaignId: string;
 }
 
 const CampaignInfoSection = ({ campaignId }: Props) => {
-  const { data, isLoading, error } = useGetAllCampaignsQuery({});
+  const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
   if (isLoading) return <p>Loading campaign...</p>;
   if (error) return <p>Failed to load campaign.</p>;
 
-  const campaign = data?.data?.campaigns?.find(
-    (c: any) => c.id === campaignId || c._id === campaignId,
-  );
+  const campaign = data?.data?.campaigns?.[0];
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
   const progress = campaign.goalAmount

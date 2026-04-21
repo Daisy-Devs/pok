@@ -34,8 +34,10 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="p-5 flex flex-col gap-3">
         <h3 className="font-bold text-lg">{campaign.title}</h3>
 
-        <p className="text-sm text-foreground line-clamp-2">
-          {campaign.description}
+        <p className="text-sm text-foreground line-clamp-2"
+        dangerouslySetInnerHTML={{
+            __html: campaign.description,
+          }}>
         </p>
 
         <div>
