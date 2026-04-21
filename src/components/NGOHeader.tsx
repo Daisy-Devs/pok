@@ -13,6 +13,9 @@ import { useRouter } from "next/navigation";
 import { useWalletLogoutMutation } from "../store/services/api/walletApi";
 import { toast } from "sonner";
 import { loggedOut } from "../store/services/slice/authSlice";
+import { useDisconnect } from "wagmi";
+import { useAppSelector } from "../store/store";
+import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
 
 interface NGOHeaderProps {
   pageTitle: string;
@@ -22,14 +25,16 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [walletLogout] = useWalletLogoutMutation();
+  const {mutate:disconnectWallet}=useDisconnect();
+  const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const handleLogout = async () => {
     try{
     const res = await walletLogout({}).unwrap();
+    disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");
-    
     }catch(err){
       console.log("logout error", err);
       toast.error("Logout failed");
@@ -37,9 +42,9 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
   };
   return (
     <div className="flex justify-between p-5">
-      <h3 className="text-2xl font-extrabold">{pageTitle}</h3>
+      <h3 className="text-2xl font-extrabold">{isLoggedIn?pageTitle:nomenclature.PRODUCT_NAME}</h3>
+    {isLoggedIn && (
       <div className="flex justify-center items-center">
-        <Bell size={20} color="#45464D" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex gap-1.5 mx-2 p-2.5 bg-background-secondary rounded-full justify-center items-center">
@@ -57,7 +62,7 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div>)}
     </div>
   );
 };

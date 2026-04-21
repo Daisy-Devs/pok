@@ -2,6 +2,8 @@ import { Campaign } from "../types";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
+import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const progressColor = "bg-primary";
@@ -16,13 +18,14 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
       <div className="relative  overflow-hidden">
-        <img
-          src={campaign.image}
+        <Image
+          src={campaign.image[0].includes("cloudinary") ? campaign.image[0] : DEFAULT_IMAGE_URL}
           alt={campaign.title || "Campaign image"}
+          width={500}
+          height={500}
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 
-        {/* ✅ FIXED */}
         <span
           className={`absolute top-3 left-3 text-xs px-2 py-1 rounded-full ${categoryStyle}`}
         >
@@ -34,11 +37,8 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="p-5 flex flex-col gap-3">
         <h3 className="font-bold text-lg">{campaign.title}</h3>
 
-        <p className="text-sm text-foreground line-clamp-2"
-        dangerouslySetInnerHTML={{
-            __html: campaign.description,
-          }}>
-        </p>
+        <p className="text-sm text-foreground line-clamp-2" dangerouslySetInnerHTML={campaign.description ? { __html: campaign.description } : undefined} />
+
 
         <div>
           <ProgressWithLabel

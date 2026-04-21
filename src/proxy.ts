@@ -1,35 +1,55 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
 export const config = {
-  matcher: ['/ngo/:path*','/profile'], //TODO: add donate '/campaigns/:path*/donate'
+  matcher: ['/ngo/:path*','/profile','/sign-in', '/register'], //TODO: add donate '/campaigns/:path*/donate'
   
 };
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.has("token")||false;
-  const isDonor = request.cookies.get("role")?.value=='Donor'||false;
+const token = request.cookies.get('token')?.value || "";
+let role = "";
+
+if (token) {
+  const data = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as jwt.JwtPayload;
+  role = data.role;
+}
+
   
   if (
     pathname.startsWith('/ngo/register') ||
     pathname.startsWith('/ngo/sign-in')
   ) {
-    if (token && !isDonor) {
+    if (token && role == 'ngo') {
+      return NextResponse.redirect(new URL('/ngo', request.url));
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/sign-in') || pathname.startsWith('/register')) {
+    if (token) {
+      if(role==='donor'){
+        return NextResponse.redirect(new URL('/', request.url));
+      }
       return NextResponse.redirect(new URL('/ngo', request.url));
     }
     return NextResponse.next();
   }
 
   if (pathname.startsWith('/profile')) {
-    if (!token && isDonor) {
+    if (!token && role==='donor') {
       return NextResponse.redirect(new URL('/sign-in', request.url));
+    }
+    if(token && role==='ngo'){
+      return NextResponse.redirect(new URL('/ngo', request.url));
     }
     return NextResponse.next();
   }
 
   // 🔒 Protect NGO routes
   if (pathname.startsWith('/ngo')) {
-    if(isDonor){
+    if(role==='donor'){
       return NextResponse.redirect(new URL('/', request.url));
     }
     if (!token) {

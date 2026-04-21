@@ -17,13 +17,14 @@ import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
-import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
+import { useGetAllCampaignsQuery, useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
+import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 
-interface Props {
+interface CampaignInfoSectionProps {
   campaignId: string;
 }
 
-const CampaignInfoSection = ({ campaignId }: Props) => {
+const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
   if (isLoading) return <p>Loading campaign...</p>;
   if (error) return <p>Failed to load campaign.</p>;
@@ -35,16 +36,11 @@ const CampaignInfoSection = ({ campaignId }: Props) => {
     ? ((campaign.raisedAmount || 0) / campaign.goalAmount) * 100
     : 0;
 
-  const images = [
-    "https://images.unsplash.com/photo-1536939459926-301728717817",
-    "https://images.unsplash.com/photo-1738969596294-cf44e5091c18",
-    "https://images.unsplash.com/photo-1559079236-2e64f89c7764",
-  ];
   const isActive = campaign.status === "active";
   const nearGoal = progress >= 75;
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-10 xl:gap-35 md:px-6">
+    <div className="flex flex-col md:flex-row items-start gap-10 xl:gap-35 md:px-6">
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
         <div className="flex flex-col justify-center">
           <div className="flex gap-3">
@@ -69,11 +65,11 @@ const CampaignInfoSection = ({ campaignId }: Props) => {
           ]}
         >
           <CarouselContent className="-ml-2">
-            {images.map((image, index) => (
+            {campaign.imageUrl.map((image: string, index: number) => (
               <CarouselItem key={index} className="pl-2 basis-full">
                 <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
                   <Image
-                    src={image}
+                    src={image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL}
                     alt={"image" + index}
                     fill
                     className="object-cover"

@@ -5,7 +5,13 @@ import { nomenclature } from "@/src/constants/nomenclature";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { NgoRegistrationFormData } from "../types";
-import { useConnect, useConnection, useConnectors, useDisconnect, useSignMessage } from "wagmi";
+import {
+  useConnect,
+  useConnection,
+  useConnectors,
+  useDisconnect,
+  useSignMessage,
+} from "wagmi";
 import { useWalletLoginMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -25,11 +31,12 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
 }) => {
   const { mutate } = useConnect();
   const { mutate: disconnect } = useDisconnect();
-  const { isConnected,address } = useConnection();
+  const { isConnected, address } = useConnection();
   const connectors = useConnectors();
-  const {mutateAsync:signMessage} = useSignMessage();
-   const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
-  const [walletLogin, { isLoading,error:walletLoginError }] = useWalletLoginMutation();
+  const { mutateAsync: signMessage } = useSignMessage();
+  const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
+  const [walletLogin, { isLoading, error: walletLoginError }] =
+    useWalletLoginMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [registerNgo, { isLoading: registerNgoLoading }] =
@@ -56,45 +63,49 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
   const handleNGORegistration = async () => {
     const signature = await signMessage({ message });
     console.log({
-                walletAddress: address,
-                signature,
-                message
-              });
-    
-          if(isConnected){
-          walletLogin({
-                walletAddress: address,
-                signature,
-                message
-              }).unwrap().then((res) => {
-              console.log("wallet login response:", res);
-              const updatedNgoData = {
-                ...ngoData,
-                profileImageUrl:ngoData.profileImageUrl.url,
-                imageUrl: ngoData.imageUrl.map((img) => img.url),
-              }
-              registerNgo(updatedNgoData)
-            .unwrap().then((ngoresponse) => {
-                dispatch(
-                  loggedIn({
-                    name: ngoData.organizationName,
-                    email: ngoData.email,
-                    role: "NGO",
-                  }),
-                );
-                console.log("register ngo response:", ngoresponse);
-                router.replace("/ngo");
-              }).catch((err) => {
-                console.log("ngo registration error:", err,walletLoginError);
-              });
+      walletAddress: address,
+      signature,
+      message,
+    });
+
+    if (isConnected) {
+      walletLogin({
+        walletAddress: address,
+        signature,
+        message,
+      })
+        .unwrap()
+        .then((res) => {
+          console.log("wallet login response:", res);
+          const updatedNgoData = {
+            ...ngoData,
+            profileImageUrl: ngoData.profileImageUrl.url,
+            imageUrl: ngoData.imageUrl.map((img) => img.url),
+          };
+          registerNgo(updatedNgoData)
+            .unwrap()
+            .then((ngoresponse) => {
+              dispatch(
+                loggedIn({
+                  name: ngoData.organizationName,
+                  email: ngoData.email,
+                  role: "NGO",
+                }),
+              );
+              console.log("register ngo response:", ngoresponse);
+              router.replace("/ngo");
             })
             .catch((err) => {
-              console.log("wallet login error:", err);
+              console.log("ngo registration error:", err, walletLoginError);
             });
-          } else {
-            toast.warning("Please connect your wallet to continue");
-          }
-  }
+        })
+        .catch((err) => {
+          console.log("wallet login error:", err);
+        });
+    } else {
+      toast.warning("Please connect your wallet to continue");
+    }
+  };
   return (
     <div className="flex-1 bg-white rounded-2xl shadow-sm p-6 space-y-6">
       <FormTitle
