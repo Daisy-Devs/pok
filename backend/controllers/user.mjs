@@ -55,7 +55,10 @@ export const registerUser = async (req, res) => {
 
     // 🔐 Create JWT
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id, 
+        role: "donor" 
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -211,7 +214,10 @@ export const appleAuth = async (req, res) => {
 
     // 🔐 Create JWT
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id,
+        role: "donor"
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -256,7 +262,10 @@ export const loginUser = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id },
+      { 
+        userId: user._id,
+        role: "donor"
+      },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
