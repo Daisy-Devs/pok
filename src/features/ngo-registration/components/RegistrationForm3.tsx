@@ -5,12 +5,13 @@ import { nomenclature } from "@/src/constants/nomenclature";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { NgoRegistrationFormData } from "../types";
-import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
+import { useConnect, useConnection, useConnectors, useDisconnect, useSignMessage } from "wagmi";
 import { useWalletLoginMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { useRegisterNgoMutation } from "@/src/store/services/api/campaignApi";
+import { toast } from "sonner";
 
 interface RegistrationForm3Props {
   changeStep: (step: string) => void;
@@ -26,7 +27,9 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
   const { mutate: disconnect } = useDisconnect();
   const { isConnected,address } = useConnection();
   const connectors = useConnectors();
-  const [walletLogin, { isLoading }] = useWalletLoginMutation();
+  const {mutateAsync:signMessage} = useSignMessage();
+   const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
+  const [walletLogin, { isLoading,error:walletLoginError }] = useWalletLoginMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [registerNgo, { isLoading: registerNgoLoading }] =
@@ -41,25 +44,37 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
       {
         onSuccess: (data) => {
           console.log(data);
+          toast.success("Wallet connected successfully");
         },
         onError: (error) => {
           console.log(error);
+          toast.error("Failed to connect wallet");
         },
       },
     );
   };
   const handleNGORegistration = async () => {
-          const updatedData = { ...ngoData, walletAddress: address };
-          updateNgoData(updatedData);
-          console.log("upd",updatedData);
-          
-          registerNgo(updatedData)
-            .then((res) => {
-              console.log("register ngo response:", res);
-              walletLogin({
+    const signature = await signMessage({ message });
+    console.log({
                 walletAddress: address,
-              }).then((res) => {
-                console.log("wallet login response:", res);
+                signature,
+                message
+              });
+    
+          if(isConnected){
+          walletLogin({
+                walletAddress: address,
+                signature,
+                message
+              }).unwrap().then((res) => {
+              console.log("wallet login response:", res);
+              const updatedNgoData = {
+                ...ngoData,
+                profileImageUrl:ngoData.profileImageUrl.url,
+                imageUrl: ngoData.imageUrl.map((img) => img.url),
+              }
+              registerNgo(updatedNgoData)
+            .unwrap().then((ngoresponse) => {
                 dispatch(
                   loggedIn({
                     name: ngoData.organizationName,
@@ -67,14 +82,18 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
                     role: "NGO",
                   }),
                 );
+                console.log("register ngo response:", ngoresponse);
                 router.replace("/ngo");
               }).catch((err) => {
-                console.log("wallet login error:", err);
+                console.log("ngo registration error:", err,walletLoginError);
               });
             })
             .catch((err) => {
-              console.log("register ngo error:", err);
+              console.log("wallet login error:", err);
             });
+          } else {
+            toast.warning("Please connect your wallet to continue");
+          }
   }
   return (
     <div className="flex-1 bg-white rounded-2xl shadow-sm p-6 space-y-6">

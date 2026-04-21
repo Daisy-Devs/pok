@@ -17,8 +17,7 @@ const NGORegistration = () => {
   email: "",
   country: "",
   website: "",
-  profileImageUrl: "",
-  walletAddress: "",
+  profileImageUrl:{ name: "", url: "" },
   documents: [
   ],
   title: "",

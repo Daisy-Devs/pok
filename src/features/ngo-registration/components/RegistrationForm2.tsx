@@ -7,6 +7,9 @@ import { ArrowLeft } from "lucide-react";
 import SelectCause from "./SelectCause";
 import { UploadBox } from "@/src/components/UploadBox";
 import { NgoRegistrationFormData } from "../types";
+import { UploadDocumentType } from "@/src/constants/types";
+import RichTextEditor from "@/src/components/RichTextEditor";
+
 
 interface RegistrationForm2Props {
   changeStep: (step: string) => void;
@@ -18,8 +21,6 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
   ngoData,
   updateNgoData,
 }) => {
-  const [selectedCause, setSelectedCause] = useState("Environment");
-  console.log("hh", ngoData);
 
   return (
     <div className="flex-1 bg-white rounded-2xl shadow-sm p-6 space-y-6">
@@ -36,17 +37,11 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
         }
       />
 
-      <Input
-        label="Mission Statement"
-        value={ngoData.missionStatement}
-        placeholder={nomenclature.MISSION_STATEMENT_PLACEHOLDER}
-        onChange={(e) =>
-          updateNgoData((prev) => ({
-            ...prev,
-            missionStatement: e.target.value,
-          }))
-        }
-      />
+      <label htmlFor="mission-cause" className="text-xs font-semibold uppercase ">
+        {nomenclature.MISSION_STATEMENT} <span className="text-destructive">*</span>
+      </label>
+      <RichTextEditor  value={ngoData.missionStatement} onChange={(value) => updateNgoData((prev) => ({ ...prev, missionStatement: value as string }))} />
+
       <Input
         label="Goal Amount"
         value={ngoData.goalAmount}
@@ -69,13 +64,11 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
         title="Upload Images"
         subtitle="JPG or PNG or WEBP (Max 2MB)"
         onlyImage={true}
-        multifile={false}
+        multifile={true}
+        limit={5}
         value={ngoData.imageUrl}
-        onChange={(files: string | { name: string; url: string }[]) =>
-          updateNgoData((prev) => ({
-            ...prev,
-            imageUrl: files as string,
-          }))
+        onChange={(files) =>
+          updateNgoData((prev) => ({ ...prev, imageUrl: files as Array<UploadDocumentType> }))
         }
       />
 
@@ -86,7 +79,7 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
           onClick={() => changeStep("1")}
           leftIcon={<ArrowLeft size={16} color="#45464D" />}
         />
-        <Button text="Continue" onClick={() => changeStep("3")} />
+        <Button text="Continue" disabled={!ngoData.missionStatement||!ngoData.title||!ngoData.cause||!ngoData.imageUrl||!ngoData.goalAmount} onClick={() => changeStep("3")} />
       </div>
     </div>
   );

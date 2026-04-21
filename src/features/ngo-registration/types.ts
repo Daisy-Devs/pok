@@ -1,15 +1,16 @@
+import { UploadDocumentType } from "@/src/constants/types";
+
   export interface NgoRegistrationFormData {
     organizationName: string;
     taxId: string;
     email: string;
     country: string;
     website: string;
-    profileImageUrl: string;
-    walletAddress: string;
-    documents: Array<{ name: string; url: string }>;
+    profileImageUrl: UploadDocumentType;
+    documents: Array<UploadDocumentType>;
     title: string;
     missionStatement: string;
     cause: string;
-    imageUrl: string;
+    imageUrl: Array<UploadDocumentType>;
     goalAmount: number;
   }

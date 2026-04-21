@@ -1,4 +1,5 @@
 import { CircleCheck, X } from "lucide-react"
+import { UploadDocumentType } from "../constants/types";
 
 
 const UploadedFile=({fileName}:{fileName:string}) => {
@@ -11,13 +12,13 @@ const UploadedFile=({fileName}:{fileName:string}) => {
   )
 }
 
-const UploadedFileList = ({files}:{files:string[]|Array<{ name: string; url: string }>}) => {
+const UploadedFileList = ({files}:{files:Array<UploadDocumentType>} ) => {
     console.log("files", files);
     
   return (
     <div className='grid gap-2 grid-cols-2 md:grid-cols-5'>
         {files.length > 0 && files.map((file, index) => (
-            <UploadedFile key={index} fileName={typeof file === "string" ? file : file.name} />
+            <UploadedFile key={index} fileName={file.name} />
         ))}
     </div>
   )

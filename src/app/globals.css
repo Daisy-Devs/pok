@@ -6,8 +6,8 @@
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
-  --color-primaryText:var(--text-primary-color);
-  --color-secondaryText:var(--text-secondary-color);
+  --color-primaryText: var(--text-primary-color);
+  --color-secondaryText: var(--text-secondary-color);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -50,7 +50,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
- 
+
 :root {
   --radius: 12px;
 
@@ -69,7 +69,7 @@
 
   /* Primary */
   --primary: #4648D4;
-  --primary-progress:rgba(192, 193, 240, 0.82);
+  --primary-progress: rgba(192, 193, 240, 0.82);
   --primary-light: #E1E0FF;
   --primary-foreground: oklch(0.985 0 0);
 
@@ -118,14 +118,29 @@
   --text-secondary-color: #191C1E;
 
 }
- 
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-primaryText font-normal;
     font-family: var(--font-manrope), sans-serif;
   }
+
 }
 
+  .ProseMirror h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  .ProseMirror ul {
+  list-style: disc !important;
+  padding-left: 1.5rem !important;
+}
+
+.ProseMirror ol {
+  list-style: decimal !important;
+  padding-left: 1.5rem !important;
+}

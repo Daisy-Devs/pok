@@ -6,11 +6,17 @@ const client= axios.create({
   adapter: 'fetch', 
   timeout: 10_000,
   headers: {
-    "Content-Type": "application/json",
     "X-Requested-With": "XMLHttpRequest", // helps backend identify AJAX requests
   },
 })
-
+client.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  } else {
+    config.headers["Content-Type"] = "application/json";
+  }
+  return config;
+});
 client.interceptors.response.use(
   (response:AxiosResponse) => response.data,
   error => {

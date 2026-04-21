@@ -49,6 +49,7 @@ export interface InputProps
   error?: string;
   rightElement?: React.ReactNode;
   leftElement?: React.ReactNode;
+  required?: boolean;
 }
 
 // -----------------------------------------------------------------------------
@@ -65,6 +66,7 @@ function Input({
   id,
   leftElement,
   rightElement,
+  required=true,
   ...props
 }: InputProps) {
   const inputId = id || React.useId();
@@ -74,7 +76,7 @@ function Input({
       <div className="flex items-center justify-between">
       {label && (
         <label htmlFor={inputId} className="text-xs font-semibold uppercase">
-          {label}
+          {label} {required && <span className="text-destructive">*</span>}
         </label>
       )}
       {oppositeLabel && oppositeLabel}
