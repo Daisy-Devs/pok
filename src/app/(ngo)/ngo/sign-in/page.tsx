@@ -1,14 +1,21 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
-import {  useWalletLoginMutation } from "@/src/store/services/api/walletApi";
+import { useWalletLoginMutation } from "@/src/store/services/api/walletApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { WalletIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
+import { toast } from "sonner";
+import {
+  useConnect,
+  useConnection,
+  useConnectors,
+  useDisconnect,
+  useSignMessage,
+} from "wagmi";
 
 const NGOSignIn = () => {
   const { isConnected } = useConnection();
@@ -18,7 +25,8 @@ const NGOSignIn = () => {
   const { mutate: disconnect } = useDisconnect();
   const dispatch = useDispatch();
   const router = useRouter();
-
+  const { mutateAsync: signMessage } = useSignMessage();
+  const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
   const handleWalletConnect = async () => {
     if (isConnected) {
       disconnect();
@@ -27,24 +35,31 @@ const NGOSignIn = () => {
     mutate(
       { connector: connectors[0] },
       {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
+          const signature = await signMessage({ message });
+
           console.log(data);
           walletLogin({
             walletAddress: data.accounts[0],
-          }).then((res) => {
-            console.log("wallet login response:", res);
-            dispatch(
-              loggedIn({
-                name: "NGO",
-                email: "",
-                role: "NGO",
-              }),
-            );
-            router.replace("/ngo");
-          });
+            signature,
+            message,
+          })
+            .unwrap()
+            .then((res) => {
+              console.log("wallet login response:", res);
+              dispatch(
+                loggedIn({
+                  name: res.data.ngo.name,
+                  email: res.data.ngo.email,
+                  role: "NGO",
+                }),
+              );
+              router.replace("/ngo");
+            });
         },
         onError: (error) => {
           console.log(error);
+          toast.error("Failed to connect wallet");
         },
       },
     );
@@ -79,9 +94,9 @@ const NGOSignIn = () => {
           {nomenclature.NEW_TO_POK + " "}
           <br />
           <Link href="/ngo/register">
-          <span className="text-primary cursor-pointer hover:underline">
-            {nomenclature.SIGN_UP}
-          </span>
+            <span className="text-primary cursor-pointer hover:underline">
+              {nomenclature.SIGN_UP}
+            </span>
           </Link>
         </div>
       </div>

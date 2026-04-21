@@ -18,26 +18,51 @@ import { useDispatch } from "react-redux";
 import { loggedOut } from "../store/services/slice/authSlice";
 import { useDonorLogoutMutation } from "../store/services/api/donorAuthApi";
 import { toast } from "sonner";
+import { useDisconnectWalletMutation } from "../store/services/api/walletApi";
+import { useConnection, useDisconnect } from "wagmi";
 import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
 
 const Navbar = () => {
-  const { handleWalletConnect, isConnected } = useWalletConnectHandler();
+  const {handleWalletConnect}=useWalletConnectHandler();
+  const { isConnected } = useConnection();
+  const { mutate } = useDisconnect();
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
-  const [donorLogout, { isError, error }] = useDonorLogoutMutation();
+  const [donorLogout, { isLoading: logoutLoading }] = useDonorLogoutMutation();
+  const [disconnectWallet, { isLoading: disconnectWalletLoading }] =
+    useDisconnectWalletMutation();
+
   const handleLogout = async () => {
-    const res = await donorLogout({});
-    if (isError) {
-      console.log(error);
-      toast.error("Logout failed");
-      return;
-    }
-    console.log("logged out", res);
-    dispatch(loggedOut());
-    router.push("/sign-in");
-    toast.success("Logout successful");
+    donorLogout({})
+      .unwrap()
+      .then((res) => {
+        console.log("logged out", res);
+        if (isConnected) {
+          disconnectWallet({})
+            .unwrap()
+            .then((walletRes) => {
+              mutate();
+              console.log("wallet disconnected", walletRes);
+              dispatch(loggedOut());
+              router.push("/sign-in");
+              toast.success("You've been logged out");
+            })
+            .catch((err) => {
+              console.log(err);
+              toast.error("wallet disconnection failed");
+            });
+        } else {
+          dispatch(loggedOut());
+          router.push("/sign-in");
+          toast.success("You've been logged out");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Logout failed");
+      });
   };
   return (
     <div className="h-16 px-6 flex items-center justify-between ring-2 ring-border bg-background">
@@ -115,9 +140,11 @@ const Navbar = () => {
             <Link href="/ngo/sign-in">
               <Button variant={"outline"} text={nomenclature.NGO_PORTAL} />
             </Link>
+         {pathname!=='/sign-in' && (
             <Link href="/sign-in">
               <Button text={nomenclature.SIGN_IN} />
             </Link>
+          )}
           </>
         )}
       </div>
