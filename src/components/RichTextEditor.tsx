@@ -6,36 +6,46 @@ import { SetStateAction, Dispatch } from "react";
 import { NgoRegistrationFormData } from "../features/ngo-registration/types";
 import { List, ListOrdered } from "lucide-react";
 
+const CHAR_LIMIT = 1000;
+
 interface RichTextEditorProps {
   value: string;
-  onChange: Dispatch<
-    SetStateAction<NgoRegistrationFormData["missionStatement"]>
-  >;
+  onChange: Dispatch<SetStateAction<NgoRegistrationFormData["missionStatement"]>>;
 }
-export default function RichTextEditor({
-  value,
-  onChange,
-}: RichTextEditorProps) {
+
+export default function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editor = useEditor({
-    extensions: [StarterKit.configure({
-        heading: {
-            levels: [1, 2, 3],
-        },
-    })],
+    extensions: [
+      StarterKit.configure({
+        heading: { levels: [1, 2, 3] },
+      }),
+    ],
     immediatelyRender: false,
     content: value,
     editorProps: {
-    transformPastedHTML(html) {
-      return html; 
+      transformPastedHTML(html) {
+        return html;
+      },
     },
-  },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML()); // gives you HTML string
+      const text = editor.getText();
+
+      if (text.length > CHAR_LIMIT) {
+        // Revert to last valid state
+        editor.commands.undo();
+        return;
+      }
+
+      onChange(editor.getHTML());
     },
   });
 
+  const charCount = editor?.getText().length ?? 0;
+  const isNearLimit = charCount >= CHAR_LIMIT * 0.9;
+  const isAtLimit = charCount >= CHAR_LIMIT;
+
   return (
-    <div id="mission-cause" className="border rounded-xl overflow-hidden">
+    <div id="mission-cause" className="border rounded-xl overflow-hidden max-w-3xl">
       {/* Toolbar */}
       <div className="flex gap-1 p-2 border-b bg-gray-50">
         <Button
@@ -67,14 +77,11 @@ export default function RichTextEditor({
           type="button"
           variant="outline"
           text="H1"
-          onClick={() =>{
-            console.log("can toggle?", editor?.can().toggleHeading({ level: 1 }));
-            editor?.chain().focus().toggleHeading({ level: 1 }).run()}
-          }
+          onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
           className={`p-1 h-8 aspect-square rounded text-sm font-bold ${editor?.isActive("heading", { level: 1 }) ? "bg-gray-200" : ""}`}
         />
         <Button
-            type="button"
+          type="button"
           variant="outline"
           leftIcon={<List size={15} />}
           onClick={() => editor?.chain().focus().toggleBulletList().run()}
@@ -82,7 +89,6 @@ export default function RichTextEditor({
         />
         <Button
           type="button"
-
           variant="outline"
           leftIcon={<ListOrdered size={15} />}
           onClick={() => editor?.chain().focus().toggleOrderedList().run()}
@@ -95,6 +101,20 @@ export default function RichTextEditor({
         editor={editor}
         className="prose max-w-none p-4 min-h-[150px] focus:outline-none"
       />
+
+      <div className="flex justify-end px-4 py-2 border-t bg-gray-50">
+        <span
+          className={`text-xs ${
+            isAtLimit
+              ? "text-red-500 font-semibold"
+              : isNearLimit
+              ? "text-orange-400"
+              : "text-gray-400"
+          }`}
+        >
+          {charCount} / {CHAR_LIMIT}
+        </span>
+      </div>
     </div>
   );
 }
