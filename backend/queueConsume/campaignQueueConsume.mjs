@@ -1,6 +1,7 @@
 import { campaignQueue } from "../queues/campaignQueue.mjs";
 import { ethers } from "ethers";
 import contract from "../config/contract.mjs";
+import { Campaign } from "../models/campaign.mjs";
 
 export const startWorker = async () => {
   console.log("🚀 Worker started...");
