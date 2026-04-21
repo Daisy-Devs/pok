@@ -1,7 +1,5 @@
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
 
-import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
-
 export const uploadDocuments = async (req, res) => {
   try {
     const files = req.files;
@@ -77,7 +75,7 @@ export const uploadDocuments = async (req, res) => {
 
 export const uploadCauseImages = async (req, res) => {
   try {
-    const files = req.files; // upload.array("images", 5)
+    const files = req.files;
 
     // ✅ Min / Max count
     if (!files || files.length === 0) {
@@ -88,7 +86,9 @@ export const uploadCauseImages = async (req, res) => {
       return res.status(400).json({ message: "Max 5 images allowed" });
     }
 
-    // ✅ Validate each file
+    const uploadedImages = [];
+
+    // ✅ Validate + Upload
     for (const file of files) {
       if (!file.mimetype.startsWith("image/")) {
         return res.status(400).json({ message: "Only image files allowed" });
@@ -97,16 +97,19 @@ export const uploadCauseImages = async (req, res) => {
       if (file.size > 2 * 1024 * 1024) {
         return res.status(400).json({ message: "Each image must be <= 2MB" });
       }
-    }
 
-    // ✅ Upload all
-    const imageUrls = await Promise.all(
-      files.map(file => uploadToCloudinary(file.buffer))
-    );
+      const url = await uploadToCloudinary(file.buffer);
+
+      uploadedImages.push({
+        name: file.originalname,
+        url,
+        type: "image"
+      });
+    }
 
     return res.status(200).json({
       message: "Images uploaded successfully",
-      imageUrls
+      images: uploadedImages
     });
 
   } catch (err) {
@@ -116,7 +119,7 @@ export const uploadCauseImages = async (req, res) => {
 
 export const uploadProfileImage = async (req, res) => {
   try {
-    const file = req.file; // upload.single("profileImage")
+    const file = req.file;
 
     // ✅ Required
     if (!file) {
@@ -133,12 +136,15 @@ export const uploadProfileImage = async (req, res) => {
       return res.status(400).json({ message: "Profile image must be <= 2MB" });
     }
 
-    // ✅ Upload
     const url = await uploadToCloudinary(file.buffer);
 
     return res.status(200).json({
       message: "Profile image uploaded successfully",
-      profileImageUrl: url
+      profileImage: {
+        name: file.originalname,
+        url,
+        type: "image"
+      }
     });
 
   } catch (err) {
