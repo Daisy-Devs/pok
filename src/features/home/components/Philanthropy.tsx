@@ -8,9 +8,13 @@ import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/dist/client/components/navigation";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { useAppSelector } from "@/src/store/store";
+import { selectIsAuthenticated } from "@/src/store/services/selectors/authSelectors";
+import { toast } from "sonner";
 
 export default function Philanthropy() {
   const { isConnected } = useConnection();
+  const isAuthenticated= useAppSelector(selectIsAuthenticated);
   const { mutate } = useConnect();
   const connectors = useConnectors();
   const { mutate: disconnect } = useDisconnect();
@@ -18,6 +22,12 @@ export default function Philanthropy() {
   const dispatch = useDispatch();
   const router = useRouter();
   const handleWalletConnect = async () => {
+    if(!isAuthenticated){
+      router.push("/sign-in");
+      toast.info("Please sign in to connect your wallet and start donating!");
+      return;
+    }
+
     if (isConnected) {
       disconnect();
       return;
@@ -131,7 +141,6 @@ export default function Philanthropy() {
                 <div className="h-1.5 w-16 rounded-full bg-secondary" />
               </div>
             </div>
-            {/* Ready to Impact CTA */}
             <div className="bg-gray-50 border border-gray-100 rounded-2xl p-7 flex flex-col justify-center items-center text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
               <h3 className="text-4xl font-black text-secondary-color mb-3">
                 Ready to make an impact?
