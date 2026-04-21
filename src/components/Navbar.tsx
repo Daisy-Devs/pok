@@ -18,8 +18,10 @@ import { useDispatch } from "react-redux";
 import { loggedOut } from "../store/services/slice/authSlice";
 import { useDonorLogoutMutation } from "../store/services/api/donorAuthApi";
 import { toast } from "sonner";
+import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
 
 const Navbar = () => {
+  const { handleWalletConnect, isConnected } = useWalletConnectHandler();
   const isLoggedIn = useAppSelector(selectIsAuthenticated);
   const pathname = usePathname();
   const dispatch = useDispatch();
@@ -94,8 +96,8 @@ const Navbar = () => {
                 <DropdownMenuItem asChild>
                   <Link href="/profile">View Profile</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/">Connect Wallet</Link>
+                <DropdownMenuItem onClick={handleWalletConnect}>
+                  {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-500"

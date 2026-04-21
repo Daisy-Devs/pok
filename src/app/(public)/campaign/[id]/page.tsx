@@ -12,7 +12,7 @@ const Campaign= async({params}: CampaignProps) => {
   return (
     <div className='flex flex-col space-y-20 py-15'>
       <CampaignInfoSection campaignId={id}/>
-      <ProtocolTransparency />
+      <ProtocolTransparency campaignId={''} />
       <LiveDonationActivity/>
       <SeeTheChange/>
       </div>

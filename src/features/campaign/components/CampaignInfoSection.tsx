@@ -42,16 +42,16 @@ const CampaignInfoSection = ({ campaignId }: Props) => {
     "https://images.unsplash.com/photo-1738969596294-cf44e5091c18",
     "https://images.unsplash.com/photo-1559079236-2e64f89c7764",
   ];
-const isActive = campaign.status === "active";
-const nearGoal = progress >= 75;
+  const isActive = campaign.status === "active";
+  const nearGoal = progress >= 75;
 
   return (
     <div className="flex flex-col md:flex-row items-center gap-10 xl:gap-35 md:px-6">
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
         <div className="flex flex-col justify-center">
           <div className="flex gap-3">
-             {isActive && <Pill text="Active Campaign" variant="primary" />}
-             {nearGoal && (
+            {isActive && <Pill text="Active Campaign" variant="primary" />}
+            {nearGoal && (
               <Pill
                 text="Goal Near"
                 variant="secondary"
@@ -88,9 +88,12 @@ const nearGoal = progress >= 75;
           <CarouselPrevious className="left-5" />
           <CarouselNext className="right-5" />
         </Carousel>
-        <p className="text-primaryText text-base font-normal w-80 md:w-159">
-          {campaign.missionStatement}
-        </p>
+        <p
+          className="text-primaryText text-base font-normal w-80 md:w-159"
+          dangerouslySetInnerHTML={{
+            __html: campaign.missionStatement,
+          }}
+        />
         <div className="w-full">
           <p className="uppercase text-sm font-bold mb-1">funding progress</p>
           <ProgressWithLabel
