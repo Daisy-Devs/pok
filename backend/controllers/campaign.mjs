@@ -100,6 +100,8 @@ export const createOrgAndCampaign = async (req, res) => {
       ngoWallet: walletAddress
     });
 
+    console.log("✅ Job added to queue:", campaignIdBytes32);
+
     // ✅ 6. RESPONSE
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
