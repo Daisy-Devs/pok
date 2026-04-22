@@ -43,10 +43,9 @@ export default function Philanthropy() {
               loggedIn({
                 name: "Donor",
                 email: "",
-                role: "DONOR",
+                role: "Donor",
               }),
             );
-            document.cookie = `role=DONOR; path=/; max-age=${60 * 60 * 24}`;
             router.push("/explore");
           });
         },

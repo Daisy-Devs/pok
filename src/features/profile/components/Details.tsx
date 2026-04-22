@@ -73,7 +73,7 @@ const Details = () => {
                 loggedIn({
                   name: user?.data?.name || "Donor",
                   email: user?.data?.email || "",
-                  role: "DONOR",
+                  role: "Donor",
                 }),
               );
             })
