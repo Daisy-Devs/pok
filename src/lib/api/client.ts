@@ -4,7 +4,7 @@ const client= axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,       // sends httpOnly cookie automatically
   adapter: 'fetch', 
-  timeout: 10_000,
+  timeout: 20_000,
   headers: {
     "X-Requested-With": "XMLHttpRequest", // helps backend identify AJAX requests
   },
