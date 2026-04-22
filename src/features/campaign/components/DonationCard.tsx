@@ -2,30 +2,100 @@ import { useState } from "react";
 import Image from "next/image";
 import { Switch } from "@/src/components/ui/switch";
 import { Button } from "@/src/components/ui/button";
+import { useConnection, usePublicClient, useWriteContract } from "wagmi";
+import { parseEther } from "viem";
+import { toast } from "sonner";
+import { CONTRACT_ABI } from "@/src/constants/contract";
+import { useAppSelector } from "@/src/store/store";
+import { selectUser } from "@/src/store/services/selectors/authSelectors";
+import { useRouter } from "next/navigation";
+import { Spinner } from "@/src/components/ui/spinner";
+import { Sparkle } from "lucide-react";
 
 const ETH_TO_USD = 2450;
 
-function SparkleIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M8 1L9.5 6.5L15 8L9.5 9.5L8 15L6.5 9.5L1 8L6.5 6.5L8 1Z" fill="#34d399" />
-    </svg>
-  );
-}
-
-export default function DonationCard() {
+export default function DonationCard({ campaignId }: { campaignId: string }) {
   const [anonymous, setAnonymous] = useState(false);
   const [amount, setAmount] = useState("");
 
-  const usd = amount ? (parseFloat(amount) * ETH_TO_USD).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00";
+  const usd = amount
+    ? (parseFloat(amount) * ETH_TO_USD).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    : "0.00";
   const filters = amount ? Math.round(parseFloat(amount) * 500) : 0;
-  const individuals = amount ? Math.round(parseFloat(amount) * 2500).toLocaleString() : "0";
+  const individuals = amount
+    ? Math.round(parseFloat(amount) * 2500).toLocaleString()
+    : "0";
 
+  // Smart contract interaction details
+  const CONTRACT_ADDRESS = process.env
+    .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+  const { isConnected } = useConnection();
+  const {
+    mutateAsync: writeContract,
+    data: hash,
+    isPending,
+    error: writeError,
+  } = useWriteContract();
+  const client = usePublicClient();
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const user = useAppSelector(selectUser);
+  const router = useRouter();
+
+  async function handleDonate() {
+    if (user?.role !== "Donor") {
+      toast.info("Sign in to start donating.");
+      router.push("/sign-in");
+      return;
+    }
+    if (!isConnected) {
+      toast.warning("Please connect your wallet to donate.");
+      return;
+    }
+    if (!amount || parseFloat(amount) <= 0) return;
+    console.log("Inside handleDonate", {
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: "donate",
+      args: [campaignId, anonymous], // passes the anonymous bool
+      value: parseEther(amount), // sends ETH along with the call
+      gas: 100000n,
+    });
+
+    writeContract({
+      address: CONTRACT_ADDRESS,
+      abi: CONTRACT_ABI,
+      functionName: "donate",
+      args: [campaignId, anonymous], // passes the anonymous bool
+      value: parseEther(amount), // sends ETH along with the call
+      gas: 100000n,
+    })
+      .then(async (res) => {
+        setIsConfirming(true);
+        const receipt = await client?.waitForTransactionReceipt({ hash: res });
+        if (receipt?.status == "success") {
+          toast.success(
+            "Donation successful! Thank you for your generosity.🫶",
+          );
+          setAmount("");
+        }
+      })
+      .catch((err) => {
+        console.error("Donation failed:", err, writeError);
+        toast.error("Donation failed. Please try again.");
+      }).finally(() => setIsConfirming(false));
+  }
+  const isBusy = isPending || isConfirming;
   return (
     <div className="flex items-center justify-center p-4 xl:p-10">
       <div className="bg-white rounded-3xl shadow-xl p-7 w-full max-w-sm xl:max-w-md font-sans">
         <div className="flex items-center justify-between mb-6 xl:space-y-4">
-          <h1 className="text-2xl w-full font-bold text-secondaryText tracking-tight">Make an Impact</h1>
+          <h1 className="text-2xl w-full font-bold text-secondaryText tracking-tight">
+            Make an Impact
+          </h1>
           <div className="flex items-center gap-2">
             <span className="text-xs text-primaryText">Donate Anonymously</span>
             <Switch
@@ -66,8 +136,10 @@ export default function DonationCard() {
 
         <div className="bg-tertiary rounded-2xl p-4 mb-5">
           <div className="flex items-center gap-1.5 mb-2">
-            <SparkleIcon />
-            <span className="text-sm font-bold text-white">Impact Forecast</span>
+            <Sparkle color="#34d399" size={15}/>
+            <span className="text-sm font-bold text-white">
+              Impact Forecast
+            </span>
           </div>
           <p className="text-white font-bold text-lg leading-snug mb-1">
             {amount && parseFloat(amount) > 0
@@ -80,11 +152,26 @@ export default function DonationCard() {
               : "Providing safe water to 2,500 individuals for 5 years."}
           </p>
         </div>
-
-        <Button text="Confirm Donation" size={"lg"} className="h-15 w-full rounded-xl font-semibold text-lg"/>
-
+        {isBusy ? (
+          <Button
+            disabled
+            text="Making an impact🔗..."
+            size={"lg"}
+            className="h-15 w-full rounded-xl font-semibold text-lg"
+            leftIcon={<Spinner />}
+          />
+        ) : (
+          <Button
+            onClick={handleDonate}
+            disabled={!amount || parseFloat(amount) <= 0}
+            text="Confirm Donation"
+            size={"lg"}
+            className="h-15 w-full rounded-xl font-semibold text-lg"
+          />
+        )}
         <p className="mt-6 text-center text-xs text-primaryText leading-tight">
-          By clicking confirm, you agree to our Terms of Service. Your transaction will be permanently recorded on the Ethereum Blockchain.
+          By clicking confirm, you agree to our Terms of Service. Your
+          transaction will be permanently recorded on the Ethereum Blockchain.
         </p>
       </div>
     </div>
