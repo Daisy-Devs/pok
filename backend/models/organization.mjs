@@ -7,7 +7,10 @@ const OrganizationSchema = new mongoose.Schema(
     email: { type: String, unique: true, sparse: true },
     country: { type: String },
     website: { type: String },
-    profileImageUrl: { type: String },
+    profileImage: {
+      url: String,
+      public_id: String
+    },
     walletAddress: { type: String, required: true, unique: true },
     documents: [
       {
