@@ -13,7 +13,6 @@ import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
 import { CheckCircle2, GlassWater } from "lucide-react";
 import Image from "next/image";
-import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
@@ -137,7 +136,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
           />
         </div>
       </div>
-      <DonationCard />
+      <DonationCard campaignId={campaign.campaignIdBytes32} />
     </div>
   );
 };
