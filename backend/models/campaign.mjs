@@ -18,6 +18,11 @@ const CampaignSchema = new mongoose.Schema(
       default: []
     },
     goalAmount: { type: Number, required: true },
+    goalToken: {
+      type: String,
+      enum: ["ETH", "USDC", "USDT", "DAI"],
+      required: true
+    },
     raisedAmount: { type: Number, default: 0 },
     status: {
       type: String,

@@ -7,7 +7,15 @@ import { ethers } from "ethers";
 export const createOrgAndCampaign = async (req, res) => {
   try {
     const walletAddress = req.walletAddress;
+    const body = req.body;
 
+    // 🔹 Validate
+    const error = validateCampaignInput(body);
+    if (error) {
+      return sendResponse(res, 400, error);
+    }
+
+    // 🔹 Destructure (after validation)
     const {
       organizationName,
       taxId,
@@ -21,53 +29,24 @@ export const createOrgAndCampaign = async (req, res) => {
       cause,
       imageUrl,
       goalAmount,
+      goalToken,
       status
-    } = req.body;
+    } = body;
 
-    // ✅ 1. VALIDATION
-    if (!organizationName ||!taxId ||!email || !country) {
-      return sendResponse(res, 400, "Name, Tax Id, email, and country are required");
-    }
+    // 🔹 Normalize
+    const normalizedToken = goalToken.toUpperCase();
 
-    if (!title || !missionStatement || !cause || !goalAmount) {
-      return sendResponse(res, 400, "All campaign fields are required");
-    }
-
-    // ✅ URL validation
-    const isValidUrl = (url) =>
-      typeof url === "string" && url.startsWith("https://res.cloudinary.com/");
-
-    if (profileImageUrl && !isValidUrl(profileImageUrl)) {
-      return sendResponse(res, 400, "Invalid profile image URL");
-    }
-
-    if (imageUrl?.some(url => !isValidUrl(url))) {
-      return sendResponse(res, 400, "Invalid campaign image URL");
-    }
-
-    if (documents?.some(doc => !doc.name || !isValidUrl(doc.url))) {
-      return sendResponse(res, 400, "Invalid documents");
-    }
-
-    // ✅ limits
-    if (imageUrl?.length > 5) {
-      return sendResponse(res, 400, "Max 5 campaign images allowed");
-    }
-
-    if (documents?.length > 5) {
-      return sendResponse(res, 400, "Max 5 documents allowed");
-    }
-
-    // ✅ 2. FIND OR CREATE + UPDATE (clean pattern)
+    // 🔹 Find or create organization
     let organization = await Organization.findOne({ walletAddress });
 
     if (!organization) {
       organization = new Organization({ walletAddress });
     }
 
-    organization.name = organizationName;
-    organization.taxId = taxId;
-    organization.email = email;
+    // 🔹 Safe updates (no accidental overwrite issues)
+    organization.name = organizationName.trim();
+    organization.taxId = taxId.trim();
+    organization.email = email.trim();
     organization.country = country;
     organization.website = website;
     organization.profileImageUrl = profileImageUrl;
@@ -76,11 +55,11 @@ export const createOrgAndCampaign = async (req, res) => {
 
     await organization.save();
 
-    // ✅ 3. CREATE CAMPAIGN ID
+    // 🔹 Create campaign ID
     const campaignId = `campaign-${uuidv4()}`;
     const campaignIdBytes32 = ethers.id(campaignId);
 
-    // ✅ 4. CREATE CAMPAIGN
+    // 🔹 Create campaign
     const campaign = await Campaign.create({
       id: campaignId,
       campaignIdBytes32,
@@ -90,11 +69,12 @@ export const createOrgAndCampaign = async (req, res) => {
       cause,
       imageUrl,
       goalAmount,
+      goalToken: normalizedToken,
       status: status || "draft",
       onChainStatus: "pending"
     });
 
-    // ✅ 5. QUEUE BLOCKCHAIN JOB
+    // 🔹 Queue blockchain job
     await campaignQueue.addJob({
       campaignIdBytes32,
       ngoWallet: walletAddress
@@ -102,13 +82,14 @@ export const createOrgAndCampaign = async (req, res) => {
 
     console.log("✅ Job added to queue:", campaignIdBytes32);
 
-    // ✅ 6. RESPONSE
+    // 🔹 Response
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
       campaign
     });
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };
@@ -233,4 +214,152 @@ export const getCampaignsByOrganization = async (req, res) => {
   } catch (error) {
     return sendResponse(res, 500, error.message);
   }
+};
+
+const validateCampaignInput = (body) => {
+  const {
+    organizationName,
+    taxId,
+    email,
+    country,
+    website,
+    title,
+    missionStatement,
+    cause,
+    goalAmount,
+    goalToken,
+    imageUrl,
+    documents,
+    profileImageUrl,
+    status
+  } = body;
+
+  // 🔹 Helpers
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const isValidUrl = (url) =>
+    typeof url === "string" &&
+    url.startsWith("https://res.cloudinary.com/");
+
+  const isValidWebsite = (url) =>
+    typeof url === "string" &&
+    url.startsWith("https://");
+
+  // 🔹 Trim inputs
+  const orgName = organizationName?.trim();
+  const mail = email?.trim();
+  const tax = taxId?.trim();
+
+  // 🔹 Required fields
+  if (!orgName || !tax || !mail || !country) {
+    return "Name, Tax Id, email, and country are required";
+  }
+
+  if (!title || !missionStatement || !cause || !goalAmount || !goalToken) {
+    return "All campaign fields are required";
+  }
+
+  // 🔹 Email validation
+  if (!isValidEmail(mail)) {
+    return "Invalid email format";
+  }
+
+  // 🔹 Tax ID validation
+  if (typeof tax !== "string" || tax.length < 3) {
+    return "Invalid tax ID";
+  }
+
+  // 🔹 Website validation
+  if (website && !isValidWebsite(website)) {
+    return "Invalid website URL";
+  }
+
+  // 🔹 Mission statement length
+  if (typeof missionStatement !== "string" || missionStatement.length > 1000) {
+    return "Mission statement must be ≤ 1000 characters";
+  }
+
+  // 🔹 Token config
+  const token = goalToken.toUpperCase();
+
+  const limits = {
+    ETH: { min: 0.001, max: 1000, decimals: 6 },
+    USDC: { min: 1, max: 1000000, decimals: 2 },
+    USDT: { min: 1, max: 1000000, decimals: 2 },
+    DAI: { min: 1, max: 1000000, decimals: 2 }
+  };
+
+  const config = limits[token];
+
+  if (!config) {
+    return "Invalid token selected";
+  }
+
+  // 🔹 Amount validation (fix applied)
+  const amountStr = goalAmount.toString();
+  const amount = Number(amountStr);
+
+  if (isNaN(amount) || amount <= 0) {
+    return "Invalid goal amount";
+  }
+
+  const decimalPart = amountStr.split(".")[1] || "";
+  if (decimalPart.length > config.decimals) {
+    return `${token} supports up to ${config.decimals} decimal places`;
+  }
+
+  if (amount < config.min || amount > config.max) {
+    return `Goal for ${token} must be between ${config.min} and ${config.max}`;
+  }
+
+  // 🔹 Status validation
+  const allowedStatus = ["draft", "active", "paused"];
+  if (status && !allowedStatus.includes(status)) {
+    return "Invalid status value";
+  }
+
+  // 🔹 Profile image
+  if (profileImageUrl && !isValidUrl(profileImageUrl)) {
+    return "Invalid profile image URL";
+  }
+
+  // 🔹 Campaign images
+  if (imageUrl) {
+    if (!Array.isArray(imageUrl)) {
+      return "imageUrl must be an array";
+    }
+
+    if (imageUrl.length > 5) {
+      return "Max 5 campaign images allowed";
+    }
+
+    if (imageUrl.some((url) => !isValidUrl(url))) {
+      return "Invalid campaign image URL";
+    }
+  }
+
+  // 🔹 Documents
+  if (documents) {
+    if (!Array.isArray(documents)) {
+      return "documents must be an array";
+    }
+
+    if (documents.length > 5) {
+      return "Max 5 documents allowed";
+    }
+
+    if (
+      documents.some(
+        (doc) =>
+          !doc ||
+          typeof doc.name !== "string" ||
+          !isValidUrl(doc.url)
+      )
+    ) {
+      return "Invalid documents";
+    }
+  }
+
+  return null; // ✅ No errors
 };

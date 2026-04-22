@@ -8,7 +8,8 @@ import {
   resetPassword,
   appleAuth,
   logoutUser,
-  getCurrentUser
+  getCurrentUser,
+  getUserProfile
 } from '../controllers/user.mjs';
 import { donorAuth } from '../middleware/donorAuth.mjs';
 
@@ -22,6 +23,7 @@ router.post('/forgotPassword', forgotPassword);
 router.post('/resetPassword/:token', resetPassword)
 router.post('/logout', donorAuth, logoutUser);
 router.get('/me', donorAuth, getCurrentUser);
+router.get('/profile', donorAuth, getUserProfile);
 router.get('/', getUsers);
 
 export default router;

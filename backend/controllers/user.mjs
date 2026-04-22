@@ -6,6 +6,8 @@ import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/user.mjs';
 import { sendResponse } from '../utils/response.mjs';
 import { sendEmail } from '../utils/sendEmail.mjs';
+import { DonationRecord } from '../models/donationRecord.mjs';
+import { Campaign } from '../models/campaign.mjs';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -417,6 +419,95 @@ export const getCurrentUser = async (req, res) => {
     return sendResponse(res, 200, 'User fetched', req.user);
   } catch (error) {
     return sendResponse(res, 500, error.message);
+  }
+};
+
+export const getUserProfile = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    // ✅ Pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    // ✅ 1. Get user
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ 2. STATS using aggregation (efficient)
+    const statsAgg = await DonationRecord.aggregate([
+      { $match: { userId: user._id } },
+      {
+        $group: {
+          _id: null,
+          totalAmountDonated: {
+            $sum: { $toDouble: "$amount" }
+          },
+          campaigns: { $addToSet: "$campaignId" }
+        }
+      }
+    ]);
+
+    const totalAmountDonated = statsAgg[0]?.totalAmountDonated || 0;
+    const causesSupported = statsAgg[0]?.campaigns?.length || 0;
+
+    // ✅ 3. PAGINATED donations
+    const donations = await DonationRecord.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // ✅ 4. Get campaign names
+    const campaignIds = [
+      ...new Set(donations.map(d => d.campaignId))
+    ];
+
+    const campaigns = await Campaign.find({
+      id: { $in: campaignIds }
+    });
+
+    const campaignMap = {};
+    campaigns.forEach(c => {
+      campaignMap[c.id] = c.title;
+    });
+
+    // ✅ 5. Format recent impact
+    const recentImpact = donations.map(d => ({
+      campaignId: d.campaignId,
+      campaignName: campaignMap[d.campaignId] || "Unknown",
+      amount: d.amount,
+      date: d.createdAt,
+      transactionHash: d.transactionHash
+    }));
+
+    // ✅ 6. Total count for pagination
+    const totalRecords = await DonationRecord.countDocuments({ userId });
+
+    return res.status(200).json({
+      profile: {
+        name: user.name,
+        walletAddress: user.walletAddress,
+        profileImage: user.profileImage?.url || null,
+        memberSince: user.createdAt
+      },
+      stats: {
+        totalAmountDonated,
+        causesSupported
+      },
+      recentImpact,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalRecords / limit),
+        totalRecords
+      }
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
 };
 

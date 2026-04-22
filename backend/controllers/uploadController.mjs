@@ -121,30 +121,120 @@ export const uploadProfileImage = async (req, res) => {
   try {
     const file = req.file;
 
-    // ✅ Required
     if (!file) {
       return res.status(400).json({ message: "Profile image is required" });
     }
 
-    // ✅ Type check
     if (!file.mimetype.startsWith("image/")) {
       return res.status(400).json({ message: "Only image allowed" });
     }
 
-    // ✅ Size check
     if (file.size > 2 * 1024 * 1024) {
-      return res.status(400).json({ message: "Profile image must be <= 2MB" });
+      return res.status(400).json({ message: "Max size is 2MB" });
     }
 
-    const url = await uploadToCloudinary(file.buffer);
+    const org = await Organization.findById(req.ngoId);
+
+    if (!org) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    const result = await uploadToCloudinary(file.buffer);
+
+    org.profileImage = {
+      url: result.url,
+      public_id: result.public_id
+    };
+
+    await org.save();
 
     return res.status(200).json({
       message: "Profile image uploaded successfully",
       profileImage: {
-        name: file.originalname,
-        url,
+        name: file.originalname,   
+        url: result.url,           
         type: "image"
       }
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateProfileImage = async (req, res) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
+    if (!file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ message: "Only image allowed" });
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      return res.status(400).json({ message: "Max size is 2MB" });
+    }
+
+    const org = await Organization.findById(req.ngoId);
+
+    if (!org) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    // ✅ Delete old image (if exists)
+    if (org.profileImage?.public_id) {
+      await cloudinary.uploader.destroy(org.profileImage.public_id);
+    }
+
+    // ✅ Upload new image
+    const result = await uploadToCloudinary(file.buffer);
+
+    org.profileImage = {
+      url: result.url,
+      public_id: result.public_id
+    };
+
+    await org.save();
+
+    return res.status(200).json({
+      message: "Profile image updated successfully",
+      profileImage: {
+        name: file.originalname,
+        url: result.url,
+        type: "image"
+      }
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+export const deleteProfileImage = async (req, res) => {
+  try {
+    const org = await Organization.findById(req.ngoId);
+
+    if (!org) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    if (!org.profileImage?.public_id) {
+      return res.status(400).json({ message: "No profile image to delete" });
+    }
+
+    // ✅ Delete from Cloudinary
+    await cloudinary.uploader.destroy(org.profileImage.public_id);
+
+    // ✅ Remove from DB
+    org.profileImage = null;
+
+    await org.save();
+
+    return res.status(200).json({
+      message: "Profile image deleted successfully"
     });
 
   } catch (err) {
