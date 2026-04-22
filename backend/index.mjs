@@ -6,6 +6,7 @@ import routes from './routes/index.mjs';
 
 import { startAllListeners } from "./services/index.mjs";
 import { startWorker } from "./queueConsume/campaignQueueConsume.mjs";
+import { redis } from './utils/redis.mjs';
 
 const app = express();
 
@@ -24,13 +25,15 @@ app.use('/', routes);
 
 // ✅ MongoDB connection + start listeners
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log('MongoDB connected');
 
-    // 🔥 START LISTENERS HERE
     startAllListeners();
-
     startWorker();
+
+    // ✅ TEMP - clear Redis
+    // await redis.flushall()
+    // console.log("🔥 Redis cleared");
 
   })
   .catch(err => console.log(err));

@@ -74,6 +74,8 @@ export const createOrgAndCampaign = async (req, res) => {
       onChainStatus: "pending"
     });
 
+    console.log("🔥 Before queue");
+
     // 🔹 Queue blockchain job
     await campaignQueue.addJob({
       campaignIdBytes32,
