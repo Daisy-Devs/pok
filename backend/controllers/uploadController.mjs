@@ -1,3 +1,4 @@
+import { Organization } from "../models/organization.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
 
 export const uploadDocuments = async (req, res) => {
