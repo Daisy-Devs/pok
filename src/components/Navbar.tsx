@@ -22,6 +22,7 @@ import { useDisconnectWalletMutation } from "../store/services/api/walletApi";
 import { useConnection, useDisconnect } from "wagmi";
 import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
 import { splitTitle } from "../lib/utils";
+import { googleLogout } from "@react-oauth/google";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -36,36 +37,28 @@ const Navbar = () => {
     useDisconnectWalletMutation();
   const{firstHalf,secondHalf}=splitTitle(nomenclature.PRODUCT_NAME);
   
-  const handleLogout = async () => {
-    donorLogout({})
-      .unwrap()
-      .then((res) => {
-        console.log("logged out", res);
-        if (isConnected) {
-          disconnectWallet({})
-            .unwrap()
-            .then((walletRes) => {
-              mutate();
-              console.log("wallet disconnected", walletRes);
-              dispatch(loggedOut());
-              router.push("/sign-in");
-              toast.success("You've been logged out");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("wallet disconnection failed");
-            });
-        } else {
-          dispatch(loggedOut());
-          router.push("/sign-in");
-          toast.success("You've been logged out");
-        }
-      })
-      .catch((err) => {
+const handleLogout = async () => {
+  try {
+    if (isConnected) {
+      try {
+        const walletRes = await disconnectWallet({}).unwrap();
+        mutate();
+        console.log("wallet disconnected", walletRes);
+      } catch (err) {
         console.log(err);
-        toast.error("Logout failed");
-      });
-  };
+        toast.error("Wallet disconnection failed");
+      }
+    }
+    await donorLogout({}).unwrap();
+    dispatch(loggedOut());
+    googleLogout();
+    toast.success("You've been logged out");
+
+  } catch (err) {
+    console.log(err);
+    toast.error("Logout failed");
+  }
+};
   return (
     <div className="h-16 px-6 flex items-center justify-between ring-2 ring-border bg-background">
       <div className="flex items-center gap-3">
