@@ -15,7 +15,8 @@ import { toast } from "sonner";
 import { loggedOut } from "../store/services/slice/authSlice";
 import { useDisconnect } from "wagmi";
 import { useAppSelector } from "../store/store";
-import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
+import { selectIsAuthenticated, selectUser } from "../store/services/selectors/authSelectors";
+import { splitTitle } from "../lib/utils";
 
 interface NGOHeaderProps {
   pageTitle: string;
@@ -26,7 +27,12 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
   const router = useRouter();
   const [walletLogout] = useWalletLogoutMutation();
   const {mutate:disconnectWallet}=useDisconnect();
-  const isLoggedIn = useAppSelector(selectIsAuthenticated);
+  const authenticated = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
+  const isLoggedIn = authenticated && user?.role === "NGO";
+  console.log(user);
+  
+  const{firstHalf,secondHalf}=splitTitle(nomenclature.PRODUCT_NAME);
   const handleLogout = async () => {
     try{
     const res = await walletLogout({}).unwrap();
@@ -42,7 +48,14 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
   };
   return (
     <div className="flex justify-between p-5">
-      <h3 className="text-2xl font-extrabold">{isLoggedIn?pageTitle:nomenclature.PRODUCT_NAME}</h3>
+      {isLoggedIn?<h4 className="text-2xl font-extrabold">{pageTitle}</h4>:
+     (
+      <div className="flex">
+      <h3 className="text-2xl font-extrabold">{firstHalf}</h3>
+      <h3 className="text-2xl font-extrabold text-primary">{secondHalf.replace(" ","")}</h3>
+      </div>
+      )
+  }
     {isLoggedIn && (
       <div className="flex justify-center items-center">
         <DropdownMenu>
