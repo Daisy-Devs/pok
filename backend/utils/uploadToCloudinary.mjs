@@ -6,7 +6,7 @@ export const uploadToCloudinary = (fileBuffer) => {
       { folder: "ngo-documents", resource_type: "auto" },
       (error, result) => {
         if (error) return reject(error);
-        resolve(result.secure_url);
+        resolve(result); // ✅ full object
       }
     ).end(fileBuffer);
   });

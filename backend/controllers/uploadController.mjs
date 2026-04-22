@@ -51,11 +51,11 @@ export const uploadDocuments = async (req, res) => {
       }
 
       // Upload
-      const url = await uploadToCloudinary(file.buffer);
+      const result = await uploadToCloudinary(file.buffer);
 
       uploadedFiles.push({
         name: file.originalname,
-        url,
+        url: result.secure_url,
         type: file.mimetype.startsWith("image/") ? "image" : "pdf"
       });
     }
@@ -99,11 +99,11 @@ export const uploadCauseImages = async (req, res) => {
         return res.status(400).json({ message: "Each image must be <= 2MB" });
       }
 
-      const url = await uploadToCloudinary(file.buffer);
+      const result = await uploadToCloudinary(file.buffer);
 
       uploadedImages.push({
         name: file.originalname,
-        url,
+        url: result.secure_url,
         type: "image"
       });
     }
@@ -145,7 +145,7 @@ export const uploadProfileImage = async (req, res) => {
       message: "Profile image uploaded successfully",
       profileImage: {
         name: file.originalname,
-        url: result.url,
+        url: result.secure_url,
         public_id: result.public_id, // 🔥 IMPORTANT
         type: "image"
       }
@@ -187,7 +187,7 @@ export const updateProfileImage = async (req, res) => {
     const result = await uploadToCloudinary(file.buffer);
 
     org.profileImage = {
-      url: result.url,
+      url: result.secure_url,
       public_id: result.public_id
     };
 
