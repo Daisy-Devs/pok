@@ -22,12 +22,10 @@ import { toast } from "sonner";
 interface RegistrationForm3Props {
   changeStep: (step: string) => void;
   ngoData: NgoRegistrationFormData;
-  updateNgoData: Dispatch<SetStateAction<NgoRegistrationFormData>>;
 }
 const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
   changeStep,
   ngoData,
-  updateNgoData,
 }) => {
   const { mutate } = useConnect();
   const { mutate: disconnect } = useDisconnect();
@@ -79,7 +77,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
           console.log("wallet login response:", res);
           const updatedNgoData = {
             ...ngoData,
-            profileImageUrl: ngoData.profileImageUrl.url,
+            profileImage: ngoData.profileImage.url,
             imageUrl: ngoData.imageUrl.map((img) => img.url),
           };
           registerNgo(updatedNgoData)
