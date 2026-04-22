@@ -122,38 +122,31 @@ export const uploadProfileImage = async (req, res) => {
   try {
     const file = req.file;
 
+    // ✅ Required
     if (!file) {
       return res.status(400).json({ message: "Profile image is required" });
     }
 
+    // ✅ Type check
     if (!file.mimetype.startsWith("image/")) {
-      return res.status(400).json({ message: "Only image allowed" });
+      return res.status(400).json({ message: "Only image files allowed" });
     }
 
+    // ✅ Size check (2MB)
     if (file.size > 2 * 1024 * 1024) {
       return res.status(400).json({ message: "Max size is 2MB" });
     }
 
-    const org = await Organization.findById(req.ngoId);
-
-    if (!org) {
-      return res.status(404).json({ message: "Organization not found" });
-    }
-
+    // ✅ Upload to Cloudinary
     const result = await uploadToCloudinary(file.buffer);
 
-    org.profileImage = {
-      url: result.url,
-      public_id: result.public_id
-    };
-
-    await org.save();
-
+    // ✅ Response (IMPORTANT)
     return res.status(200).json({
       message: "Profile image uploaded successfully",
       profileImage: {
-        name: file.originalname,   
-        url: result.url,           
+        name: file.originalname,
+        url: result.url,
+        public_id: result.public_id, // 🔥 IMPORTANT
         type: "image"
       }
     });
