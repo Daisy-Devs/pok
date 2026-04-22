@@ -1,13 +1,13 @@
-type Tag = {
-  label: string;
-  variant: "indigo" | "green";
-};
+// type Tag = {
+//   label: string;
+//   variant: "indigo" | "green";
+// };
 
-type Cause = {
-  title: string;
-  description: string;
-  raised: string;
-  percentage: number;
-  image?: string; // ✅ add this
-  tags: Tag[];
-};
+// type Cause = {
+//   title: string;
+//   description: string;
+//   raised: string;
+//   percentage: number;
+//   image?: string;
+//   tags: Tag[];
+// };

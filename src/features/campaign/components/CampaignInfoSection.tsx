@@ -17,7 +17,9 @@ import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
-import { useGetAllCampaignsQuery, useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
+import {
+  useGetCampaignByIdQuery,
+} from "@/src/store/services/api/campaignApi";
 import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 
 interface CampaignInfoSectionProps {
@@ -26,10 +28,11 @@ interface CampaignInfoSectionProps {
 
 const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
+
   if (isLoading) return <p>Loading campaign...</p>;
   if (error) return <p>Failed to load campaign.</p>;
-
-  const campaign = data?.data?.campaigns?.[0];
+ 
+  const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
   const progress = campaign.goalAmount
@@ -69,7 +72,9 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
               <CarouselItem key={index} className="pl-2 basis-full">
                 <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
                   <Image
-                    src={image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL}
+                    src={
+                      image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL
+                    }
                     alt={"image" + index}
                     fill
                     className="object-cover"

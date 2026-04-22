@@ -9,6 +9,7 @@ export default function CategoryFilter({
 }) {
   const cause = ["All", "Education", "Hunger Relief"];
 
+ 
   return (
     <div className="flex gap-2 overflow-x-auto no-scrollbar">
       {cause.map((cat) => {

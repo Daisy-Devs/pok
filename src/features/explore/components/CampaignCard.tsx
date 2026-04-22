@@ -3,6 +3,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
+import image from "next/image";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -12,14 +13,17 @@ const categoryStyle = "bg-white text-secondary-dark font-bold";
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const router = useRouter();
   const handleDonate = (id: string) => {
-    router.push(`/campaign/${id}`);
+    router.push(`/campaign/${campaign.id}`);
   };
+  const image = campaign.imageUrl?.[0];
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
       <div className="relative  overflow-hidden">
         <Image
-          src={campaign.image[0].includes("cloudinary") ? campaign.image[0] : DEFAULT_IMAGE_URL}
+          src={
+            image && image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL
+          }
           alt={campaign.title || "Campaign image"}
           width={500}
           height={500}
@@ -37,8 +41,12 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="p-5 flex flex-col gap-3">
         <h3 className="font-bold text-lg">{campaign.title}</h3>
 
-        <p className="text-sm text-foreground line-clamp-2" dangerouslySetInnerHTML={campaign.description ? { __html: campaign.description } : undefined} />
-
+        <p
+          className="text-sm text-foreground line-clamp-2"
+          dangerouslySetInnerHTML={
+            campaign.description ? { __html: campaign.description } : undefined
+          }
+        />
 
         <div>
           <ProgressWithLabel
