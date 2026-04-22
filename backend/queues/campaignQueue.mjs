@@ -8,7 +8,8 @@ export const campaignQueue = {
   },
 
   getJob: async () => {
-    const job = await redis.rpop(QUEUE_KEY);
+    const job = await redis.lpop(QUEUE_KEY);
+    console.log("🔍 Redis job:", job);
     return job ? JSON.parse(job) : null;
   }
 };
