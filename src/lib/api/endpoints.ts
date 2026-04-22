@@ -22,6 +22,7 @@ export const ENDPOINTS = {
   },
   campaign: {
     getAllCampaigns: "/campaign/",
+    getCampaignById: "/campaign/",
     getAllOrganizations: "/campaign/organizations/:organizationId",
   },
   donation: {

@@ -1,8 +1,20 @@
+'use client';
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
+import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
+import { useRouter } from "next/navigation";
+
 import React from "react";
 
-const SeeTheChange = () => {
+const SeeTheChange = ({ campaignId }: { campaignId: string }) => {
+  const { data } = useGetCampaignByIdQuery(campaignId);
+  const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
+  const cause = campaign?.cause || "All";
+  const router = useRouter();
+
+  const handleExplore = () => {
+    router.push(`/explore?cause=${encodeURIComponent(cause)}`);
+  };
   return (
     <div
       className="rounded-lg bg-cover bg-center w-full h-65 md:h-100 pl-8"
@@ -20,7 +32,11 @@ const SeeTheChange = () => {
             {nomenclature.JOIN_THE_MOVEMENT}
           </p>
         </div>
-        <Button variant={"white"} textClassName="font-bold text-secondaryText" text="Explore similar campaigns" />
+        <Button
+          variant="white"
+          text="Explore similar campaigns"
+          onClick={handleExplore}
+        />
       </div>
     </div>
   );

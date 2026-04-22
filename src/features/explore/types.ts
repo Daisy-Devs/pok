@@ -4,7 +4,7 @@ export interface CampaignApi {
   title: string;
   missionStatement: string;
   cause: string;
-  imageUrl: string;
+  imageUrl: string[];
   goalAmount: number;
   raisedAmount?: number;
 }
@@ -15,7 +15,7 @@ export interface Campaign {
   title: string;
   description: string;
   category: string;
-  image: string;
+  imageUrl: string[];
   progress: number;
   raised: number;
   currency: string;

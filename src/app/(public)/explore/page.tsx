@@ -10,10 +10,20 @@ import NetworkBanner from "@/src/features/explore/components/NetworkBanner";
 import SearchBar from "@/src/features/explore/components/SearchProp";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "@/src/features/explore/types";
+import { useSearchParams } from "next/navigation";
 
 export default function ExplorePage() {
+  const searchParams = useSearchParams();
+  const causeFromUrl = searchParams.get("cause");
+
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (causeFromUrl) {
+      setActiveCategory(causeFromUrl);
+    }
+  }, [causeFromUrl]);
 
   const { data, isLoading, error } = useGetAllCampaignsQuery({});
 
@@ -37,7 +47,7 @@ export default function ExplorePage() {
   const filtered = useMemo(() => {
     return campaigns.filter((c) => {
       const matchesCategory =
-        activeCategory === "All" || c.category === activeCategory;
+        activeCategory === "All" || c.category.toLowerCase() === activeCategory.toLowerCase();
 
       const matchesSearch =
         c.title.toLowerCase().includes(search.toLowerCase()) ||

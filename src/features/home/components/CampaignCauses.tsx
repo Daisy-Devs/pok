@@ -1,62 +1,14 @@
 import React from "react";
-import CauseCard from "./CauseCard";
 import { ArrowRight } from "lucide-react";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "../../explore/types";
 import CampaignCard from "../../explore/components/CampaignCard";
+import LottieHandler from "@/src/components/LottieHandler";
 
 type Tag = {
   label: string;
   variant: "indigo" | "green";
 };
-
-type Cause = {
-  title: string;
-  description: string;
-  raised: string;
-  percentage: number;
-  image?: string;
-  tags: Tag[];
-};
-
-const CAUSES: Cause[] = [
-  {
-    title: "Emergency Aid: Gaza Health Clinics",
-    description:
-      "Providing critical medical supplies and fuel to keep community health clinics operational.",
-    raised: "$84,200",
-    image: "/causes/GlobalEducation.jpg",
-    percentage: 84,
-    tags: [
-      { label: "Crisis Relief", variant: "indigo" },
-      { label: "7 Days Left", variant: "green" },
-    ],
-  },
-  {
-    title: "Amazon Basin Reforestation",
-    description:
-      "Supporting indigenous-led efforts to replant native species in critical biological corridors..",
-    raised: "$12,500",
-    image: "/causes/Reforestation.jpg",
-    percentage: 45,
-    tags: [
-      { label: "Disaster", variant: "indigo" },
-      { label: "3 Days Left", variant: "green" },
-    ],
-  },
-  {
-    title: "Clean Water Systems in Turkana",
-    description:
-      "Deploying solar-powered water purification units to remote villages facing severe drought..",
-    raised: "$12,500",
-    image: "/causes/CleanWater.jpg",
-    percentage: 45,
-    tags: [
-      { label: "Disaster", variant: "indigo" },
-      { label: "3 Days Left", variant: "green" },
-    ],
-  },
-];
 
 export default function CampaignCauses() {
   const { data, isLoading, isError } = useGetAllCampaignsQuery({});
@@ -76,10 +28,15 @@ export default function CampaignCauses() {
     .sort((a, b) => b.progress - a.progress)
     .slice(0, 3);
 
-  if (isLoading) return <p className="text-center py-10">Loading...</p>;
-  if (isError)
-    return <p className="text-center py-10">Error loading campaigns</p>;
-
+ 
+  if (isError) {
+    return (
+      <LottieHandler 
+        type="error" 
+        message="Oops! Something went wrong while fetching campaigns." 
+      />
+    );
+  }
   return (
     <div>
       <section id="causes" className="py-12 bg-white">
