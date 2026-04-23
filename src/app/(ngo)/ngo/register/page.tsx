@@ -17,14 +17,16 @@ const NGORegistration = () => {
   email: "",
   country: "",
   website: "",
-  profileImageUrl:{ name: "", url: "" },
+  profileImage:{ name: "", url: "" },
+  public_id: "",
   documents: [
   ],
   title: "",
   missionStatement: "",
   cause: "",
   imageUrl: [],
-  goalAmount: 0
+  goalAmount: 0,
+  goalToken: "",
   });
   return (
     <div className="flex sm:flex-col md:flex-row gap-6 py-7 md:px-30 sm:w-full md:w-auto">

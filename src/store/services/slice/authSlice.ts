@@ -1,4 +1,3 @@
-import { googleLogout } from "@react-oauth/google";
 import { createSlice } from "@reduxjs/toolkit";
 
 type User = {
@@ -26,7 +25,6 @@ export const authSlice = createSlice({
     loggedOut: (state) => {
       state.isAuthenticated = false;
       state.user = null;
-      googleLogout();
     },
   },
 });

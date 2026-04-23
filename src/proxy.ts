@@ -9,14 +9,8 @@ export const config = {
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 const token = request.cookies.get('token')?.value || "";
-let role = "";
+const role = token ? jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as string:"";
 
-if (token) {
-  const data = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as jwt.JwtPayload;
-  role = data.role;
-}
-
-  
   if (
     pathname.startsWith('/ngo/register') ||
     pathname.startsWith('/ngo/sign-in')

@@ -13,12 +13,13 @@ import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
 import { CheckCircle2, GlassWater, Globe, Globe2, Mail } from "lucide-react";
 import Image from "next/image";
-import React from "react";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
-import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
-import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
+import {
+  useGetCampaignByIdQuery,
+} from "@/src/store/services/api/campaignApi";
+import { CAUSE_CATEGORIES, DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 
 interface CampaignInfoSectionProps {
   campaignId: string;
@@ -38,6 +39,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
 
   const isActive = campaign.status === "active";
   const nearGoal = progress >= 75;
+  const Icon= CAUSE_CATEGORIES.find((category) => category.name === campaign.cause)!.icon;
 
   return (
     <div className="flex flex-col md:flex-row items-start gap-10 xl:gap-35 md:px-6">
@@ -143,7 +145,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
         </div>
         
       </div>
-      <DonationCard />
+      <DonationCard campaignId={campaign.campaignIdBytes32} />
     </div>
   );
 };

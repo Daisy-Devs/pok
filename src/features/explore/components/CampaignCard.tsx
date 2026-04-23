@@ -15,14 +15,16 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleDonate = (id: string) => {
     router.push(`/campaign/${campaign.id}`);
   };
-  const image = campaign.imageUrl?.[0];
+  const image = campaign.image?.[0];
+  console.log(campaign);
+  
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
       <div className="relative  overflow-hidden">
         <Image
           src={
-            image && image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL
+            (image && image.includes("cloudinary")) ? image : DEFAULT_IMAGE_URL
           }
           alt={campaign.title || "Campaign image"}
           width={500}

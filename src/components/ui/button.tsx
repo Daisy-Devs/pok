@@ -19,7 +19,7 @@ const buttonVariants = cva(
         green:
           "bg-secondary text-secondary-dark rounded-full font-bold text-sm ", //shadow
         ghost:
-          "text-primary hover:text-primary underline-offset-4 hover:underline ",
+          "text-primary font-semibold hover:text-primary underline-offset-4 ",
         outline:
           "border border-primary text-primary bg-transparent hover:bg-primary hover:text-white focus-visible:ring-[#ffffff] font-semibold text-sm px-3 py-1 ",
         purple:

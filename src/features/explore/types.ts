@@ -15,7 +15,7 @@ export interface Campaign {
   title: string;
   description: string;
   category: string;
-  imageUrl: string[];
+  image: string[];
   progress: number;
   raised: number;
   currency: string;

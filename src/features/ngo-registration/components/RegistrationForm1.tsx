@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { nomenclature } from "@/src/constants/nomenclature";
@@ -15,6 +15,8 @@ import {
 import { getData } from "country-list";
 import { Field, FieldLabel } from "@/src/components/ui/field";
 import { UploadDocumentType } from "@/src/constants/types";
+import { validators } from "@/src/constants/validation";
+import { toast } from "sonner";
 
 interface RegistrationForm1Props {
   changeStep: (step: string) => void;
@@ -27,6 +29,21 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
   updateNgoData,
 }) => {
   const countries = getData();
+  const [error, setError] = useState({
+    email: "",
+    taxId: "",
+    officialWebsite: "",
+  });
+  const validateForm = () => {
+    if (
+      error.email === "" &&
+      error.taxId === "" &&
+      error.officialWebsite === ""
+      )
+        changeStep("2");
+      else
+        toast.error("Please fill all the required fields.");
+  };
   return (
     <div className="flex flex-col bg-white rounded-2xl shadow-sm p-6 space-y-6">
       <FormTitle
@@ -46,6 +63,7 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
       />
       <Input
         label="Organization Email"
+        error={error.email}
         value={ngoData.email}
         onChange={(e) =>
           updateNgoData((prev) => ({
@@ -53,6 +71,12 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
             email: e.target.value,
           }))
         }
+        onBlur={(e) => {
+          setError((prev) => ({
+            ...prev,
+            email: validators.email(e.target.value),
+          }));
+        }}
         required
         placeholder="e.g. global.health.initiative@example.com"
       />
@@ -60,12 +84,19 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
       <div className="grid grid-cols-2 gap-4">
         <Input
           placeholder="12-3456789"
+          error={error.taxId}
           required
           label="EIN / Tax ID"
           value={ngoData.taxId}
           onChange={(e) =>
             updateNgoData((prev) => ({ ...prev, taxId: e.target.value }))
           }
+          onBlur={(e) => {
+            setError((prev) => ({
+              ...prev,
+              taxId: validators.taxId(e.target.value),
+            }));
+          }}
         />
         <Select
           value={ngoData.country}
@@ -74,10 +105,12 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
           }
         >
           <Field className="space-y-0">
-          <FieldLabel>Country<span className="text-destructive">*</span></FieldLabel>
-          <SelectTrigger className="gap-0">
-            <SelectValue placeholder="Select a country" />
-          </SelectTrigger>
+            <FieldLabel>
+              Country<span className="text-destructive">*</span>
+            </FieldLabel>
+            <SelectTrigger className="gap-0">
+              <SelectValue placeholder="Select a country" />
+            </SelectTrigger>
           </Field>
           <SelectContent>
             {countries.map((country) => (
@@ -93,10 +126,17 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
         label="Official Website"
         placeholder="https://www.organization.org"
         value={ngoData.website}
+        error={error.officialWebsite}
         required={false}
         onChange={(e) =>
           updateNgoData((prev) => ({ ...prev, website: e.target.value }))
         }
+        onBlur={(e) => {
+          setError((prev) => ({
+            ...prev,
+            officialWebsite: validators.url(e.target.value),
+          }));
+        }}
       />
 
       <UploadBox
@@ -104,13 +144,14 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
         title="Upload Profile picture"
         subtitle="JPG or PNG or WEBP (Max 2MB)"
         onlyImage={true}
-        value={ngoData.profileImageUrl}
+        value={ngoData.profileImage}
         onChange={(file) =>
           updateNgoData((prev) => ({
             ...prev,
-            profileImageUrl: file as UploadDocumentType,
+            profileImage: file as UploadDocumentType,
           }))
         }
+        setNGOData={updateNgoData}
       />
 
       <UploadBox
@@ -130,7 +171,21 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
       />
 
       <div className="flex justify-end items-center pt-4">
-        <Button text="Continue to Mission" disabled={ngoData.organizationName === ""|| ngoData.taxId === ""|| ngoData.email === ""|| ngoData.country === ""||ngoData.profileImageUrl.name === ""|| ngoData.documents.length === 0} onClick={() => changeStep("2")} />
+        <Button
+          text="Continue to Mission"
+          disabled={
+            ngoData.organizationName === "" ||
+            ngoData.email === "" ||
+            ngoData.taxId === "" ||
+            ngoData.country === "" ||
+            ngoData.website === "" ||
+            ngoData.profileImage.name === "" ||
+            ngoData.documents.length === 0
+          }
+          onClick={() => {
+            validateForm();
+          }}
+        />
       </div>
     </div>
   );

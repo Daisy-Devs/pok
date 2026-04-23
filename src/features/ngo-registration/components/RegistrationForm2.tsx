@@ -3,13 +3,25 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import FormTitle from "./FormTitle";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon } from "lucide-react";
 import SelectCause from "./SelectCause";
 import { UploadBox } from "@/src/components/UploadBox";
 import { NgoRegistrationFormData } from "../types";
 import { UploadDocumentType } from "@/src/constants/types";
 import RichTextEditor from "@/src/components/RichTextEditor";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/src/components/ui/dropdown-menu";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/src/components/ui/input-group";
 
 interface RegistrationForm2Props {
   changeStep: (step: string) => void;
@@ -21,7 +33,6 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
   ngoData,
   updateNgoData,
 }) => {
-
   return (
     <div className="flex-1 bg-white rounded-2xl shadow-sm p-6 space-y-6">
       <FormTitle
@@ -37,23 +48,69 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
         }
       />
 
-      <label htmlFor="mission-cause" className="text-xs font-semibold uppercase ">
-        {nomenclature.MISSION_STATEMENT} <span className="text-destructive">*</span>
+      <label
+        htmlFor="mission-cause"
+        className="text-xs font-semibold uppercase "
+      >
+        {nomenclature.MISSION_STATEMENT}{" "}
+        <span className="text-destructive">*</span>
       </label>
-      <RichTextEditor  value={ngoData.missionStatement} onChange={(value) => updateNgoData((prev) => ({ ...prev, missionStatement: value as string }))} />
-
-      <Input
-        label="Goal Amount"
-        value={ngoData.goalAmount}
-        placeholder={nomenclature.GOAL_AMOUNT}
-        onChange={(e) =>
+      <RichTextEditor
+        value={ngoData.missionStatement}
+        onChange={(value) =>
           updateNgoData((prev) => ({
             ...prev,
-            goalAmount: Number(e.target.value),
+            missionStatement: value as string,
           }))
         }
       />
-      <p className="text-sm font-semibold text-primaryText uppercase">{nomenclature.CAUSE}</p>
+      <label htmlFor="goal-amount" className="text-xs font-semibold uppercase mb-2">
+        {nomenclature.GOAL_AMOUNT} <span className="text-destructive">*</span>
+      </label>
+      <InputGroup id="goal-amount" className="w-lg">
+        <InputGroupInput
+          value={ngoData.goalAmount}
+          placeholder={nomenclature.GOAL_AMOUNT}
+          onChange={(e) =>
+            updateNgoData((prev) => ({
+              ...prev,
+              goalAmount: Number(e.target.value),
+            }))
+          }
+        />{" "}
+        <InputGroupAddon align="inline-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger value={ngoData.goalToken} asChild>
+              <InputGroupButton
+                className="text-sm"
+                text={ngoData.goalToken || "Currency"}
+                rightIcon={<ChevronDownIcon size={16} />}
+              />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="[--radius:0.95rem]">
+              <DropdownMenuGroup>
+                {["ETH", "USDC", "USDT", "DAI"].map((token) => (
+                  <DropdownMenuItem
+                    key={token}
+                    onSelect={() =>
+                      updateNgoData((prev) => ({
+                        ...prev,
+                        goalToken:
+                          token as NgoRegistrationFormData["goalToken"],
+                      }))
+                    }
+                  >
+                    {token}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </InputGroupAddon>
+      </InputGroup>
+      <p className="text-sm font-semibold text-primaryText uppercase">
+        {nomenclature.CAUSE}
+      </p>
 
       <SelectCause
         setCause={(cause) => updateNgoData((prev) => ({ ...prev, cause }))}
@@ -68,7 +125,10 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
         limit={5}
         value={ngoData.imageUrl}
         onChange={(files) =>
-          updateNgoData((prev) => ({ ...prev, imageUrl: files as Array<UploadDocumentType> }))
+          updateNgoData((prev) => ({
+            ...prev,
+            imageUrl: files as Array<UploadDocumentType>,
+          }))
         }
       />
 
@@ -79,7 +139,17 @@ const RegistrationForm2: React.FC<RegistrationForm2Props> = ({
           onClick={() => changeStep("1")}
           leftIcon={<ArrowLeft size={16} color="#45464D" />}
         />
-        <Button text="Continue" disabled={!ngoData.missionStatement||!ngoData.title||!ngoData.cause||!ngoData.imageUrl||!ngoData.goalAmount} onClick={() => changeStep("3")} />
+        <Button
+          text="Continue"
+          disabled={
+            !ngoData.missionStatement ||
+            !ngoData.title ||
+            !ngoData.cause ||
+            !ngoData.imageUrl ||
+            !ngoData.goalAmount
+          }
+          onClick={() => changeStep("3")}
+        />
       </div>
     </div>
   );

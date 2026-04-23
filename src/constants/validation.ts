@@ -1,3 +1,4 @@
+
 export const validators = {
   name: (value: string) => {
     if (!value.trim()) return "Full name is required";
@@ -16,6 +17,17 @@ export const validators = {
     return "";
   },
 
+  url: (value: string) => {
+    if (!value) return "URL is required";
+    if (!/^(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/.test(value)) return "Invalid URL format";
+    return "";
+  },
+
+  taxId: (value: string) => {
+    if (!value) return "EIN/Tax ID is required";
+    if (!/^\d{2}-\d{7}$/.test(value)) return "EIN must be in format XX-XXXXXXX";
+    return "";
+  },
   password: (value: string) => {
     if (!value) return "Password is required";
     if (

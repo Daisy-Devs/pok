@@ -21,6 +21,8 @@ import { toast } from "sonner";
 import { useDisconnectWalletMutation } from "../store/services/api/walletApi";
 import { useConnection, useDisconnect } from "wagmi";
 import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
+import { splitTitle } from "../lib/utils";
+import { googleLogout } from "@react-oauth/google";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -33,44 +35,40 @@ const Navbar = () => {
   const [donorLogout, { isLoading: logoutLoading }] = useDonorLogoutMutation();
   const [disconnectWallet, { isLoading: disconnectWalletLoading }] =
     useDisconnectWalletMutation();
-
-  const handleLogout = async () => {
-    donorLogout({})
-      .unwrap()
-      .then((res) => {
-        console.log("logged out", res);
-        if (isConnected) {
-          disconnectWallet({})
-            .unwrap()
-            .then((walletRes) => {
-              mutate();
-              console.log("wallet disconnected", walletRes);
-              dispatch(loggedOut());
-              router.push("/sign-in");
-              toast.success("You've been logged out");
-            })
-            .catch((err) => {
-              console.log(err);
-              toast.error("wallet disconnection failed");
-            });
-        } else {
-          dispatch(loggedOut());
-          router.push("/sign-in");
-          toast.success("You've been logged out");
-        }
-      })
-      .catch((err) => {
+  const{firstHalf,secondHalf}=splitTitle(nomenclature.PRODUCT_NAME);
+  
+const handleLogout = async () => {
+  try {
+    if (isConnected) {
+      try {
+        const walletRes = await disconnectWallet({}).unwrap();
+        mutate();
+        console.log("wallet disconnected", walletRes);
+      } catch (err) {
         console.log(err);
-        toast.error("Logout failed");
-      });
-  };
+        toast.error("Wallet disconnection failed");
+      }
+    }
+    await donorLogout({}).unwrap();
+    dispatch(loggedOut());
+    googleLogout();
+    toast.success("You've been logged out");
+
+  } catch (err) {
+    console.log(err);
+    toast.error("Logout failed");
+  }
+};
   return (
     <div className="h-16 px-6 flex items-center justify-between ring-2 ring-border bg-background">
       <div className="flex items-center gap-3">
         <SidebarTrigger className="md:hidden" />
-        <Link href="/">
+        <Link href="/" className="flex">
           <p className="text-xl font-extrabold text-tertiary">
-            {nomenclature.PRODUCT_NAME}
+            {firstHalf}
+          </p>
+          <p className="text-xl font-extrabold text-primary">
+            {secondHalf.replace(/\s/g, "")}
           </p>
         </Link>
       </div>

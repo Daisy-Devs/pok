@@ -10,6 +10,8 @@ import {
   useUploadSupportingNgoDocumentsMutation,
 } from "../store/services/api/documentApi";
 import { UploadDocumentType } from "../constants/types";
+import { Spinner } from "./ui/spinner";
+import { NgoRegistrationFormData } from "../features/ngo-registration/types";
 
 interface UploadBoxProps {
   fieldName: string;
@@ -20,6 +22,7 @@ interface UploadBoxProps {
   multifile?: boolean;
   limit?: number;
   onChange: (value: Array<UploadDocumentType> | UploadDocumentType) => void;
+  setNGOData?: React.Dispatch<React.SetStateAction<NgoRegistrationFormData>>;
 }
 export const UploadBox: React.FC<UploadBoxProps> = ({
   fieldName,
@@ -30,6 +33,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   limit,
   multifile = false,
   onChange,
+  setNGOData
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [
@@ -40,7 +44,8 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
     uploadSupportingNgoDocuments,
     { isLoading: uploadingSupportingNgoDocuments },
   ] = useUploadSupportingNgoDocumentsMutation();
-  const [uploadCampaignImages] = useUploadCampaignImagesMutation();
+  const [uploadCampaignImages, { isLoading: uploadingCampaignImages }] =
+    useUploadCampaignImagesMutation();
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const formData = new FormData();
@@ -80,7 +85,11 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload company profile image:", res);
-          onChange({ name: files[0].name, url: res.profileImageUrl });
+          setNGOData?.((prev) => ({
+            ...prev,
+            public_id: res.profileImage.public_id,
+          }));
+          onChange({ name: res.profileImage.name, url: res.profileImage.url });
           if (uploadingCompanyProfileImage) {
             console.log("Uploading Profile");
           }
@@ -99,9 +108,9 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .then((res) => {
           console.log("Upload campaign images:", res);
           const uploadedFiles = res.images.map((file: UploadDocumentType) => ({
-              name: file.name,
-              url: file.url,
-            }))
+            name: file.name,
+            url: file.url,
+          }));
           onChange([...existingFiles, ...uploadedFiles]);
         })
         .catch((err) => {
@@ -134,9 +143,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         });
     }
   };
-  const fileList = Array.isArray(value)
-    ? value
-    :value?.name ? [value] : [];
+  const fileList = Array.isArray(value) ? value : value?.name ? [value] : [];
 
   return (
     <div className="space-y-2">
@@ -167,16 +174,22 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
             }}
             multiple={multifile}
           />
-          <Button
-            variant={"white"}
-            disabled={
-              (fileList.length > 0 && !multifile) ||
-              fileList.length >= (limit ?? Infinity)
-            }
-            onClick={() => inputRef.current?.click()}
-            text="Select File"
-            className="mt-3 text-xs font-semibold"
-          />
+          {uploadingCompanyProfileImage ||
+          uploadingSupportingNgoDocuments ||
+          uploadingCampaignImages ? (
+            <Button text="Uploading..."
+        disabled className="mt-3 text-xs font-semibold" leftIcon={<Spinner data-icon="inline-start" />}/>
+          ) : (
+            <Button
+              disabled={
+                (fileList.length > 0 && !multifile) ||
+                fileList.length >= (limit ?? Infinity)
+              }
+              onClick={() => inputRef.current?.click()}
+              text="Select File"
+              className="mt-3 text-xs font-semibold"
+            />
+          )}
         </div>
       </div>
       {fileList.length > 0 && <UploadedFileList files={fileList} />}
