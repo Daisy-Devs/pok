@@ -11,8 +11,6 @@ const Campaign = async ({ params }: CampaignProps) => {
 
   const { id } = resolvedParams;
 
-  let campaignCause = "All";
-
   try {
   } catch (error) {
     console.error("Failed to fetch cause on server:", error);
