@@ -1,8 +1,8 @@
 "use client";
+
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,29 +13,28 @@ import Details from "@/src/features/profile/components/Details";
 import { ProfileActivity } from "@/src/features/profile/types";
 import { timeAgo } from "@/src/lib/utils";
 import { useGetDonationsByDonorQuery } from "@/src/store/services/api/donationApi";
+import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import {
   ChevronRight,
   HandHeart,
-  User,
   UserCheck2,
   VectorSquare,
 } from "lucide-react";
 
 const Profile = () => {
-  const {
-    data: donations = [],
-    isLoading,
-    isError,
-  } = useGetDonationsByDonorQuery();
+  const { data: profileData, isLoading: isProfileLoading } =
+    useDonorProfileQuery({});
 
-  const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery();  const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
   const causeCount = new Set(donations.map((d) => d.campaignId)).size;
-  const memberSince = donations.length
-    ? new Date(
-        donations
-          .map((d) => new Date(d.date).getTime())
-          .sort((a, b) => a - b)[0],
-      ).toLocaleDateString("en-US", { month: "short", year: "numeric" })
+  const memberSinceDate = profileData?.profile?.memberSince;
+
+  const memberSince = memberSinceDate
+    ? new Date(memberSinceDate).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      })
     : "—";
 
   const profileActivities: ProfileActivity[] = [];
@@ -94,22 +93,20 @@ const Profile = () => {
         <h1 className="text-secondaryText text-xl font-extrabold w-full bg-white p-3 rounded-sm">
           Recent Impacts
         </h1>
-        {isError ? (
-          <p className="text-red-500 text-sm p-3">Failed to load donations.</p>
-        ) : donations.length === 0 ? (
-          <p className="text-neutral-400 text-sm p-3">No donations yet.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-110">Cause/Campaign</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {donations.map((donation, idx) => (
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-110">Cause/Campaign</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {donations.length > 0 ? (
+              donations.map((donation, idx) => (
                 <TableRow key={`${donation.campaignId}-${idx}`}>
                   <TableCell className="font-medium">
                     <Cause
@@ -117,10 +114,13 @@ const Profile = () => {
                       organization={donation.organization}
                     />
                   </TableCell>
+
                   <TableCell className="font-semibold text-secondaryText text-base">
                     {donation.amount} ETH
                   </TableCell>
+
                   <TableCell>{timeAgo(donation.date)}</TableCell>
+
                   <TableCell>
                     <a
                       href={donation.etherScanLink}
@@ -131,10 +131,27 @@ const Profile = () => {
                     </a>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
+              ))
+            ) : (
+              <TableRow>
+                {/* ✅ span ALL columns */}
+                <TableCell colSpan={4} className="h-60">
+                  <div className="flex flex-col items-center justify-center">
+                    <DotLottieReact
+                      src="/gif/empty.lottie"
+                      loop
+                      autoplay
+                      style={{ width: 200, height: 200 }}
+                    />
+                    <p className="text-sm text-gray-500 mt-2">
+                      No donations yet
+                    </p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "../../explore/types";
 import CampaignCard from "../../explore/components/CampaignCard";
-import LottieHandler from "@/src/components/LottieHandler";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 type Tag = {
   label: string;
@@ -29,14 +29,6 @@ export default function CampaignCauses() {
     .slice(0, 3);
 
  
-  if (isError) {
-    return (
-      <LottieHandler 
-        type="error" 
-        message="Oops! Something went wrong while fetching campaigns." 
-      />
-    );
-  }
   return (
     <div>
       <section id="causes" className="py-12 bg-white">
