@@ -22,7 +22,7 @@ export const createOrgAndCampaign = async (req, res) => {
       email,
       country,
       website,
-      profileImageUrl,
+      profileImage,
       documents,
       title,
       missionStatement,
@@ -39,6 +39,11 @@ export const createOrgAndCampaign = async (req, res) => {
     // 🔹 Find or create organization
     let organization = await Organization.findOne({ walletAddress });
 
+    if (organization && organization.isProfileComplete) {
+      return sendResponse(res, 400, "Organization already exists for this wallet");
+    }
+
+    // 🔹 If exists but incomplete → allow update
     if (!organization) {
       organization = new Organization({ walletAddress });
     }
@@ -49,7 +54,7 @@ export const createOrgAndCampaign = async (req, res) => {
     organization.email = email.trim();
     organization.country = country;
     organization.website = website;
-    organization.profileImageUrl = profileImageUrl;
+    organization.profileImage = profileImage;
     organization.documents = documents;
     organization.isProfileComplete = true;
 
@@ -180,12 +185,74 @@ export const updateCampaign = async (req, res) => {
 
 export const getAllCampaigns = async (req, res) => {
   try {
-    const campaigns = await Campaign.find({ status: { $in: ['active','draft'] } })
-      .select('-_id -__v') // exclude unnecessary fields
-      .populate('organization', 'name email walletAddress profileImageUrl') // ✅ org details
-      .sort({ createdAt: -1 });
+    let {
+      page = 1,
+      limit = 6,
+      search,
+      cause,
+      location,
+      tag,
+      status,
+      goalToken,
+      sortBy = "latest"
+    } = req.query;
 
-    return sendResponse(res, 200, 'campaigns fetched successfully', {
+    page = parseInt(page);
+    limit = parseInt(limit);
+
+    if (page < 1) page = 1;
+
+    // ✅ 1. Base filter
+    const filter = {
+      status: { $in: ["active", "draft"] }
+    };
+
+    if (status) filter.status = status;
+    if (cause) filter.cause = cause;
+    if (goalToken) filter.goalToken = goalToken.toUpperCase();
+
+    // ✅ 2. SEARCH (multi-field)
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { cause: { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } },
+        { tags: { $elemMatch: { $regex: search, $options: "i" } } }
+      ];
+    }
+
+    // ✅ 3. Specific filters (optional)
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    if (tag) {
+      filter.tags = { $in: [new RegExp(tag, "i")] };
+    }
+
+    // ✅ 4. Sorting
+    let sortOption = { createdAt: -1 };
+
+    if (sortBy === "oldest") sortOption = { createdAt: 1 };
+    if (sortBy === "goal_high") sortOption = { goalAmount: -1 };
+    if (sortBy === "goal_low") sortOption = { goalAmount: 1 };
+
+    // ✅ 5. Count
+    const total = await Campaign.countDocuments(filter);
+
+    // ✅ 6. Query
+    const campaigns = await Campaign.find(filter)
+      .select("-_id -__v")
+      .populate("organization", "name email walletAddress profileImage")
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // ✅ 7. Response
+    return sendResponse(res, 200, "Campaigns fetched successfully", {
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalCampaigns: total,
       count: campaigns.length,
       campaigns
     });
@@ -201,7 +268,7 @@ export const getCampaignsByOrganization = async (req, res) => {
 
     const campaigns = await Campaign.find({ organization: id })
       .select('-__v')
-      .populate('organization', 'name email walletAddress website profileImageUrl documents')
+      .populate('organization', 'name email walletAddress website profileImage documents')
       .sort({ createdAt: -1 });
 
     if (!campaigns.length) {
@@ -232,7 +299,7 @@ const validateCampaignInput = (body) => {
     goalToken,
     imageUrl,
     documents,
-    profileImageUrl,
+    profileImage,
     status
   } = body;
 
@@ -322,7 +389,7 @@ const validateCampaignInput = (body) => {
   }
 
   // 🔹 Profile image
-  if (profileImageUrl && !isValidUrl(profileImageUrl)) {
+  if (profileImage && !isValidUrl(profileImage)) {
     return "Invalid profile image URL";
   }
 
