@@ -10,7 +10,7 @@ import { useAppSelector } from "@/src/store/store";
 import { selectUser } from "@/src/store/services/selectors/authSelectors";
 import { useRouter } from "next/navigation";
 import { Spinner } from "@/src/components/ui/spinner";
-import { Globe2, Mail, Sparkle, SparkleIcon } from "lucide-react";
+import { Sparkle } from "lucide-react";
 
 const ETH_TO_USD = 2450;
 
@@ -104,101 +104,25 @@ export default function DonationCard({ campaignId }: { campaignId: string }) {
               className="data-[state=checked]:bg-indigo-500"
             />
           </div>
-
-          <div className="mb-2">
-            <label className="block text-sm font-semibold text-primaryText mb-2">
-              Donation Amount
-            </label>
-            <div className="relative flex items-center bg-input rounded-xl overflow-hidden">
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="flex-1 bg-input text-primaryText text-xl font-medium px-4 py-3.5 outline-none placeholder-gray-300 w-0"
-              />
-              <div className="flex items-center gap-1.5 px-4 text-secondaryText font-semibold text-sm shrink-0">
-                <Image src="/etherium.svg" alt="ETH" width={20} height={20} />
-                <span>ETH</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between mb-5">
-            <span className="text-sm text-primaryText">≈ ${usd} USD</span>
-            <span className="text-xs font-semibold bg-secondary text-secondary-dark px-2.5 py-1 rounded-sm">
-              Gas: $4.20
-            </span>
-          </div>
-
-          <div className="bg-tertiary rounded-2xl p-4 mb-5">
-            <div className="flex items-center gap-1.5 mb-2">
-              <SparkleIcon />
-              <span className="text-sm font-bold text-white">
-                Impact Forecast
-              </span>
-            </div>
-            <p className="text-white font-bold text-lg leading-snug mb-1">
-              {amount && parseFloat(amount) > 0
-                ? `${parseFloat(amount)} ETH = ${filters.toLocaleString()} clean water filters`
-                : "1 ETH = 500 clean water filters"}
-            </p>
-            <p className="text-primary-light text-xs">
-              {amount && parseFloat(amount) > 0
-                ? `Providing safe water to ${individuals} individuals for 5 years.`
-                : "Providing safe water to 2,500 individuals for 5 years."}
-            </p>
-          </div>
-
-          <Button
-            text="Confirm Donation"
-            size={"lg"}
-            className="h-15 w-full rounded-xl font-semibold text-lg"
-          />
-
-          <p className="mt-6 text-center text-xs text-primaryText leading-tight">
-            By clicking confirm, you agree to our Terms of Service. Your
-            transaction will be permanently recorded on the Ethereum Blockchain.
-          </p>
         </div>
-      </div>
 
-
-      <div className="mt-auto pt-6">
-        <div className="bg-gray-100 rounded-xl p-4">
-          <h1 className="text-xs font-semibold text-gray-500 uppercase mb-4">
-            Campaign Host
-          </h1>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Image
-                src="/avatar.png"
-                alt="host"
-                width={56}
-                height={56}
-                className="rounded-full object-cover"
-              />
-              <span className="absolute bottom-0 right-0 w-4 h-4 bg-blue-500 border-2 border-white rounded-full" />
-            </div>
-
-            <div>
-              <div>
-                <h2 className="font-semibold text-gray-800">
-                  Global Water Initiative
-                </h2>
-
-                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
-                  <Mail className="w-4 h-4" />
-                  <span>contact@globalwater.org</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-sm text-gray-500 mt-1 cursor-pointer hover:text-gray-700">
-                  <Globe2 className="w-4 h-4" />
-                  <span>Visit Website</span>
-                </div>
-              </div>
+        <div className="mb-2">
+          <label className="block text-sm font-semibold text-primaryText mb-2">
+            Donation Amount
+          </label>
+          <div className="relative flex items-center bg-input rounded-xl overflow-hidden">
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="flex-1 bg-input text-primaryText text-xl font-medium px-4 py-3.5 outline-none placeholder-gray-300 w-0"
+            />
+            <div className="flex items-center gap-1.5 px-4 text-secondaryText font-semibold text-sm shrink-0">
+              <Image src="/etherium.svg" alt="ETH" width={20} height={20} />
+              <span>ETH</span>
             </div>
           </div>
         </div>
@@ -250,8 +174,6 @@ export default function DonationCard({ campaignId }: { campaignId: string }) {
           transaction will be permanently recorded on the Ethereum Blockchain.
         </p>
       </div>
-
-      
     </div>
   );
 }

@@ -35,29 +35,6 @@ export const donorAuthApi = apiSlice.injectEndpoints({
         method: "POST",
       }),
     }),
-    donorProfile: builder.query({
-      query: () => ({
-        url: ENDPOINTS.donorAuth.profile,
-        method: "GET",
-      }),
-      providesTags: ["User"],
-    }),
-    updateProfileImage: builder.mutation({
-      query: (formData) => ({
-        url: ENDPOINTS.donorAuth.updateProfile,
-        method: "POST",
-        body: formData, // Sending FormData for file uploads
-      }),
-      invalidatesTags: ["User"],
-    }),
-
-    deleteProfileImage: builder.mutation({
-      query: () => ({
-        url: ENDPOINTS.donorAuth.deleteProfile,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["User"],
-    }),
     validateUserAuth: builder.query({
       query: () => ({
         url: ENDPOINTS.donorAuth.validateAuth,
@@ -84,9 +61,6 @@ export const donorAuthApi = apiSlice.injectEndpoints({
 });
 
 export const {
-  useDonorProfileQuery,
-  useUpdateProfileImageMutation,
-  useDeleteProfileImageMutation,
   useDonorGoogleAuthMutation,
   useDonorSignInMutation,
   useDonorSignUpMutation,

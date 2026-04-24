@@ -11,7 +11,7 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
-import { CheckCircle2, GlassWater, Globe, Globe2, Mail } from "lucide-react";
+import { CheckCircle2, GlassWater, ShieldCheck, Users2, UserSquare } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
@@ -28,8 +28,9 @@ interface CampaignInfoSectionProps {
 const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
 
-  
-
+  if (isLoading) return <p>Loading campaign...</p>;
+  if (error) return <p>Failed to load campaign.</p>;
+ 
   const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
@@ -92,10 +93,6 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
             __html: campaign.missionStatement,
           }}
         />
-
-
-        
-
         <div className="w-full">
           <p className="uppercase text-sm font-bold mb-1">funding progress</p>
           <ProgressWithLabel
@@ -111,39 +108,35 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
             }
           />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-6">
-            <StatCard
-              variant="sm"
-              intent={"subtle"}
-              label="Cause"
-              value={campaign.cause}
-              icon={
-                <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
-              }
-            />
-            <StatCard
-              variant="sm"
-              intent={"subtle"}
-              label="Goal"
-              value={`${campaign.goalAmount} ETH`}
-              icon={
-                <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
-              }
-            />
-            <StatCard
-              variant="sm"
-              intent={"subtle"}
-              label="Raised"
-              value={`${campaign.raisedAmount || 0} ETH`}
-              icon={
-                <GlassWater className="w-5 h-5 color-primary" color="#4648D4" />
-              }
-            />
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 md:flex-row gap-6">
+          <StatCard
+            variant="sm"
+            intent={"subtle"}
+            label="Cause"
+            value={campaign.cause}
+            icon={
+              <Icon className="w-5 h-5 color-primary" color="#4648D4" />
+            }
+          />
+          <StatCard
+            variant="sm"
+            intent={"subtle"}
+            label="Total Donors"
+            value={campaign.totalDonors || 0}
+            icon={
+              <Users2 className="w-5 h-5 color-primary" color="#4648D4" />
+            }
+          />
+          <StatCard
+            variant="sm"
+            intent={"subtle"}
+            label="On-Chain Audit"
+            value={`100%`}
+            icon={
+              <ShieldCheck className="w-5 h-5 color-primary" color="#4648D4" />
+            }
+          />
         </div>
-        
       </div>
       <DonationCard campaignId={campaign.campaignIdBytes32} />
     </div>

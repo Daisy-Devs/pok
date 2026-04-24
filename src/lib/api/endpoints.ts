@@ -10,9 +10,6 @@ export const ENDPOINTS = {
     validateAuth: "/user/me",
     reconnectWallet: "/wallet/connect",
     donors: "/user/",
-    profile:"/user/profile",
-    updateProfile:"/cloudinary/updateProfile",
-    deleteProfile:"/cloudinary/deleteProfile",
   },
   ngoAuth: {
     registerNgo: "/campaign/orgAndCampaign",
