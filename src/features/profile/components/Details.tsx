@@ -1,6 +1,11 @@
 import { Button } from "@/src/components/ui/button";
 import { hideWalletAddress } from "@/src/lib/utils";
-import { useValidateUserAuthQuery } from "@/src/store/services/api/donorAuthApi";
+import {
+  useDeleteProfileImageMutation,
+  useDonorProfileQuery,
+  useUpdateProfileImageMutation,
+  useValidateUserAuthQuery,
+} from "@/src/store/services/api/donorAuthApi";
 import {
   CameraIcon,
   CheckIcon,
@@ -8,6 +13,7 @@ import {
   PencilIcon,
   User,
   WalletIcon,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
@@ -15,12 +21,24 @@ import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { toast } from "sonner";
 
 const Details = () => {
+  const{data,isLoading: isProfileLoading}=useDonorProfileQuery({});
+  const [updateProfileImage, { isLoading: isUpdating }] =
+    useUpdateProfileImageMutation();
+  const [deleteProfileImage, { isLoading: isDeleting }] =
+    useDeleteProfileImageMutation();
+
+
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: user, isLoading } = useValidateUserAuthQuery({});
+
+
+  const { data: user, isLoading: isUserLoading } = useValidateUserAuthQuery({});
+
+
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
   const connectors = useConnectors();
@@ -28,15 +46,27 @@ const Details = () => {
   const [connectWallet, { isLoading: isWalletLoading }] =
     useConnectWalletMutation();
   const dispatch = useDispatch();
-  
 
   const displayName = user?.data?.name ?? user?.data?.username ?? "Anonymous";
+  const profile=data?.profile;
+  const profileImage=preview||profile?.profileImage||null;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => setPreview(reader.result as string);
     reader.readAsDataURL(file);
+  };
+
+  const handleDeleteImage = async () => {
+    try {
+      await deleteProfileImage(undefined).unwrap();
+      toast.success("Profile picture removed");
+      setPreview(null);
+    } catch (error) {
+      toast.error("Failed to remove image");
+    }
   };
 
   const shortAddress = address ? hideWalletAddress(address) : "—";
@@ -127,7 +157,7 @@ const Details = () => {
           <div className="flex items-center gap-1.5 mb-3">
             <WalletIcon size={14} className="text-primaryText" />
             <span className="text-sm">
-              {isLoading ? "Loading…" : shortAddress}
+              {isProfileLoading ? "Loading…" : shortAddress}
             </span>
             {address && (
               <button
@@ -141,10 +171,20 @@ const Details = () => {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button
-              onClick={() => {}}
-              text="Edit profile"
+              onClick={() => inputRef.current?.click()}
+              text={isUpdating ? "Updating..." : "Change picture"}
               leftIcon={<PencilIcon size={14} />}
+              disabled={isUpdating}
             />
+            {/* {profile?.profileImage && (
+              <Button
+                onClick={handleDeleteImage}
+                text="Remove"
+                variant="grey" // Adjust variant based on your UI library
+                leftIcon={<Trash2 size={14} />}
+                disabled={isDeleting}
+              />
+            )} */}
             <Button
               onClick={handleWalletConnect}
               text={isConnected ? "Disconnect wallet" : "Connect wallet"}

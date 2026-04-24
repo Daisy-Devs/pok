@@ -12,12 +12,11 @@ import {
 import { ChevronRight, EyeOff, UserIcon } from "lucide-react";
 import { timeAgo } from "@/src/lib/utils";
 import { useGetDonationsByCampaignQuery } from "@/src/store/services/api/donationApi";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
   const { data, isLoading, error } = useGetDonationsByCampaignQuery(campaignId);
-  if (isLoading) return <p>Loading donations...</p>;
-  if (error) return <p>Failed to load donations</p>;
-  if (!data?.length) return <p>No donations yet</p>;
+  const donations = data ?? [];
 
   return (
     <div>
@@ -34,31 +33,45 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {data.map((activity: any, index: number) => (
-            <TableRow key={index}>
-              <TableCell className="font-medium">
-                {
+          {donations.length > 0 ? (
+            donations.map((activity: any, index: number) => (
+              <TableRow key={index}>
+                <TableCell className="font-medium">
                   <User
                     name={activity.organization || "Anonymous"}
                     isAnonymous={!activity.organization}
                   />
-                }
-              </TableCell>
-              <TableCell className="font-semibold text-secondaryText text-base">
-                {activity.amount}
-              </TableCell>
-              <TableCell>{timeAgo(activity.date)}</TableCell>
-              <TableCell>
-                <a
-                  href={activity.etherScanLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <ChevronRight size={12} />
-                </a>
+                </TableCell>
+                <TableCell className="font-semibold text-secondaryText text-base">
+                  {activity.amount}
+                </TableCell>
+                <TableCell>{timeAgo(activity.date)}</TableCell>
+                <TableCell>
+                  <a
+                    href={activity.etherScanLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ChevronRight size={12} />
+                  </a>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4} className="h-60">
+                <div className="flex flex-col items-center justify-center">
+                  <DotLottieReact
+                    src="/gif/empty.lottie"
+                    loop
+                    autoplay
+                    style={{ width: 200, height: 200 }}
+                  />
+                  <p className="text-sm text-gray-500 mt-2">No donations yet</p>
+                </div>
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
