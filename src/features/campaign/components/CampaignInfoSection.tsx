@@ -77,6 +77,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
                     }
                     alt={"image" + index}
                     fill
+                    sizes="320px"
                     className="object-cover"
                   />
                 </div>

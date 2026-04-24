@@ -29,6 +29,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
           alt={campaign.title || "Campaign image"}
           width={500}
           height={500}
+          loading="eager"
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 

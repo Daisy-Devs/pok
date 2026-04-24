@@ -6,7 +6,7 @@ import React from 'react'
 
 const ProtocolTransparency = () => {
   return (
-         <div className='flex flex-col gap-10 w-full'>
+        <div className='flex flex-col gap-10 w-full md:px-6'>
         <h2 className='font-bold text-3xl self-center mb-6 px-6'>{nomenclature.PROTOCOL_TRANSPARENCY}</h2>
         <div className='grid grid-cols-1 md:grid-cols-3 w-full gap-4'>
         <StatCard value='Smart Contracts' label={'Verified on Etherscan for complete fund autonomy.'} icon={<div className='p-3.5 flex items-center justify-center rounded-full bg-primary-light'><ScrollText className='w-4 h-4' color='#4648D4' /></div>}/>
