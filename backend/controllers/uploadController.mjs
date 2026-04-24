@@ -1,4 +1,5 @@
 import { Organization } from "../models/organization.mjs";
+import { User } from "../models/user.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
 
 export const uploadDocuments = async (req, res) => {
@@ -197,13 +198,13 @@ export const updateProfileImage = async (req, res) => {
       message: "Profile image updated successfully",
       profileImage: {
         name: file.originalname,
-        url: result.url,
+        url: result.secure_url,
         type: "image"
       }
     });
 
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 };
 
@@ -226,6 +227,86 @@ export const deleteProfileImage = async (req, res) => {
     org.profileImage = null;
 
     await org.save();
+
+    return res.status(200).json({
+      message: "Profile image deleted successfully"
+    });
+
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateUserProfileImage = async (req, res) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+
+    if (!file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ message: "Only image allowed" });
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      return res.status(400).json({ message: "Max size is 2MB" });
+    }
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // ✅ Delete old image (if exists)
+    if (user.profileImage?.public_id) {
+      await cloudinary.uploader.destroy(user.profileImage.public_id);
+    }
+
+    // ✅ Upload new image
+    const result = await uploadToCloudinary(file.buffer);
+
+    user.profileImage = {
+      url: result.secure_url,
+      public_id: result.public_id
+    };
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile image updated successfully",
+      profileImage: {
+        name: file.originalname,
+        url: result.secure_url,
+        type: "image"
+      }
+    });
+
+  } catch (err) {
+    return res.status(400).json({ message: err.message });
+  }
+};
+
+export const deleteUserProfileImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.profileImage?.public_id) {
+      return res.status(400).json({ message: "No profile image to delete" });
+    }
+
+    // ✅ Delete from Cloudinary
+    await cloudinary.uploader.destroy(user.profileImage.public_id);
+
+    // ✅ Remove from DB
+    user.profileImage = null;
+
+    await user.save();
 
     return res.status(200).json({
       message: "Profile image deleted successfully"

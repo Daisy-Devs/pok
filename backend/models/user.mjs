@@ -3,7 +3,10 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema(
   {
     name: { type: String },
-    profileImage: { url: String },
+    profileImage: {
+      url: String,
+      public_id: String
+    },
     email: { type: String, unique: true, sparse: true },
     password: { type: String }, // not required for social login
     phone: { type: String },

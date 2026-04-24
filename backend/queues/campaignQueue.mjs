@@ -16,8 +16,8 @@ export const campaignQueue = {
     try {
       const job = await redis.lpop(QUEUE_KEY);
 
-      console.log("🔍 Redis raw job:", job);
-      console.log("🔍 Type:", typeof job);
+      // console.log("🔍 Redis raw job:", job);
+      // console.log("🔍 Type:", typeof job);
 
       if (!job) return null;
 

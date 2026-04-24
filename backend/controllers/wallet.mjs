@@ -18,7 +18,7 @@ export const connectWallet = async (req, res) => {
       return sendResponse(res, 400, "Invalid wallet address");
     }
 
-    walletAddress = ethers.getAddress(walletAddress);
+    walletAddress = ethers.getAddress(walletAddress).toLowerCase();
 
     // 🔍 check if wallet already linked to another user
     const existingUser = await User.findOne({ walletAddress });
