@@ -24,20 +24,25 @@ import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { toast } from "sonner";
 
 const Details = () => {
-  const{data,isLoading: isProfileLoading}=useDonorProfileQuery({});
+  const { data: profileData, isLoading: isProfileLoading } =
+    useDonorProfileQuery({});
+  const { data: user, isLoading: isUserLoading } = useValidateUserAuthQuery({});
+
+  const displayName =
+    user?.data?.name || profileData?.profile?.name || "Anonymous";
+
+  const profile = profileData?.profile;
+
   const [updateProfileImage, { isLoading: isUpdating }] =
     useUpdateProfileImageMutation();
   const [deleteProfileImage, { isLoading: isDeleting }] =
     useDeleteProfileImageMutation();
 
-
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-
-  const { data: user, isLoading: isUserLoading } = useValidateUserAuthQuery({});
-
+  const profileImage = preview || profile?.profileImage || null;
 
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
@@ -47,23 +52,32 @@ const Details = () => {
     useConnectWalletMutation();
   const dispatch = useDispatch();
 
-  const displayName = user?.data?.name ?? user?.data?.username ?? "Anonymous";
-  const profile=data?.profile;
-  const profileImage=preview||profile?.profileImage||null;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
+
+    const localUrl = URL.createObjectURL(file);
+    setPreview(localUrl);
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    try {
+      await updateProfileImage(formData).unwrap();
+      toast.success("Profile picture updated!");
+    } catch (error) {
+      toast.error("Failed to upload image");
+      setPreview(null);
+    }
   };
 
-  const handleDeleteImage = async () => {
+  const handleDeleteImage = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     try {
       await deleteProfileImage(undefined).unwrap();
       toast.success("Profile picture removed");
       setPreview(null);
+      if (inputRef.current) inputRef.current.value = "";
     } catch (error) {
       toast.error("Failed to remove image");
     }
@@ -124,20 +138,31 @@ const Details = () => {
           className="relative w-20 h-20 shrink-0 cursor-pointer group"
           onClick={() => inputRef.current?.click()}
         >
-          {preview ? (
+          {profileImage ? (
             <Image
-              src={preview}
+              src={profileImage}
               alt="avatar"
               fill
               className="object-cover rounded-xl"
             />
           ) : (
             <div className="w-20 h-20 rounded-xl bg-neutral-100 border border-dashed border-muted flex items-center justify-center">
-              <User />
+              <User className="text-muted-foreground" />
             </div>
           )}
           <div className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-            <CameraIcon color="white" />
+            {profileImage ? (
+              <button
+                onClick={handleDeleteImage}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                title="Remove image"
+                disabled={isDeleting}
+              >
+                <Trash2 color="white" size={24} />
+              </button>
+            ) : (
+              <CameraIcon color="white" size={24} />
+            )}
           </div>
           <input
             id="profile-upload"
@@ -176,15 +201,6 @@ const Details = () => {
               leftIcon={<PencilIcon size={14} />}
               disabled={isUpdating}
             />
-            {/* {profile?.profileImage && (
-              <Button
-                onClick={handleDeleteImage}
-                text="Remove"
-                variant="grey" // Adjust variant based on your UI library
-                leftIcon={<Trash2 size={14} />}
-                disabled={isDeleting}
-              />
-            )} */}
             <Button
               onClick={handleWalletConnect}
               text={isConnected ? "Disconnect wallet" : "Connect wallet"}

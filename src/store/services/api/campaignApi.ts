@@ -11,7 +11,13 @@ export const campaignApi = apiSlice.injectEndpoints({
       }),
     }),
     getAllCampaigns: builder.query({
-      query: () => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET" }),
+      query: (params) => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET",params: {
+          page: params?.page || 1,
+          limit: params?.limit || 6,
+          cause: params?.category === "All" ? "" : params?.category,
+          search: params?.searchTerm,
+          sortBy: params?.sort,
+        }, }),
     }),
     getCampaignById: builder.query({
       query: (id: string) => ({

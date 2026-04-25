@@ -41,7 +41,7 @@ type PaginationLinkProps = {
 function PaginationLink({
   className,
   isActive,
-  size = "icon",
+  size = 'sm',
   ...props
 }: PaginationLinkProps) {
   return (
@@ -49,12 +49,14 @@ function PaginationLink({
       asChild
       variant={isActive ? "outline" : "ghost"}
       size={size}
-      className={cn(className)}
+      
+      className={cn(className,"flex items-center justify-center")}
     >
       <a
         aria-current={isActive ? "page" : undefined}
         data-slot="pagination-link"
         data-active={isActive}
+        className="flex flex-row items-center justify-center gap-1"
         {...props}
       />
     </Button>
@@ -70,7 +72,7 @@ function PaginationPrevious({
     <PaginationLink
       aria-label="Go to previous page"
       size="default"
-      className={cn("pl-1.5!", className)}
+      className={cn("gap-1 pl-1.5!", className)}
       {...props}
     >
       <ChevronLeftIcon data-icon="inline-start" />

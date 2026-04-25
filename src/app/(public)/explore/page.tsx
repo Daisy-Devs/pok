@@ -18,6 +18,29 @@ export default function ExplorePage() {
 
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
+  const [page, setPage] = useState(1);
+
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); 
+    return () => clearTimeout(handler);
+  }, [search]);
+  
+
+  const { data, isLoading, error } = useGetAllCampaignsQuery({
+    page,
+    limit: 6,
+    category: activeCategory,
+    searchTerm: debouncedSearch,
+    sort: sortBy
+  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeCategory, debouncedSearch, sortBy]);
 
   useEffect(() => {
     if (causeFromUrl) {
@@ -25,7 +48,7 @@ export default function ExplorePage() {
     }
   }, [causeFromUrl]);
 
-  const { data, isLoading, error } = useGetAllCampaignsQuery({});
+  
 
   const campaigns: Campaign[] = useMemo(() => {
     return (
@@ -44,20 +67,7 @@ export default function ExplorePage() {
     );
   }, [data]);
 
-  const filtered = useMemo(() => {
-    return campaigns.filter((c) => {
-      const matchesCategory =
-        activeCategory === "All" || c.category.toLowerCase() === activeCategory.toLowerCase();
-
-      const matchesSearch =
-        c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.description.toLowerCase().includes(search.toLowerCase()) ||
-        c.category.toLowerCase().includes(search.toLowerCase());
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [campaigns, activeCategory, search]);
-
+ 
   if (isLoading) return <p>Loading campaigns...</p>;
   if (error) return <p>Failed to load campaigns</p>;
 
@@ -76,13 +86,17 @@ export default function ExplorePage() {
       <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <CategoryFilter active={activeCategory} setActive={setActiveCategory} />
         <div className="w-full md:w-auto flex justify-end">
-          <SortDropdown />
+          <SortDropdown value={sortBy} onChange={setSortBy}/>
         </div>
       </div>
 
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-10">
-        <CampaignGrid data={filtered} />
+        <CampaignGrid 
+            totalPages={data?.data?.totalPages || 1}
+            currentPage={page}
+            onPageChange={setPage}
+            data={campaigns} />
       </div>
       <NetworkBanner />
     </div>

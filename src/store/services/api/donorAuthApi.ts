@@ -68,14 +68,14 @@ export const donorAuthApi = apiSlice.injectEndpoints({
       query: (formData) => ({
         url: ENDPOINTS.donorAuth.updateProfile,
         method: "POST",
-        body: formData, // Sending FormData for file uploads
+        body: formData, 
       }),
       invalidatesTags: ["User"],
     }),
     deleteProfileImage: builder.mutation({
       query: () => ({
         url: ENDPOINTS.donorAuth.deleteProfile,
-        method: "DELETE",
+        method: "POST",
       }),
       invalidatesTags: ["User"],
     }),
