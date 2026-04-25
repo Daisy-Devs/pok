@@ -36,5 +36,6 @@ export const ENDPOINTS = {
     uploadCompanyProfileImage: "/cloudinary/profile",
     uploadCampaignImages: "/cloudinary/causeImages",
     uploadSupportingNgoDocuments: "/cloudinary/documents",
+    deleteDocument: "/cloudinary/delete",
   },
 };

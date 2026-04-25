@@ -1,9 +1,11 @@
 import { LucideProps } from "lucide-react";
-import React, { FC, JSX } from "react";
+import { FC } from "react";
 
 export type UploadDocumentType = {
   name: string,
-  url: string
+  url: string,
+  type: string,
+  public_id: string
 };
 
 export type CauseCategoryType = {
