@@ -7,7 +7,7 @@ export default function CategoryFilter({
   active: string;
   setActive: (val: string) => void;
 }) {
-  const cause = ["All", "Education", "Hunger Relief"];
+  const cause = ["All", "Environment","Education","HealthCare","Social Justice","Disaster Relief","Animal Welfare" , "Hunger Relief"];
 
  
   return (

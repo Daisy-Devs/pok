@@ -11,14 +11,12 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
-import { CheckCircle2, ShieldCheck, Users2 } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Users2, Globe2, Mail  } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
-import {
-  useGetCampaignByIdQuery,
-} from "@/src/store/services/api/campaignApi";
+import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
 import { CAUSE_CATEGORIES, DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 
 interface CampaignInfoSectionProps {

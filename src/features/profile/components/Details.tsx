@@ -1,6 +1,11 @@
 import { Button } from "@/src/components/ui/button";
 import { hideWalletAddress } from "@/src/lib/utils";
-import { useValidateUserAuthQuery } from "@/src/store/services/api/donorAuthApi";
+import {
+  useDeleteProfileImageMutation,
+  useDonorProfileQuery,
+  useUpdateProfileImageMutation,
+  useValidateUserAuthQuery,
+} from "@/src/store/services/api/donorAuthApi";
 import {
   CameraIcon,
   CheckIcon,
@@ -8,6 +13,7 @@ import {
   PencilIcon,
   User,
   WalletIcon,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useRef, useState } from "react";
@@ -15,12 +21,29 @@ import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { toast } from "sonner";
 
 const Details = () => {
+  const { data: profileData, isLoading: isProfileLoading } =
+    useDonorProfileQuery({});
+  const { data: user, isLoading: isUserLoading } = useValidateUserAuthQuery({});
+
+  const displayName =
+    user?.data?.name || profileData?.profile?.name || "Anonymous";
+
+  const profile = profileData?.profile;
+
+  const [updateProfileImage, { isLoading: isUpdating }] =
+    useUpdateProfileImageMutation();
+  const [deleteProfileImage, { isLoading: isDeleting }] =
+    useDeleteProfileImageMutation();
+
   const [preview, setPreview] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { data: user, isLoading } = useValidateUserAuthQuery({});
+
+  const profileImage = preview || profile?.profileImage || null;
+
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
   const connectors = useConnectors();
@@ -28,15 +51,36 @@ const Details = () => {
   const [connectWallet, { isLoading: isWalletLoading }] =
     useConnectWalletMutation();
   const dispatch = useDispatch();
-  
 
-  const displayName = user?.data?.name ?? user?.data?.username ?? "Anonymous";
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
+
+    const localUrl = URL.createObjectURL(file);
+    setPreview(localUrl);
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    try {
+      await updateProfileImage(formData).unwrap();
+      toast.success("Profile picture updated!");
+    } catch (error) {
+      toast.error("Failed to upload image");
+      setPreview(null);
+    }
+  };
+
+  const handleDeleteImage = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await deleteProfileImage(undefined).unwrap();
+      toast.success("Profile picture removed");
+      setPreview(null);
+      if (inputRef.current) inputRef.current.value = "";
+    } catch (error) {
+      toast.error("Failed to remove image");
+    }
   };
 
   const shortAddress = address ? hideWalletAddress(address) : "—";
@@ -94,20 +138,31 @@ const Details = () => {
           className="relative w-20 h-20 shrink-0 cursor-pointer group"
           onClick={() => inputRef.current?.click()}
         >
-          {preview ? (
+          {profileImage ? (
             <Image
-              src={preview}
+              src={profileImage}
               alt="avatar"
               fill
               className="object-cover rounded-xl"
             />
           ) : (
             <div className="w-20 h-20 rounded-xl bg-neutral-100 border border-dashed border-muted flex items-center justify-center">
-              <User />
+              <User className="text-muted-foreground" />
             </div>
           )}
           <div className="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-            <CameraIcon color="white" />
+            {profileImage ? (
+              <button
+                onClick={handleDeleteImage}
+                className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                title="Remove image"
+                disabled={isDeleting}
+              >
+                <Trash2 color="white" size={24} />
+              </button>
+            ) : (
+              <CameraIcon color="white" size={24} />
+            )}
           </div>
           <input
             id="profile-upload"
@@ -127,7 +182,7 @@ const Details = () => {
           <div className="flex items-center gap-1.5 mb-3">
             <WalletIcon size={14} className="text-primaryText" />
             <span className="text-sm">
-              {isLoading ? "Loading…" : shortAddress}
+              {isProfileLoading ? "Loading…" : shortAddress}
             </span>
             {address && (
               <button
@@ -141,9 +196,10 @@ const Details = () => {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button
-              onClick={() => {}}
-              text="Edit profile"
+              onClick={() => inputRef.current?.click()}
+              text={isUpdating ? "Updating..." : "Change picture"}
               leftIcon={<PencilIcon size={14} />}
+              disabled={isUpdating}
             />
             <Button
               onClick={handleWalletConnect}

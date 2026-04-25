@@ -28,15 +28,6 @@ export default function CampaignCauses() {
     .sort((a, b) => b.progress - a.progress)
     .slice(0, 3);
 
- 
-  if (isError) {
-    return (
-      <LottieHandler 
-        type="error" 
-        message="Oops! Something went wrong while fetching campaigns." 
-      />
-    );
-  }
   return (
     <div>
       <section id="causes" className="py-12 bg-white">

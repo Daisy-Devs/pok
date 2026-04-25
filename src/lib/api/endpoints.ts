@@ -10,6 +10,9 @@ export const ENDPOINTS = {
     validateAuth: "/user/me",
     reconnectWallet: "/wallet/connect",
     donors: "/user/",
+    profile: "/user/profile",
+    updateProfile: "/cloudinary/user/updateProfile",
+    deleteProfile: "/cloudinary/user/deleteProfile",
   },
   ngoAuth: {
     registerNgo: "/campaign/orgAndCampaign",
@@ -31,7 +34,7 @@ export const ENDPOINTS = {
     getDonationsByDonor: "/donation/user",
     getAllWithdrawals: "/donation/withdraw",
     getWithdrawalsByCampaign: "/donation/withdraw/:campaignId",
-   },
+  },
   documents: {
     uploadCompanyProfileImage: "/cloudinary/profile",
     uploadCampaignImages: "/cloudinary/causeImages",
