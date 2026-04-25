@@ -194,15 +194,20 @@ export const getAllCampaigns = async (req, res) => {
       tag,
       status,
       goalToken,
-      sortBy = "latest"
+      sortBy = "latest",
+      view = "list",
+      limitPerCause = 6
     } = req.query;
 
     page = parseInt(page);
     limit = parseInt(limit);
+    limitPerCause = parseInt(limitPerCause);
 
     if (page < 1) page = 1;
 
-    // ✅ 1. Base filter
+    // =========================================================
+    // ✅ Common Filter
+    // =========================================================
     const filter = {
       status: { $in: ["active", "draft"] }
     };
@@ -211,7 +216,14 @@ export const getAllCampaigns = async (req, res) => {
     if (cause) filter.cause = cause;
     if (goalToken) filter.goalToken = goalToken.toUpperCase();
 
-    // ✅ 2. SEARCH (multi-field)
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    if (tag) {
+      filter.tags = { $in: [new RegExp(tag, "i")] };
+    }
+
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -221,26 +233,81 @@ export const getAllCampaigns = async (req, res) => {
       ];
     }
 
-    // ✅ 3. Specific filters (optional)
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
-
-    if (tag) {
-      filter.tags = { $in: [new RegExp(tag, "i")] };
-    }
-
-    // ✅ 4. Sorting
+    // =========================================================
+    // ✅ Sorting
+    // =========================================================
     let sortOption = { createdAt: -1 };
 
     if (sortBy === "oldest") sortOption = { createdAt: 1 };
     if (sortBy === "goal_high") sortOption = { goalAmount: -1 };
     if (sortBy === "goal_low") sortOption = { goalAmount: 1 };
 
-    // ✅ 5. Count
+    // =========================================================
+    // 🔥 MODE 1: GROUPED (Tabs UI) — FIXED WITH AGGREGATION
+    // =========================================================
+    if (view === "grouped" && !cause) {
+      const pipeline = [
+        { $match: filter },
+
+        // Sort BEFORE grouping
+        { $sort: sortOption },
+
+        // Group by cause
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
+            campaigns: { $push: "$$ROOT" }
+          }
+        },
+
+        // Limit campaigns per cause
+        {
+          $project: {
+            cause: "$_id",
+            campaigns: { $slice: ["$campaigns", limitPerCause] }
+          }
+        },
+
+        // Pagination on causes
+        { $skip: (page - 1) * limit },
+        { $limit: limit }
+      ];
+
+      const groupedData = await Campaign.aggregate(pipeline);
+
+      // Populate organization manually
+      const populated = await Campaign.populate(groupedData, {
+        path: "campaigns.organization",
+        select: "name email walletAddress profileImage"
+      });
+
+      // Count total causes (without pagination)
+      const totalCausesAgg = await Campaign.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } }
+          }
+        },
+        { $count: "total" }
+      ]);
+
+      const totalCauses = totalCausesAgg[0]?.total || 0;
+
+      return sendResponse(res, 200, "Grouped campaigns fetched", {
+        page,
+        totalPages: Math.ceil(totalCauses / limit),
+        totalCauses,
+        count: populated.length,
+        causes: populated
+      });
+    }
+
+    // =========================================================
+    // 🔥 MODE 2: LIST (All OR Single Cause)
+    // =========================================================
     const total = await Campaign.countDocuments(filter);
 
-    // ✅ 6. Query
     const campaigns = await Campaign.find(filter)
       .select("-_id -__v")
       .populate("organization", "name email walletAddress profileImage")
@@ -248,7 +315,6 @@ export const getAllCampaigns = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // ✅ 7. Response
     return sendResponse(res, 200, "Campaigns fetched successfully", {
       page,
       totalPages: Math.ceil(total / limit),
@@ -258,6 +324,7 @@ export const getAllCampaigns = async (req, res) => {
     });
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };
