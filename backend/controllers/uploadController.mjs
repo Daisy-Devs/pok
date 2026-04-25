@@ -153,6 +153,7 @@ export const uploadProfileImage = async (req, res) => {
 
 export const updateProfileImage = async (req, res) => {
   try {
+    const ngoId = req.ngoId;
     const file = req.file;
 
     if (!file) {
@@ -167,7 +168,7 @@ export const updateProfileImage = async (req, res) => {
       return sendResponse(res, 400, "Max size is 2MB");
     }
 
-    const org = await Organization.findById(req.ngoId);
+    const org = await Organization.findById(ngoId);
 
     if (!org) {
       return sendResponse(res, 404, "Organization not found" );
@@ -202,7 +203,8 @@ export const updateProfileImage = async (req, res) => {
 
 export const deleteProfileImage = async (req, res) => {
   try {
-    const org = await Organization.findById(req.ngoId);
+    const ngoId = req.ngoId;
+    const org = await Organization.findById(ngoId);
 
     if (!org) {
        return sendResponse(res, 404, "Organization not found" );
@@ -229,6 +231,7 @@ export const deleteProfileImage = async (req, res) => {
 
 export const updateUserProfileImage = async (req, res) => {
   try {
+    const userId = req.userId;
     const file = req.file;
 
     if (!file) {
@@ -243,7 +246,7 @@ export const updateUserProfileImage = async (req, res) => {
       return sendResponse(res, 400, "Max size is 2MB");
     }
 
-    const user = await User.findById(req.userId);
+    const user = await User.findById(userId);
 
     if (!user) {
        return sendResponse(res, 404, "User not found" );
@@ -281,7 +284,8 @@ export const deleteUserProfileImage = async (req, res) => {
   console.log("--- Delete Profile Image Process Started ---");
   console.log("User ID from Request:", req.userId);
   try {
-    const user = await User.findById(req.userId);
+    const userId = req.userId;
+    const user = await User.findById(userId);
 
     if (!user) {
       return sendResponse(res, 404, "User not found" );
