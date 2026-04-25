@@ -2,6 +2,7 @@ import contract from "../config/contract.mjs";
 import { ethers } from "ethers";
 import { saveDonation } from "../services/donation.mjs";
 import { User } from "../models/user.mjs";
+import { Campaign } from "../models/campaign.mjs";
 
 export const startDonationListener = () => {
   console.log("Listening to DonationReceived events...");
@@ -12,7 +13,7 @@ export const startDonationListener = () => {
 
       const {
         donor,
-        campaignId,
+        campaignId, // bytes32 from contract
         campaignOwner,
         amount,
         isAnonymous,
@@ -21,17 +22,20 @@ export const startDonationListener = () => {
 
       const txHash = event.log.transactionHash;
 
-      // ✅ Normalize addresses
       const normalizedDonor = donor.toLowerCase();
       const normalizedNgo = campaignOwner.toLowerCase();
 
-      // ✅ Decode campaignId (bytes32 → string)
-      let readableCampaignId;
-      try {
-        readableCampaignId = ethers.decodeBytes32String(campaignId);
-      } catch {
-        readableCampaignId = campaignId; // fallback
+      // 🔥 IMPORTANT: find campaign using bytes32
+      const campaign = await Campaign.findOne({
+        campaignIdBytes32: campaignId
+      });
+
+      if (!campaign) {
+        console.log("❌ Campaign not found for:", campaignId);
+        return;
       }
+
+      const readableCampaignId = campaign.id; // ✅ ALWAYS correct
 
       // 💰 Format amount
       let formattedAmount;
@@ -39,11 +43,10 @@ export const startDonationListener = () => {
       if (token === ethers.ZeroAddress) {
         formattedAmount = ethers.formatEther(amount);
       } else {
-        // ⚠️ assuming 6 decimals (USDC) — adjust later if needed
         formattedAmount = ethers.formatUnits(amount, 6);
       }
 
-      // 🔥 Fetch user (only if not anonymous)
+      // 🔥 Fetch user
       let donorName = "Anonymous";
       let userId = null;
 
@@ -58,10 +61,11 @@ export const startDonationListener = () => {
         }
       }
 
-      // ✅ Save donation
+      // ✅ Save donation (NOW PERFECT)
       await saveDonation({
         donor: normalizedDonor,
-        campaignId: readableCampaignId,
+        campaignId: readableCampaignId, // ✅ normal ID
+        campaignIdBytes32: campaignId,  // ✅ store this also (recommended)
         ngoWallet: normalizedNgo,
         amount: formattedAmount,
         token,
@@ -70,6 +74,16 @@ export const startDonationListener = () => {
         userId,
         txHash
       });
+
+      console.log("✅ Donation saved:", readableCampaignId);
+
+      const current = BigInt(campaign.raisedAmount || "0");
+      const updated = current + BigInt(amount);
+
+      campaign.raisedAmount = updated.toString();
+      await campaign.save();
+
+      console.log("✅ Donation processed & campaign updated");
 
     } catch (err) {
       console.error("❌ Listener error:", err.message);
