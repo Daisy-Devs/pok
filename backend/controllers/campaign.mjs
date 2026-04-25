@@ -266,21 +266,87 @@ export const getCampaignsByOrganization = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 1️⃣ Fetch campaigns
     const campaigns = await Campaign.find({ organization: id })
       .select('-__v')
-      .populate('organization', 'name email walletAddress website profileImage documents')
+      .populate(
+        'organization',
+        'name email walletAddress website profileImage documents'
+      )
       .sort({ createdAt: -1 });
 
     if (!campaigns.length) {
       return sendResponse(res, 404, 'No campaigns found for this organization');
     }
 
+    // 2️⃣ Extract campaign IDs
+    const campaignIds = campaigns.map(c => c.id);
+
+    // 3️⃣ Aggregate donors + total raised
+    const stats = await DonationRecord.aggregate([
+      {
+        $match: {
+          campaignId: { $in: campaignIds }
+        }
+      },
+      {
+        $group: {
+          _id: "$campaignId",
+          uniqueDonors: { $addToSet: "$donor" },
+          totalAmount: {
+            $sum: { $toDouble: "$amount" } // 🔥 convert string → number
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          totalDonors: { $size: "$uniqueDonors" },
+          totalRaised: "$totalAmount"
+        }
+      }
+    ]);
+
+    // 4️⃣ Convert to map
+    const statsMap = {};
+    stats.forEach(item => {
+      statsMap[item._id] = {
+        totalDonors: item.totalDonors,
+        totalRaised: item.totalRaised
+      };
+    });
+
+    // 5️⃣ Attach stats to campaigns
+    const updatedCampaigns = campaigns.map(campaign => {
+      const stat = statsMap[campaign.id] || {
+        totalDonors: 0,
+        totalRaised: 0
+      };
+
+      const goal = Number(campaign.goalAmount);
+
+      const progressPercent =
+        goal > 0
+          ? Number(((stat.totalRaised / goal) * 100).toFixed(2))
+          : 0;
+
+      return {
+        ...campaign.toObject(),
+        totalDonors: stat.totalDonors,
+        totalRaised: stat.totalRaised,
+        progressPercent,
+        isGoalReached: stat.totalRaised >= goal
+      };
+    });
+
+    // 6️⃣ Response
     return sendResponse(res, 200, 'campaigns fetched successfully', {
-      count: campaigns.length,
-      campaigns
+      count: updatedCampaigns.length,
+      campaigns: updatedCampaigns
     });
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };
