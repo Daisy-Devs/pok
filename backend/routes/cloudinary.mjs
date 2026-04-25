@@ -10,8 +10,8 @@ router.post("/documents", upload.array("documents", 5), uploadDocuments);
 router.post("/causeImages", upload.array("images", 5), uploadCauseImages);
 router.post("/delete", deleteUploadedFile)
 
-router.post("/profile", ngoAuth, upload.single("profileImage"), uploadProfileImage);
-router.post("/updateProfile", upload.single("profileImage"), updateProfileImage);
+router.post("/profile", upload.single("profileImage"), uploadProfileImage);
+router.post("/updateProfile", ngoAuth, upload.single("profileImage"), updateProfileImage);
 router.post("/deleteProfile", ngoAuth, deleteProfileImage);
 
 router.post("/user/updateProfile", donorAuth, upload.single("profileImage"), updateUserProfileImage);
