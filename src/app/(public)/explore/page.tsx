@@ -58,9 +58,6 @@ export default function ExplorePage() {
     });
   }, [campaigns, activeCategory, search]);
 
-  if (isLoading) return <p>Loading campaigns...</p>;
-  if (error) return <p>Failed to load campaigns</p>;
-
   return (
     <div className="bg-white min-h-screen  ">
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row gap-10 md:items-end">

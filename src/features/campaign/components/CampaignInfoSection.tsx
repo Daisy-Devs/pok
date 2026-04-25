@@ -11,7 +11,7 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
-import { CheckCircle2, GlassWater, ShieldCheck, Users2, UserSquare } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Users2 } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
