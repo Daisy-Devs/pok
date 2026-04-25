@@ -1,5 +1,6 @@
 import express from "express";
 import { upload } from "../middleware/cloudinaryMulter.mjs";
+import { donorAuth } from "../middleware/donorAuth.mjs";
 import { deleteProfileImage, deleteUserProfileImage, updateProfileImage, updateUserProfileImage, uploadCauseImages, uploadDocuments, uploadProfileImage } from "../controllers/uploadController.mjs";
 
 const router = express.Router();
@@ -9,8 +10,8 @@ router.post("/causeImages", upload.array("images", 5), uploadCauseImages);
 router.post("/profile", upload.single("profileImage"), uploadProfileImage);
 router.post("/updateProfile", upload.single("profileImage"), updateProfileImage);
 router.post("/deleteProfile", deleteProfileImage);
-router.post("/user/updateProfile", upload.single("profileImage"), updateUserProfileImage);
-router.post("/user/deleteProfile", deleteUserProfileImage);
+router.post("/user/updateProfile", donorAuth, upload.single("profileImage"), updateUserProfileImage);
+router.post("/user/deleteProfile", donorAuth, deleteUserProfileImage);
 
 
 export default router;

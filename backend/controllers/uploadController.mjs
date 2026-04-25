@@ -1,6 +1,7 @@
 import { Organization } from "../models/organization.mjs";
 import { User } from "../models/user.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
+import cloudinary from "../config/cloudinary.mjs";
 
 export const uploadDocuments = async (req, res) => {
   try {
@@ -9,7 +10,7 @@ export const uploadDocuments = async (req, res) => {
     // ✅ 1. Validate count
     if (!files || files.length < 1 || files.length > 5) {
       return res.status(400).json({
-        message: "Upload between 1 and 5 files"
+        message: "Upload between 1 and 5 files",
       });
     }
 
@@ -18,7 +19,7 @@ export const uploadDocuments = async (req, res) => {
       "application/pdf",
       "image/png",
       "image/jpeg",
-      "image/jpg"
+      "image/jpg",
     ];
 
     const uploadedFiles = [];
@@ -27,27 +28,21 @@ export const uploadDocuments = async (req, res) => {
     for (const file of files) {
       if (!allowedTypes.includes(file.mimetype)) {
         return res.status(400).json({
-          message: "Only PDF and image files are allowed"
+          message: "Only PDF and image files are allowed",
         });
       }
 
       // PDF limit
-      if (
-        file.mimetype === "application/pdf" &&
-        file.size > 10 * 1024 * 1024
-      ) {
+      if (file.mimetype === "application/pdf" && file.size > 10 * 1024 * 1024) {
         return res.status(400).json({
-          message: "Each PDF must be <= 10MB"
+          message: "Each PDF must be <= 10MB",
         });
       }
 
       // Image limit
-      if (
-        file.mimetype.startsWith("image/") &&
-        file.size > 2 * 1024 * 1024
-      ) {
+      if (file.mimetype.startsWith("image/") && file.size > 2 * 1024 * 1024) {
         return res.status(400).json({
-          message: "Each image must be <= 2MB"
+          message: "Each image must be <= 2MB",
         });
       }
 
@@ -57,20 +52,19 @@ export const uploadDocuments = async (req, res) => {
       uploadedFiles.push({
         name: file.originalname,
         url: result.secure_url,
-        type: file.mimetype.startsWith("image/") ? "image" : "pdf"
+        type: file.mimetype.startsWith("image/") ? "image" : "pdf",
       });
     }
 
     // ✅ 3. Response
     return res.status(200).json({
       message: "Files uploaded successfully",
-      documents: uploadedFiles
+      documents: uploadedFiles,
     });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -105,15 +99,14 @@ export const uploadCauseImages = async (req, res) => {
       uploadedImages.push({
         name: file.originalname,
         url: result.secure_url,
-        type: "image"
+        type: "image",
       });
     }
 
     return res.status(200).json({
       message: "Images uploaded successfully",
-      images: uploadedImages
+      images: uploadedImages,
     });
-
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -148,10 +141,9 @@ export const uploadProfileImage = async (req, res) => {
         name: file.originalname,
         url: result.secure_url,
         public_id: result.public_id, // 🔥 IMPORTANT
-        type: "image"
-      }
+        type: "image",
+      },
     });
-
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -189,7 +181,7 @@ export const updateProfileImage = async (req, res) => {
 
     org.profileImage = {
       url: result.secure_url,
-      public_id: result.public_id
+      public_id: result.public_id,
     };
 
     await org.save();
@@ -199,10 +191,9 @@ export const updateProfileImage = async (req, res) => {
       profileImage: {
         name: file.originalname,
         url: result.secure_url,
-        type: "image"
-      }
+        type: "image",
+      },
     });
-
   } catch (err) {
     return res.status(400).json({ message: err.message });
   }
@@ -229,9 +220,8 @@ export const deleteProfileImage = async (req, res) => {
     await org.save();
 
     return res.status(200).json({
-      message: "Profile image deleted successfully"
+      message: "Profile image deleted successfully",
     });
-
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
@@ -269,50 +259,57 @@ export const updateUserProfileImage = async (req, res) => {
 
     user.profileImage = {
       url: result.secure_url,
-      public_id: result.public_id
+      public_id: result.public_id,
     };
 
     await user.save();
 
     return res.status(200).json({
       message: "Profile image updated successfully",
-      profileImage: {
-        name: file.originalname,
-        url: result.secure_url,
-        type: "image"
-      }
+      profileImage: user.profileImage, // Return the object consistent with your schema
     });
-
   } catch (err) {
+    console.error("❌ Profile Update Error:", err);
     return res.status(400).json({ message: err.message });
   }
 };
 
 export const deleteUserProfileImage = async (req, res) => {
+  console.log("--- Delete Profile Image Process Started ---");
+  console.log("User ID from Request:", req.userId);
   try {
     const user = await User.findById(req.userId);
 
     if (!user) {
+      console.error("❌ Delete Error: User not found in database.");
       return res.status(404).json({ message: "User not found" });
     }
+    console.log("User found:", user.name);
+    console.log("Current Profile Image Data:", user.profileImage);
 
     if (!user.profileImage?.public_id) {
+      console.warn("⚠️ Delete Warning: No public_id found in user record.");
       return res.status(400).json({ message: "No profile image to delete" });
     }
 
     // ✅ Delete from Cloudinary
+    console.log(
+      "Attempting to destroy Cloudinary image:",
+      user.profileImage.public_id,
+    );
     await cloudinary.uploader.destroy(user.profileImage.public_id);
 
     // ✅ Remove from DB
     user.profileImage = null;
 
     await user.save();
+    console.log("✅ Success: Profile image cleared from Database.");
 
     return res.status(200).json({
-      message: "Profile image deleted successfully"
+      message: "Profile image deleted successfully",
     });
-
   } catch (err) {
+    console.error("🔥 CRITICAL DELETE ERROR:", err);
     return res.status(500).json({ message: err.message });
   }
 };
