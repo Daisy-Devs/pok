@@ -1,5 +1,6 @@
 import { Organization } from "../models/organization.mjs";
 import { User } from "../models/user.mjs";
+import { sendResponse } from "../utils/response.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
 import cloudinary from "../config/cloudinary.mjs";
 
@@ -9,12 +10,9 @@ export const uploadDocuments = async (req, res) => {
 
     // ✅ 1. Validate count
     if (!files || files.length < 1 || files.length > 5) {
-      return res.status(400).json({
-        message: "Upload between 1 and 5 files",
-      });
+      return sendResponse(res, 400, "Upload between 1 and 5 files");
     }
 
-    // Allowed types
     const allowedTypes = [
       "application/pdf",
       "image/png",
@@ -24,48 +22,49 @@ export const uploadDocuments = async (req, res) => {
 
     const uploadedFiles = [];
 
-    // ✅ 2. Validate each file
+    // ✅ 2. Loop through ALL files
     for (const file of files) {
+      // Type check
       if (!allowedTypes.includes(file.mimetype)) {
-        return res.status(400).json({
-          message: "Only PDF and image files are allowed",
-        });
+        return sendResponse(res, 400, "Only PDF and image files are allowed");
       }
 
-      // PDF limit
-      if (file.mimetype === "application/pdf" && file.size > 10 * 1024 * 1024) {
-        return res.status(400).json({
-          message: "Each PDF must be <= 10MB",
-        });
+      // PDF size limit
+      if (
+        file.mimetype === "application/pdf" &&
+        file.size > 10 * 1024 * 1024
+      ) {
+        return sendResponse(res, 400, "Each PDF must be <= 10MB");
       }
 
-      // Image limit
-      if (file.mimetype.startsWith("image/") && file.size > 2 * 1024 * 1024) {
-        return res.status(400).json({
-          message: "Each image must be <= 2MB",
-        });
+      // Image size limit
+      if (
+        file.mimetype.startsWith("image/") &&
+        file.size > 2 * 1024 * 1024
+      ) {
+        return sendResponse(res, 400, "Each image must be <= 2MB");
       }
 
-      // Upload
+      // ✅ Upload
       const result = await uploadToCloudinary(file.buffer);
 
       uploadedFiles.push({
         name: file.originalname,
         url: result.secure_url,
-        type: file.mimetype.startsWith("image/") ? "image" : "pdf",
+        public_id: result.public_id,
+        type: file.mimetype.startsWith("image/") ? "image" : "pdf"
       });
     }
 
-    // ✅ 3. Response
-    return res.status(200).json({
-      message: "Files uploaded successfully",
-      documents: uploadedFiles,
+    // ✅ 3. Final response AFTER loop
+    return sendResponse(res, 200, 'Documents uploaded successfully', {
+      documents: uploadedFiles
     });
+    
+
   } catch (err) {
     console.error(err);
-    return res.status(500).json({
-      message: "Internal server error",
-    });
+    return sendResponse(res, 500, err.message);
   }
 };
 
@@ -73,42 +72,46 @@ export const uploadCauseImages = async (req, res) => {
   try {
     const files = req.files;
 
-    // ✅ Min / Max count
     if (!files || files.length === 0) {
-      return res.status(400).json({ message: "At least 1 image required" });
+      return sendResponse(res, 400, "At least 1 image required");
     }
 
     if (files.length > 5) {
-      return res.status(400).json({ message: "Max 5 images allowed" });
+      return sendResponse(res, 400, "Max 5 images allowed");
     }
 
     const uploadedImages = [];
 
-    // ✅ Validate + Upload
     for (const file of files) {
       if (!file.mimetype.startsWith("image/")) {
-        return res.status(400).json({ message: "Only image files allowed" });
+        return sendResponse(res, 400, `Invalid file: ${file.originalname}. Only images allowed`);
       }
 
       if (file.size > 2 * 1024 * 1024) {
-        return res.status(400).json({ message: "Each image must be <= 2MB" });
+        return sendResponse(res, 400, `${file.originalname} must be <= 2MB`);
       }
 
       const result = await uploadToCloudinary(file.buffer);
 
+      if (!result?.secure_url || !result?.public_id) {
+        throw new Error("Upload failed");
+      }
+
       uploadedImages.push({
         name: file.originalname,
         url: result.secure_url,
-        type: "image",
+        public_id: result.public_id,
+        type: "image"
       });
     }
 
-    return res.status(200).json({
-      message: "Images uploaded successfully",
-      images: uploadedImages,
+    return sendResponse(res, 200, 'Images uploaded successfully', {
+      images: uploadedImages
     });
+    
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    console.error(err);
+    return sendResponse(res, 500, err.message);
   }
 };
 
@@ -118,25 +121,24 @@ export const uploadProfileImage = async (req, res) => {
 
     // ✅ Required
     if (!file) {
-      return res.status(400).json({ message: "Profile image is required" });
+      return sendResponse(res, 400, "Profile image is required");
     }
 
     // ✅ Type check
     if (!file.mimetype.startsWith("image/")) {
-      return res.status(400).json({ message: "Only image files allowed" });
+      return sendResponse(res, 400, "Only image files allowed");
     }
 
     // ✅ Size check (2MB)
     if (file.size > 2 * 1024 * 1024) {
-      return res.status(400).json({ message: "Max size is 2MB" });
+      return sendResponse(res, 400, "Max size is 2MB");
     }
 
     // ✅ Upload to Cloudinary
     const result = await uploadToCloudinary(file.buffer);
 
     // ✅ Response (IMPORTANT)
-    return res.status(200).json({
-      message: "Profile image uploaded successfully",
+    return sendResponse(res, 200, 'Profile Image uploaded successfully', {
       profileImage: {
         name: file.originalname,
         url: result.secure_url,
@@ -145,7 +147,7 @@ export const uploadProfileImage = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+   return sendResponse(res, 500, err.message);
   }
 };
 
@@ -154,21 +156,21 @@ export const updateProfileImage = async (req, res) => {
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ message: "Image is required" });
+      return sendResponse(res, 400, "Image is required");
     }
 
     if (!file.mimetype.startsWith("image/")) {
-      return res.status(400).json({ message: "Only image allowed" });
+      return sendResponse(res, 400, "Only image is allowed");
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      return res.status(400).json({ message: "Max size is 2MB" });
+      return sendResponse(res, 400, "Max size is 2MB");
     }
 
     const org = await Organization.findById(req.ngoId);
 
     if (!org) {
-      return res.status(404).json({ message: "Organization not found" });
+      return sendResponse(res, 404, "Organization not found" );
     }
 
     // ✅ Delete old image (if exists)
@@ -186,8 +188,7 @@ export const updateProfileImage = async (req, res) => {
 
     await org.save();
 
-    return res.status(200).json({
-      message: "Profile image updated successfully",
+    return sendResponse(res, 200, 'Profile Image updated successfully', {
       profileImage: {
         name: file.originalname,
         url: result.secure_url,
@@ -195,7 +196,7 @@ export const updateProfileImage = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(400).json({ message: err.message });
+    return sendResponse(res, 500, err.message);
   }
 };
 
@@ -204,11 +205,11 @@ export const deleteProfileImage = async (req, res) => {
     const org = await Organization.findById(req.ngoId);
 
     if (!org) {
-      return res.status(404).json({ message: "Organization not found" });
+       return sendResponse(res, 404, "Organization not found" );
     }
 
     if (!org.profileImage?.public_id) {
-      return res.status(400).json({ message: "No profile image to delete" });
+      return sendResponse(res, 400, "No profile image to delete");
     }
 
     // ✅ Delete from Cloudinary
@@ -219,11 +220,10 @@ export const deleteProfileImage = async (req, res) => {
 
     await org.save();
 
-    return res.status(200).json({
-      message: "Profile image deleted successfully",
-    });
+    return sendResponse(res, 200, 'Profile Image deleted successfully');
+
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+   return sendResponse(res, 500, err.message);
   }
 };
 
@@ -232,21 +232,21 @@ export const updateUserProfileImage = async (req, res) => {
     const file = req.file;
 
     if (!file) {
-      return res.status(400).json({ message: "Image is required" });
+      return sendResponse(res, 400, "Image is required");
     }
 
     if (!file.mimetype.startsWith("image/")) {
-      return res.status(400).json({ message: "Only image allowed" });
+      return sendResponse(res, 400, "Only image is allowed");
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      return res.status(400).json({ message: "Max size is 2MB" });
+      return sendResponse(res, 400, "Max size is 2MB");
     }
 
     const user = await User.findById(req.userId);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+       return sendResponse(res, 404, "User not found" );
     }
 
     // ✅ Delete old image (if exists)
@@ -264,13 +264,16 @@ export const updateUserProfileImage = async (req, res) => {
 
     await user.save();
 
-    return res.status(200).json({
-      message: "Profile image updated successfully",
-      profileImage: user.profileImage, // Return the object consistent with your schema
+    return sendResponse(res, 200, 'Profile Image updated successfully', {
+      profileImage: {
+        name: file.originalname,
+        url: result.secure_url,
+        type: "image"
+      }
     });
+
   } catch (err) {
-    console.error("❌ Profile Update Error:", err);
-    return res.status(400).json({ message: err.message });
+    return sendResponse(res, 500, err.message);
   }
 };
 
@@ -281,15 +284,13 @@ export const deleteUserProfileImage = async (req, res) => {
     const user = await User.findById(req.userId);
 
     if (!user) {
-      console.error("❌ Delete Error: User not found in database.");
-      return res.status(404).json({ message: "User not found" });
+      return sendResponse(res, 404, "User not found" );
     }
     console.log("User found:", user.name);
     console.log("Current Profile Image Data:", user.profileImage);
 
     if (!user.profileImage?.public_id) {
-      console.warn("⚠️ Delete Warning: No public_id found in user record.");
-      return res.status(400).json({ message: "No profile image to delete" });
+      return sendResponse(res, 400, "No profile image to delete");
     }
 
     // ✅ Delete from Cloudinary
@@ -305,11 +306,31 @@ export const deleteUserProfileImage = async (req, res) => {
     await user.save();
     console.log("✅ Success: Profile image cleared from Database.");
 
-    return res.status(200).json({
-      message: "Profile image deleted successfully",
-    });
+    return sendResponse(res, 200, "Profile image deleted successfully")
+
   } catch (err) {
-    console.error("🔥 CRITICAL DELETE ERROR:", err);
-    return res.status(500).json({ message: err.message });
+   return sendResponse(res, 500, err.message);
+  }
+};
+
+export const deleteUploadedFile = async (req, res) => {
+  try {
+    const { public_id, type } = req.body;
+
+    if (!public_id || !type) {
+      return sendResponse(res, 400, "public_id and type are required");
+    }
+
+    const resource_type = type === "pdf" ? "raw" : "image";
+
+    await cloudinary.uploader.destroy(public_id, {
+      resource_type
+    });
+
+    return sendResponse(res, 200, "File deleted successfully")
+
+
+  } catch (err) {
+   return sendResponse(res, 500, err.message);
   }
 };

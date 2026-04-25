@@ -15,7 +15,9 @@ const OrganizationSchema = new mongoose.Schema(
     documents: [
       {
         name: String,
-        url: String
+        url: String,
+        public_id: String,
+        type: String
       }
     ],
     isProfileComplete: { type: Boolean, default: false }
