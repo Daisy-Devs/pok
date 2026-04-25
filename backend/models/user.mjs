@@ -4,8 +4,10 @@ const UserSchema = new mongoose.Schema(
   {
     name: { type: String },
     profileImage: {
+      name: String,
       url: String,
-      public_id: String
+      public_id: String,
+      type: String
     },
     email: { type: String, unique: true, sparse: true },
     password: { type: String }, // not required for social login

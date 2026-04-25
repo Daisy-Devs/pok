@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const DonationRecordSchema = new mongoose.Schema(
   {
     donor: { type: String, required: true }, // normalized wallet
-    campaignId: { type: String, required: true }, // decoded from bytes32
+    campaignId: { type: String, required: true }, // readable
+    campaignIdBytes32: { type: String, required: true }, // blockchain
     ngoWallet: { type: String, required: true }, // normalized wallet
     amount: { type: String, required: true }, // formatted (for display)
     token: { type: String, required: true }, // address(0) or ERC20
@@ -24,8 +25,5 @@ const DonationRecordSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-DonationRecordSchema.index({ donor: 1 });
-DonationRecordSchema.index({ campaignId: 1 });
 
 export const DonationRecord = mongoose.model("DonationRecord", DonationRecordSchema);

@@ -1,4 +1,4 @@
-import { Campaign, Organization } from '../models/index.mjs';
+import { Campaign, DonationRecord, Organization } from '../models/index.mjs';
 import { v4 as uuidv4 } from 'uuid';
 import { sendResponse } from '../utils/response.mjs';
 import { campaignQueue } from "../queues/campaignQueue.mjs";
@@ -194,15 +194,20 @@ export const getAllCampaigns = async (req, res) => {
       tag,
       status,
       goalToken,
-      sortBy = "latest"
+      sortBy = "latest",
+      view = "list",
+      limitPerCause = 6
     } = req.query;
 
     page = parseInt(page);
     limit = parseInt(limit);
+    limitPerCause = parseInt(limitPerCause);
 
     if (page < 1) page = 1;
 
-    // ✅ 1. Base filter
+    // =========================================================
+    // ✅ Common Filter
+    // =========================================================
     const filter = {
       status: { $in: ["active", "draft"] }
     };
@@ -211,7 +216,14 @@ export const getAllCampaigns = async (req, res) => {
     if (cause) filter.cause = cause;
     if (goalToken) filter.goalToken = goalToken.toUpperCase();
 
-    // ✅ 2. SEARCH (multi-field)
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    if (tag) {
+      filter.tags = { $in: [new RegExp(tag, "i")] };
+    }
+
     if (search) {
       filter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -221,26 +233,115 @@ export const getAllCampaigns = async (req, res) => {
       ];
     }
 
-    // ✅ 3. Specific filters (optional)
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
-
-    if (tag) {
-      filter.tags = { $in: [new RegExp(tag, "i")] };
-    }
-
-    // ✅ 4. Sorting
+    // =========================================================
+    // ✅ Sorting
+    // =========================================================
     let sortOption = { createdAt: -1 };
 
     if (sortBy === "oldest") sortOption = { createdAt: 1 };
     if (sortBy === "goal_high") sortOption = { goalAmount: -1 };
     if (sortBy === "goal_low") sortOption = { goalAmount: 1 };
 
-    // ✅ 5. Count
+    // =========================================================
+    // 🧠 Helper: Attach funding stats (ONLY totalRaised)
+    // =========================================================
+    const attachFundingStats = async (campaigns) => {
+      if (!campaigns.length) return campaigns;
+
+      const campaignIds = campaigns.map(c => c._id || c.id);
+
+      const stats = await DonationRecord.aggregate([
+        {
+          $match: { campaignId: { $in: campaignIds } }
+        },
+        {
+          $group: {
+            _id: "$campaignId",
+            totalAmount: { $sum: { $toDouble: "$amount" } }
+          }
+        }
+      ]);
+
+      const statsMap = {};
+      stats.forEach(item => {
+        statsMap[item._id] = item.totalAmount;
+      });
+
+      return campaigns.map(campaign => {
+        const totalRaised = statsMap[campaign._id] || 0;
+        const goal = Number(campaign.goalAmount);
+
+        return {
+          ...campaign.toObject(),
+          totalRaised,
+          isGoalReached: totalRaised >= goal
+        };
+      });
+    };
+
+    // =========================================================
+    // 🔥 MODE 1: GROUPED
+    // =========================================================
+    if (view === "grouped" && !cause) {
+      const pipeline = [
+        { $match: filter },
+        { $sort: sortOption },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
+            campaigns: { $push: "$$ROOT" }
+          }
+        },
+        {
+          $project: {
+            cause: "$_id",
+            campaigns: { $slice: ["$campaigns", limitPerCause] }
+          }
+        },
+        { $skip: (page - 1) * limit },
+        { $limit: limit }
+      ];
+
+      const groupedData = await Campaign.aggregate(pipeline);
+
+      // populate organization
+      const populated = await Campaign.populate(groupedData, {
+        path: "campaigns.organization",
+        select: "name email walletAddress profileImage"
+      });
+
+      // 👉 attach funding stats per group
+      for (let group of populated) {
+        group.campaigns = await attachFundingStats(group.campaigns);
+      }
+
+      // total causes count
+      const totalCausesAgg = await Campaign.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } }
+          }
+        },
+        { $count: "total" }
+      ]);
+
+      const totalCauses = totalCausesAgg[0]?.total || 0;
+
+      return sendResponse(res, 200, "Grouped campaigns fetched", {
+        page,
+        totalPages: Math.ceil(totalCauses / limit),
+        totalCauses,
+        count: populated.length,
+        causes: populated
+      });
+    }
+
+    // =========================================================
+    // 🔥 MODE 2: LIST
+    // =========================================================
     const total = await Campaign.countDocuments(filter);
 
-    // ✅ 6. Query
     const campaigns = await Campaign.find(filter)
       .select("-_id -__v")
       .populate("organization", "name email walletAddress profileImage")
@@ -248,16 +349,18 @@ export const getAllCampaigns = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    // ✅ 7. Response
+    const updatedCampaigns = await attachFundingStats(campaigns);
+
     return sendResponse(res, 200, "Campaigns fetched successfully", {
       page,
       totalPages: Math.ceil(total / limit),
       totalCampaigns: total,
-      count: campaigns.length,
-      campaigns
+      count: updatedCampaigns.length,
+      campaigns: updatedCampaigns
     });
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };
@@ -266,21 +369,87 @@ export const getCampaignsByOrganization = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // 1️⃣ Fetch campaigns
     const campaigns = await Campaign.find({ organization: id })
       .select('-__v')
-      .populate('organization', 'name email walletAddress website profileImage documents')
+      .populate(
+        'organization',
+        'name email walletAddress website profileImage documents'
+      )
       .sort({ createdAt: -1 });
 
     if (!campaigns.length) {
       return sendResponse(res, 404, 'No campaigns found for this organization');
     }
 
+    // 2️⃣ Extract campaign IDs
+    const campaignIds = campaigns.map(c => c.id);
+
+    // 3️⃣ Aggregate donors + total raised
+    const stats = await DonationRecord.aggregate([
+      {
+        $match: {
+          campaignId: { $in: campaignIds }
+        }
+      },
+      {
+        $group: {
+          _id: "$campaignId",
+          uniqueDonors: { $addToSet: "$donor" },
+          totalAmount: {
+            $sum: { $toDouble: "$amount" } // 🔥 convert string → number
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          totalDonors: { $size: "$uniqueDonors" },
+          totalRaised: "$totalAmount"
+        }
+      }
+    ]);
+
+    // 4️⃣ Convert to map
+    const statsMap = {};
+    stats.forEach(item => {
+      statsMap[item._id] = {
+        totalDonors: item.totalDonors,
+        totalRaised: item.totalRaised
+      };
+    });
+
+    // 5️⃣ Attach stats to campaigns
+    const updatedCampaigns = campaigns.map(campaign => {
+      const stat = statsMap[campaign.id] || {
+        totalDonors: 0,
+        totalRaised: 0
+      };
+
+      const goal = Number(campaign.goalAmount);
+
+      const progressPercent =
+        goal > 0
+          ? Number(((stat.totalRaised / goal) * 100).toFixed(2))
+          : 0;
+
+      return {
+        ...campaign.toObject(),
+        totalDonors: stat.totalDonors,
+        totalRaised: stat.totalRaised,
+        progressPercent,
+        isGoalReached: stat.totalRaised >= goal
+      };
+    });
+
+    // 6️⃣ Response
     return sendResponse(res, 200, 'campaigns fetched successfully', {
-      count: campaigns.length,
-      campaigns
+      count: updatedCampaigns.length,
+      campaigns: updatedCampaigns
     });
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };

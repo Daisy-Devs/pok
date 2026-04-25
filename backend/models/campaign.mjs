@@ -14,7 +14,14 @@ const CampaignSchema = new mongoose.Schema(
     missionStatement: { type: String, required: true },
     cause: { type: String, required: true },
     imageUrl: {
-      type: [String],
+      type: [
+        {
+          name: String,
+          url: String,
+          public_id: String,
+          type: String
+        }
+      ],
       default: []
     },
     goalAmount: { type: Number, required: true },

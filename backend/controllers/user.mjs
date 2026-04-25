@@ -435,7 +435,7 @@ export const getUserProfile = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return sendResponse(res, 404, "User not found" );
     }
 
     // ✅ 2. STATS using aggregation (efficient)
@@ -487,7 +487,7 @@ export const getUserProfile = async (req, res) => {
     // ✅ 6. Total count for pagination
     const totalRecords = await DonationRecord.countDocuments({ userId });
 
-    return res.status(200).json({
+    return sendResponse(res, 200, "Profile fetched successfully", {
       profile: {
         name: user.name,
         walletAddress: user.walletAddress,
@@ -505,9 +505,8 @@ export const getUserProfile = async (req, res) => {
         totalRecords
       }
     });
-
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+   return sendResponse(res, 500, err.message);
   }
 };
 
