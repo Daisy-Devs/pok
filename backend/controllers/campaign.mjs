@@ -484,6 +484,12 @@ const validateCampaignInput = (body) => {
     typeof url === "string" &&
     url.startsWith("https://");
 
+  const isValidMediaObject = (obj) =>
+    obj &&
+    typeof obj === "object" &&
+    typeof obj.url === "string" &&
+    isValidUrl(obj.url);
+
   // 🔹 Trim inputs
   const orgName = organizationName?.trim();
   const mail = email?.trim();
@@ -518,7 +524,7 @@ const validateCampaignInput = (body) => {
     return "Mission statement must be ≤ 1000 characters";
   }
 
-  // 🔹 Token config
+  // 🔹 Token validation
   const token = goalToken.toUpperCase();
 
   const limits = {
@@ -534,7 +540,7 @@ const validateCampaignInput = (body) => {
     return "Invalid token selected";
   }
 
-  // 🔹 Amount validation (fix applied)
+  // 🔹 Amount validation
   const amountStr = goalAmount.toString();
   const amount = Number(amountStr);
 
@@ -557,12 +563,18 @@ const validateCampaignInput = (body) => {
     return "Invalid status value";
   }
 
-  // 🔹 Profile image
-  if (profileImage && !isValidUrl(profileImage)) {
-    return "Invalid profile image URL";
+  // =====================================================
+  // 🔥 MEDIA VALIDATION (UPDATED)
+  // =====================================================
+
+  // 🔹 Profile Image (object)
+  if (profileImage) {
+    if (!isValidMediaObject(profileImage)) {
+      return "Invalid profile image";
+    }
   }
 
-  // 🔹 Campaign images
+  // 🔹 Campaign Images (array of objects)
   if (imageUrl) {
     if (!Array.isArray(imageUrl)) {
       return "imageUrl must be an array";
@@ -572,12 +584,12 @@ const validateCampaignInput = (body) => {
       return "Max 5 campaign images allowed";
     }
 
-    if (imageUrl.some((url) => !isValidUrl(url))) {
-      return "Invalid campaign image URL";
+    if (imageUrl.some((img) => !isValidMediaObject(img))) {
+      return "Invalid campaign image data";
     }
   }
 
-  // 🔹 Documents
+  // 🔹 Documents (array of objects)
   if (documents) {
     if (!Array.isArray(documents)) {
       return "documents must be an array";
@@ -592,6 +604,7 @@ const validateCampaignInput = (body) => {
         (doc) =>
           !doc ||
           typeof doc.name !== "string" ||
+          typeof doc.url !== "string" ||
           !isValidUrl(doc.url)
       )
     ) {
@@ -599,5 +612,5 @@ const validateCampaignInput = (body) => {
     }
   }
 
-  return null; // ✅ No errors
+  return null;
 };
