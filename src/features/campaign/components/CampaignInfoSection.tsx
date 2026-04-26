@@ -11,13 +11,22 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
-import { CheckCircle2, GlassWater, ShieldCheck, Users2, UserSquare, Globe2, Mail  } from "lucide-react";
+import {
+  CheckCircle2,
+  GlassWater,
+  ShieldCheck,
+  Users2,
+  UserSquare,
+  Globe2,
+  Mail,
+} from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
 import Heading from "@/src/components/Heading";
 import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
 import { CAUSE_CATEGORIES, DEFAULT_IMAGE_URL } from "@/src/constants/misc";
+import OrganisationDetails from "./OrganisationDetails";
 
 interface CampaignInfoSectionProps {
   campaignId: string;
@@ -25,10 +34,11 @@ interface CampaignInfoSectionProps {
 
 const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
+  console.log("Full API Data:", data);
 
   if (isLoading) return <p>Loading campaign...</p>;
   if (error) return <p>Failed to load campaign.</p>;
- 
+
   const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
@@ -38,7 +48,19 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
 
   const isActive = campaign.status === "active";
   const nearGoal = progress >= 75;
-  const Icon= CAUSE_CATEGORIES.find((category) => category.name === campaign.cause)!.icon;
+  const Icon = CAUSE_CATEGORIES.find(
+    (category) => category.name === campaign.cause,
+  )!.icon;
+
+  const organisationData = {
+  // Use the nested 'organization' object from your log
+  name: campaign.organization?.name || "Unknown Host",
+  email: campaign.organization?.email || "No email provided",
+  // If these don't exist in the 'organization' object yet, they will fall back gracefully
+  website: campaign.organization?.website || "", 
+  logo: campaign.organization?.logo || "" 
+};
+  console.log("Mapped Organisation Props:", organisationData);
 
   return (
     <div className="flex flex-col md:flex-row items-start gap-10 xl:gap-35 md:px-6">
@@ -75,7 +97,9 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
                     }
                     alt={"image" + index}
                     fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover"
+                    priority={index === 0}
                   />
                 </div>
               </CarouselItem>
@@ -112,18 +136,14 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
             intent={"subtle"}
             label="Cause"
             value={campaign.cause}
-            icon={
-              <Icon className="w-5 h-5 color-primary" color="#4648D4" />
-            }
+            icon={<Icon className="w-5 h-5 color-primary" color="#4648D4" />}
           />
           <StatCard
             variant="sm"
             intent={"subtle"}
             label="Total Donors"
             value={campaign.totalDonors || 0}
-            icon={
-              <Users2 className="w-5 h-5 color-primary" color="#4648D4" />
-            }
+            icon={<Users2 className="w-5 h-5 color-primary" color="#4648D4" />}
           />
           <StatCard
             variant="sm"
@@ -136,7 +156,10 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
           />
         </div>
       </div>
-      <DonationCard campaignId={campaign.campaignIdBytes32} />
+      <div>
+        <DonationCard campaignId={campaign.campaignIdBytes32} />
+        <OrganisationDetails organisation={organisationData} />
+      </div>
     </div>
   );
 };

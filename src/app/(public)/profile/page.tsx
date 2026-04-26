@@ -22,17 +22,20 @@ import {
 } from "lucide-react";
 import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 
 const Profile = () => {
-  
   const { data: profileData, isLoading: isProfileLoading } =
     useDonorProfileQuery({});
-const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery();
-
+  const { data, isLoading, isError } = useGetDonationsByDonorQuery();
+  const donations = data ?? [];
 
   const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
   const causeCount = new Set(donations.map((d) => d.campaignId)).size;
- const memberSinceDate = profileData?.profile?.memberSince;
+  const memberSinceDate = profileData?.profile?.memberSince;
+  const Icon = CAUSE_CATEGORIES.find(
+    (category) => category.name === profileData?.profile?.cause,
+  );
 
   const memberSince = memberSinceDate
     ? new Date(memberSinceDate).toLocaleDateString("en-US", {
@@ -40,7 +43,6 @@ const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery
         year: "numeric",
       })
     : "—";
-
 
   const profileActivities: ProfileActivity[] = [];
   return (
@@ -98,18 +100,18 @@ const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery
         <h1 className="text-secondaryText text-xl font-extrabold w-full bg-white p-3 rounded-sm">
           Recent Impacts
         </h1>
-       
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-110">Cause/Campaign</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {donations.length > 0 ? (
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-110">Cause/Campaign</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {donations.length > 0 ? (
               donations.map((donation, idx) => (
                 <TableRow key={`${donation.campaignId}-${idx}`}>
                   <TableCell className="font-medium">
@@ -133,8 +135,8 @@ const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery
                   </TableCell>
                 </TableRow>
               ))
-            ):( 
-            <TableRow>
+            ) : (
+              <TableRow>
                 {/* ✅ span ALL columns */}
                 <TableCell colSpan={4} className="h-60">
                   <div className="flex flex-col items-center justify-center">
@@ -153,8 +155,6 @@ const { data: donations = [], isLoading, isError } = useGetDonationsByDonorQuery
             )}
           </TableBody>
         </Table>
-          
-       
       </div>
     </div>
   );

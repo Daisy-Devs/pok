@@ -22,6 +22,7 @@ import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { toast } from "sonner";
+import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 
 const Details = () => {
   const { data: profileData, isLoading: isProfileLoading } =
@@ -42,7 +43,7 @@ const Details = () => {
   const [copied, setCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const profileImage = preview || profile?.profileImage || null;
+  const profileImage = preview ?? profile?.profileImage;
 
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
@@ -65,9 +66,11 @@ const Details = () => {
     try {
       await updateProfileImage(formData).unwrap();
       toast.success("Profile picture updated!");
-    } catch (error) {
+    } catch {
       toast.error("Failed to upload image");
       setPreview(null);
+    } finally {
+      URL.revokeObjectURL(localUrl);
     }
   };
 
