@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+const DocumentSchema = new mongoose.Schema({
+  name: String,
+  url: String,
+  public_id: String,
+  type: String
+}, { _id: false });
+
 const OrganizationSchema = new mongoose.Schema(
   {
     name: { type: String },
@@ -12,14 +19,7 @@ const OrganizationSchema = new mongoose.Schema(
       public_id: String
     },
     walletAddress: { type: String, required: true, unique: true },
-    documents: [
-      {
-        name: String,
-        url: String,
-        public_id: String,
-        type: String
-      }
-    ],
+    documents: [DocumentSchema],
     isProfileComplete: { type: Boolean, default: false }
   },
   { timestamps: true }
