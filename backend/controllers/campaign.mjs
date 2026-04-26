@@ -7,40 +7,33 @@ import { ethers } from "ethers";
 export const createOrgAndCampaign = async (req, res) => {
   try {
     const walletAddress = req.walletAddress;
-    let body = req.body;
+    let body = { ...req.body };
 
     console.log("📥 RAW BODY:", body);
 
-    // 🔹 Helper: strict JSON parser
-    const parseIfNeeded = (field, fieldName) => {
-      if (typeof field === "string") {
-        try {
-          const parsed = JSON.parse(field);
-          console.log(`✅ Parsed ${fieldName}:`, parsed);
-          return parsed;
-        } catch (err) {
-          console.error(`❌ Failed parsing ${fieldName}:`, field);
-          throw new Error(`Invalid JSON format for ${fieldName}`);
-        }
-      }
-      return field;
-    };
-
-    // 🔹 Handle form-data string issues
+    // 🔥 STEP 1: Parse ONLY these fields
     body.documents = parseIfNeeded(body.documents, "documents");
     body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
     body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
 
-    console.log("🧾 PROCESSED BODY:", body);
+    console.log("🧾 AFTER PARSE:", body);
 
-    // 🔹 Validate
+    // 🔥 STEP 2: Normalize (VERY IMPORTANT)
+    body.documents = Array.isArray(body.documents) ? body.documents : [];
+    body.imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl : [];
+    body.profileImage =
+      body.profileImage && typeof body.profileImage === "object"
+        ? body.profileImage
+        : {};
+
+    console.log("🧾 NORMALIZED:", body);
+
+    // 🔥 STEP 3: Validate AFTER parsing
     const error = validateCampaignInput(body);
     if (error) {
-      console.warn("⚠️ Validation error:", error);
       return sendResponse(res, 400, error);
     }
 
-    // 🔹 Destructure
     const {
       organizationName,
       taxId,
@@ -60,38 +53,33 @@ export const createOrgAndCampaign = async (req, res) => {
 
     const normalizedToken = goalToken.toUpperCase();
 
-    // 🔹 Find or create organization
+    // 🔹 Find or create org
     let organization = await Organization.findOne({ walletAddress });
 
     if (organization && organization.isProfileComplete) {
-      return sendResponse(res, 400, "Organization already exists for this wallet");
+      return sendResponse(res, 400, "Organization already exists");
     }
 
     if (!organization) {
       organization = new Organization({ walletAddress });
     }
 
-    // 🔹 Safe assignment
-    organization.name = organizationName?.trim();
-    organization.taxId = taxId?.trim();
-    organization.email = email?.trim();
+    // 🔥 SAFE ASSIGNMENT
+    organization.name = organizationName.trim();
+    organization.taxId = taxId.trim();
+    organization.email = email.trim();
     organization.country = country;
     organization.website = website;
-    organization.profileImage = profileImage || {};
-    organization.documents = Array.isArray(documents) ? documents : [];
+    organization.profileImage = profileImage;
+    organization.documents = documents;
     organization.isProfileComplete = true;
-
-    console.log("🏢 Organization before save:", organization);
 
     await organization.save();
 
-    console.log("✅ Organization saved");
-
-    // 🔹 Create campaign ID
+    // 🔹 Campaign
     const campaignId = `campaign-${uuidv4()}`;
     const campaignIdBytes32 = ethers.id(campaignId);
 
-    // 🔹 Create campaign
     const campaign = await Campaign.create({
       id: campaignId,
       campaignIdBytes32,
@@ -99,24 +87,18 @@ export const createOrgAndCampaign = async (req, res) => {
       title,
       missionStatement,
       cause,
-      imageUrl: Array.isArray(imageUrl) ? imageUrl : [],
+      imageUrl,
       goalAmount,
       goalToken: normalizedToken,
       status: status || "draft",
       onChainStatus: "pending"
     });
 
-    console.log("🎯 Campaign created:", campaign);
-
-    // 🔹 Queue blockchain job
     await campaignQueue.addJob({
       campaignIdBytes32,
       ngoWallet: walletAddress
     });
 
-    console.log("📦 Job added to queue:", campaignIdBytes32);
-
-    // 🔹 Final response
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
       campaign
@@ -481,6 +463,32 @@ export const getCampaignsByOrganization = async (req, res) => {
   }
 };
 
+const parseIfNeeded = (field, fieldName) => {
+  if (!field) return field;
+
+  if (typeof field === "string") {
+    try {
+      return JSON.parse(field);
+    } catch (err) {
+      console.warn(`⚠️ Fixing invalid JSON for ${fieldName}`);
+
+      try {
+        // Fix common FormData issues
+        const fixed = field
+          .replace(/([{,]\s*)(\w+)\s*:/g, '$1"$2":') // wrap keys
+          .replace(/'/g, '"'); // single → double quotes
+
+        return JSON.parse(fixed);
+      } catch (e) {
+        console.error(`❌ Invalid JSON for ${fieldName}:`, field);
+        throw new Error(`Invalid JSON format for ${fieldName}`);
+      }
+    }
+  }
+
+  return field;
+};
+
 const validateCampaignInput = (body) => {
   const {
     organizationName,
@@ -499,7 +507,6 @@ const validateCampaignInput = (body) => {
     status
   } = body;
 
-  // 🔹 Helpers
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -508,8 +515,7 @@ const validateCampaignInput = (body) => {
     url.startsWith("https://res.cloudinary.com/");
 
   const isValidWebsite = (url) =>
-    typeof url === "string" &&
-    url.startsWith("https://");
+    typeof url === "string" && url.startsWith("https://");
 
   const isValidMediaObject = (obj) =>
     obj &&
@@ -517,13 +523,8 @@ const validateCampaignInput = (body) => {
     typeof obj.url === "string" &&
     isValidUrl(obj.url);
 
-  // 🔹 Trim inputs
-  const orgName = organizationName?.trim();
-  const mail = email?.trim();
-  const tax = taxId?.trim();
-
-  // 🔹 Required fields
-  if (!orgName || !tax || !mail || !country) {
+  // 🔹 Required
+  if (!organizationName?.trim() || !taxId?.trim() || !email?.trim() || !country) {
     return "Name, Tax Id, email, and country are required";
   }
 
@@ -531,27 +532,19 @@ const validateCampaignInput = (body) => {
     return "All campaign fields are required";
   }
 
-  // 🔹 Email validation
-  if (!isValidEmail(mail)) {
-    return "Invalid email format";
-  }
+  if (!isValidEmail(email)) return "Invalid email";
 
-  // 🔹 Tax ID validation
-  if (typeof tax !== "string" || tax.length < 3) {
-    return "Invalid tax ID";
-  }
+  if (taxId.trim().length < 3) return "Invalid tax ID";
 
-  // 🔹 Website validation
   if (website && !isValidWebsite(website)) {
-    return "Invalid website URL";
+    return "Invalid website";
   }
 
-  // 🔹 Mission statement length
-  if (typeof missionStatement !== "string" || missionStatement.length > 1000) {
-    return "Mission statement must be ≤ 1000 characters";
+  if (missionStatement.length > 1000) {
+    return "Mission statement too long";
   }
 
-  // 🔹 Token validation
+  // 🔹 Token
   const token = goalToken.toUpperCase();
 
   const limits = {
@@ -562,82 +555,50 @@ const validateCampaignInput = (body) => {
   };
 
   const config = limits[token];
+  if (!config) return "Invalid token";
 
-  if (!config) {
-    return "Invalid token selected";
-  }
+  const amount = Number(goalAmount);
+  if (isNaN(amount) || amount <= 0) return "Invalid amount";
 
-  // 🔹 Amount validation
-  const amountStr = goalAmount.toString();
-  const amount = Number(amountStr);
-
-  if (isNaN(amount) || amount <= 0) {
-    return "Invalid goal amount";
-  }
-
-  const decimalPart = amountStr.split(".")[1] || "";
+  const decimalPart = goalAmount.toString().split(".")[1] || "";
   if (decimalPart.length > config.decimals) {
-    return `${token} supports up to ${config.decimals} decimal places`;
+    return `${token} supports up to ${config.decimals} decimals`;
   }
 
   if (amount < config.min || amount > config.max) {
-    return `Goal for ${token} must be between ${config.min} and ${config.max}`;
+    return `Goal must be between ${config.min} and ${config.max}`;
   }
 
-  // 🔹 Status validation
-  const allowedStatus = ["draft", "active", "paused"];
-  if (status && !allowedStatus.includes(status)) {
-    return "Invalid status value";
+  if (status && !["draft", "active", "paused"].includes(status)) {
+    return "Invalid status";
   }
 
-  // =====================================================
-  // 🔥 MEDIA VALIDATION (UPDATED)
-  // =====================================================
+  // 🔥 MEDIA
 
-  // 🔹 Profile Image (object)
-  if (profileImage) {
-    if (!isValidMediaObject(profileImage)) {
-      return "Invalid profile image";
-    }
+  if (profileImage && !isValidMediaObject(profileImage)) {
+    return "Invalid profile image";
   }
 
-  // 🔹 Campaign Images (array of objects)
-  if (imageUrl) {
-    if (!Array.isArray(imageUrl)) {
-      return "imageUrl must be an array";
-    }
+  if (imageUrl.length > 5) return "Max 5 images";
 
-    if (imageUrl.length > 5) {
-      return "Max 5 campaign images allowed";
-    }
-
-    if (imageUrl.some((img) => !isValidMediaObject(img))) {
-      return "Invalid campaign image data";
-    }
+  if (imageUrl.some((img) => !isValidMediaObject(img))) {
+    return "Invalid campaign images";
   }
 
-  // 🔹 Documents (array of objects)
-  if (documents) {
-    if (!Array.isArray(documents)) {
-      return "documents must be an array";
-    }
+  if (documents.length > 5) return "Max 5 documents";
 
-    if (documents.length > 5) {
-      return "Max 5 documents allowed";
-    }
-
-    if (
-      documents.some(
-        (doc) =>
-          !doc ||
-          typeof doc.name !== "string" ||
-          typeof doc.url !== "string" ||
-          !isValidUrl(doc.url)
-      )
-    ) {
-      return "Invalid documents";
-    }
+  if (
+    documents.some(
+      (doc) =>
+        !doc ||
+        typeof doc.name !== "string" ||
+        typeof doc.url !== "string" ||
+        !isValidUrl(doc.url)
+    )
+  ) {
+    return "Invalid documents";
   }
 
   return null;
 };
+
