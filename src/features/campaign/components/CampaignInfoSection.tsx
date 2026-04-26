@@ -53,13 +53,11 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   )!.icon;
 
   const organisationData = {
-  // Use the nested 'organization' object from your log
-  name: campaign.organization?.name || "Unknown Host",
-  email: campaign.organization?.email || "No email provided",
-  // If these don't exist in the 'organization' object yet, they will fall back gracefully
-  website: campaign.organization?.website || "", 
-  logo: campaign.organization?.logo || "" 
-};
+    name: campaign.organization?.name || "Unknown Host",
+    email: campaign.organization?.email || "No email provided",
+    website: campaign.organization?.website || "",
+    logo: campaign.organization?.logo || "",
+  };
   console.log("Mapped Organisation Props:", organisationData);
 
   return (

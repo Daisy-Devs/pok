@@ -1,3 +1,4 @@
+import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 import { Check, Globe2, Mail } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -14,6 +15,7 @@ interface OrganisationDetailsProps {
 export default function OrganisationDetails({
   organisation,
 }: OrganisationDetailsProps) {
+  const image = organisation.logo;
   return (
     <div>
       <div className="mt-auto pt-6">
@@ -24,13 +26,16 @@ export default function OrganisationDetails({
           <div className="flex items-center gap-4">
             <div className="relative">
               <Image
-                src={organisation.logo || "/about-hero.png"}
-                alt="host"
+                src={
+                  image && image.includes("cloudinary")
+                    ? image
+                    : DEFAULT_IMAGE_URL
+                }
+                alt={organisation.name}
                 width={56}
                 height={56}
                 className="rounded- object-cover"
               />
-              
               <span className="absolute bottom-0 right-0 w-5 h-5 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center">
                 <Check className="w-3 h-3 text-white" />
               </span>{" "}
