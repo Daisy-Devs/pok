@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { ImageUp, Upload } from "lucide-react";
-import React, { ChangeEvent, useRef, useState } from "react";
+import React, { ChangeEvent, useRef } from "react";
 import { toast } from "sonner";
 import UploadedFileList from "./UploadedFileList";
 import {
@@ -11,7 +11,6 @@ import {
 } from "../store/services/api/documentApi";
 import { UploadDocumentType } from "../constants/types";
 import { Spinner } from "./ui/spinner";
-import { NgoRegistrationFormData } from "../features/ngo-registration/types";
 
 interface UploadBoxProps {
   fieldName: string;
@@ -22,7 +21,6 @@ interface UploadBoxProps {
   multifile?: boolean;
   limit?: number;
   onChange: (value: Array<UploadDocumentType> | UploadDocumentType) => void;
-  setNGOData?: React.Dispatch<React.SetStateAction<NgoRegistrationFormData>>;
 }
 export const UploadBox: React.FC<UploadBoxProps> = ({
   fieldName,
@@ -33,7 +31,6 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   limit,
   multifile = false,
   onChange,
-  setNGOData
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [
@@ -85,10 +82,6 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload company profile image:", res);
-          setNGOData?.((prev) => ({
-            ...prev,
-            public_id: res.data.profileImage.public_id,
-          }));
           onChange({ name: res.data.profileImage.name, url: res.data.profileImage.url, type: res.data.profileImage.type, public_id: res.data.profileImage.public_id });
           if (uploadingCompanyProfileImage) {
             console.log("Uploading Profile");

@@ -1,4 +1,3 @@
-import React, { Dispatch, SetStateAction } from "react";
 import { Button } from "@/src/components/ui/button";
 import FormTitle from "./FormTitle";
 import { nomenclature } from "@/src/constants/nomenclature";
@@ -77,9 +76,9 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
           console.log("wallet login response:", res);
           const updatedNgoData = {
             ...ngoData,
-            profileImage: ngoData.profileImage.url,
-            imageUrl: ngoData.imageUrl.map((img) => img.url),
+            profileImage:{url:ngoData.profileImage.url,public_id:ngoData.profileImage.public_id},
           };
+          
           registerNgo(updatedNgoData)
             .unwrap()
             .then((ngoresponse) => {
@@ -94,6 +93,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
               router.replace("/ngo");
             })
             .catch((err) => {
+              toast.error("Failed to register NGO");
               console.log("ngo registration error:", err, walletLoginError);
             });
         })
