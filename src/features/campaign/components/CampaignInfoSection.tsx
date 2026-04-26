@@ -39,7 +39,8 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   const isActive = campaign.status === "active";
   const nearGoal = progress >= 75;
   const Icon= CAUSE_CATEGORIES.find((category) => category.name === campaign.cause)!.icon;
-
+  console.log("campaign",campaign);
+  
   return (
     <div className="flex flex-col md:flex-row items-start gap-10 xl:gap-35 md:px-6">
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
@@ -66,12 +67,13 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
           ]}
         >
           <CarouselContent className="-ml-2">
-            {campaign.imageUrl.map((image: string, index: number) => (
+            {campaign.imageUrl.map((image: string, index: number) =>{
+            return (
               <CarouselItem key={index} className="pl-2 basis-full">
                 <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
                   <Image
                     src={
-                      image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL
+                      image.url.includes("cloudinary") ? image.url : DEFAULT_IMAGE_URL
                     }
                     alt={"image" + index}
                     fill
@@ -80,7 +82,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
                   />
                 </div>
               </CarouselItem>
-            ))}
+            )})}
           </CarouselContent>
 
           <CarouselPrevious className="left-5" />
@@ -137,7 +139,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
           />
         </div>
       </div>
-      <DonationCard campaignId={campaign.campaignIdBytes32} />
+      <DonationCard campaignId={campaign.campaignIdBytes32} campaignToken={campaign.goalToken}/>
     </div>
   );
 };
