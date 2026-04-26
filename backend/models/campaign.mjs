@@ -1,5 +1,12 @@
 import mongoose from 'mongoose';
 
+const DocumentSchema = new mongoose.Schema({
+  name: String,
+  url: String,
+  public_id: String,
+  type: String
+}, { _id: false });
+
 const CampaignSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true },
@@ -14,14 +21,7 @@ const CampaignSchema = new mongoose.Schema(
     missionStatement: { type: String, required: true },
     cause: { type: String, required: true },
     imageUrl: {
-      type: [
-        {
-          name: String,
-          url: String,
-          public_id: String,
-          type: String
-        }
-      ],
+      type: [DocumentSchema],
       default: []
     },
     goalAmount: { type: Number, required: true },

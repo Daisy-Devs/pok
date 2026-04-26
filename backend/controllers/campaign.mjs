@@ -9,15 +9,6 @@ export const createOrgAndCampaign = async (req, res) => {
     const walletAddress = req.walletAddress;
     let body = { ...req.body };
 
-    console.log("📥 RAW BODY:", body);
-
-    // 🔥 STEP 1: Parse ONLY these fields
-    body.documents = parseIfNeeded(body.documents, "documents");
-    body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
-    body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
-
-    console.log("🧾 AFTER PARSE:", body);
-
     // 🔥 STEP 2: Normalize (VERY IMPORTANT)
     body.documents = Array.isArray(body.documents) ? body.documents : [];
     body.imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl : [];
@@ -25,9 +16,6 @@ export const createOrgAndCampaign = async (req, res) => {
       body.profileImage && typeof body.profileImage === "object"
         ? body.profileImage
         : {};
-
-    console.log("🧾 NORMALIZED:", body);
-
     // 🔥 STEP 3: Validate AFTER parsing
     const error = validateCampaignInput(body);
     if (error) {
