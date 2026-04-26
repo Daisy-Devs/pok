@@ -7,15 +7,40 @@ import { ethers } from "ethers";
 export const createOrgAndCampaign = async (req, res) => {
   try {
     const walletAddress = req.walletAddress;
-    const body = req.body;
+    let body = req.body;
+
+    console.log("📥 RAW BODY:", body);
+
+    // 🔹 Helper: strict JSON parser
+    const parseIfNeeded = (field, fieldName) => {
+      if (typeof field === "string") {
+        try {
+          const parsed = JSON.parse(field);
+          console.log(`✅ Parsed ${fieldName}:`, parsed);
+          return parsed;
+        } catch (err) {
+          console.error(`❌ Failed parsing ${fieldName}:`, field);
+          throw new Error(`Invalid JSON format for ${fieldName}`);
+        }
+      }
+      return field;
+    };
+
+    // 🔹 Handle form-data string issues
+    body.documents = parseIfNeeded(body.documents, "documents");
+    body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
+    body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
+
+    console.log("🧾 PROCESSED BODY:", body);
 
     // 🔹 Validate
     const error = validateCampaignInput(body);
     if (error) {
+      console.warn("⚠️ Validation error:", error);
       return sendResponse(res, 400, error);
     }
 
-    // 🔹 Destructure (after validation)
+    // 🔹 Destructure
     const {
       organizationName,
       taxId,
@@ -33,7 +58,6 @@ export const createOrgAndCampaign = async (req, res) => {
       status
     } = body;
 
-    // 🔹 Normalize
     const normalizedToken = goalToken.toUpperCase();
 
     // 🔹 Find or create organization
@@ -43,22 +67,25 @@ export const createOrgAndCampaign = async (req, res) => {
       return sendResponse(res, 400, "Organization already exists for this wallet");
     }
 
-    // 🔹 If exists but incomplete → allow update
     if (!organization) {
       organization = new Organization({ walletAddress });
     }
 
-    // 🔹 Safe updates (no accidental overwrite issues)
-    organization.name = organizationName.trim();
-    organization.taxId = taxId.trim();
-    organization.email = email.trim();
+    // 🔹 Safe assignment
+    organization.name = organizationName?.trim();
+    organization.taxId = taxId?.trim();
+    organization.email = email?.trim();
     organization.country = country;
     organization.website = website;
-    organization.profileImage = profileImage;
-    organization.documents = documents;
+    organization.profileImage = profileImage || {};
+    organization.documents = Array.isArray(documents) ? documents : [];
     organization.isProfileComplete = true;
 
+    console.log("🏢 Organization before save:", organization);
+
     await organization.save();
+
+    console.log("✅ Organization saved");
 
     // 🔹 Create campaign ID
     const campaignId = `campaign-${uuidv4()}`;
@@ -72,14 +99,14 @@ export const createOrgAndCampaign = async (req, res) => {
       title,
       missionStatement,
       cause,
-      imageUrl,
+      imageUrl: Array.isArray(imageUrl) ? imageUrl : [],
       goalAmount,
       goalToken: normalizedToken,
       status: status || "draft",
       onChainStatus: "pending"
     });
 
-    console.log("🔥 Before queue");
+    console.log("🎯 Campaign created:", campaign);
 
     // 🔹 Queue blockchain job
     await campaignQueue.addJob({
@@ -87,16 +114,16 @@ export const createOrgAndCampaign = async (req, res) => {
       ngoWallet: walletAddress
     });
 
-    console.log("✅ Job added to queue:", campaignIdBytes32);
+    console.log("📦 Job added to queue:", campaignIdBytes32);
 
-    // 🔹 Response
+    // 🔹 Final response
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
       campaign
     });
 
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("❌ FINAL ERROR:", error);
     return sendResponse(res, 500, error.message);
   }
 };
