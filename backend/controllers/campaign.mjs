@@ -7,15 +7,33 @@ import { ethers } from "ethers";
 export const createOrgAndCampaign = async (req, res) => {
   try {
     const walletAddress = req.walletAddress;
-    const body = req.body;
+    let body = { ...req.body };
 
-    // 🔹 Validate
+    console.log("📥 RAW BODY:", body);
+
+    // 🔥 STEP 1: Parse ONLY these fields
+    body.documents = parseIfNeeded(body.documents, "documents");
+    body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
+    body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
+
+    console.log("🧾 AFTER PARSE:", body);
+
+    // 🔥 STEP 2: Normalize (VERY IMPORTANT)
+    body.documents = Array.isArray(body.documents) ? body.documents : [];
+    body.imageUrl = Array.isArray(body.imageUrl) ? body.imageUrl : [];
+    body.profileImage =
+      body.profileImage && typeof body.profileImage === "object"
+        ? body.profileImage
+        : {};
+
+    console.log("🧾 NORMALIZED:", body);
+
+    // 🔥 STEP 3: Validate AFTER parsing
     const error = validateCampaignInput(body);
     if (error) {
       return sendResponse(res, 400, error);
     }
 
-    // 🔹 Destructure (after validation)
     const {
       organizationName,
       taxId,
@@ -33,22 +51,20 @@ export const createOrgAndCampaign = async (req, res) => {
       status
     } = body;
 
-    // 🔹 Normalize
     const normalizedToken = goalToken.toUpperCase();
 
-    // 🔹 Find or create organization
+    // 🔹 Find or create org
     let organization = await Organization.findOne({ walletAddress });
 
     if (organization && organization.isProfileComplete) {
-      return sendResponse(res, 400, "Organization already exists for this wallet");
+      return sendResponse(res, 400, "Organization already exists");
     }
 
-    // 🔹 If exists but incomplete → allow update
     if (!organization) {
       organization = new Organization({ walletAddress });
     }
 
-    // 🔹 Safe updates (no accidental overwrite issues)
+    // 🔥 SAFE ASSIGNMENT
     organization.name = organizationName.trim();
     organization.taxId = taxId.trim();
     organization.email = email.trim();
@@ -60,11 +76,10 @@ export const createOrgAndCampaign = async (req, res) => {
 
     await organization.save();
 
-    // 🔹 Create campaign ID
+    // 🔹 Campaign
     const campaignId = `campaign-${uuidv4()}`;
     const campaignIdBytes32 = ethers.id(campaignId);
 
-    // 🔹 Create campaign
     const campaign = await Campaign.create({
       id: campaignId,
       campaignIdBytes32,
@@ -79,24 +94,18 @@ export const createOrgAndCampaign = async (req, res) => {
       onChainStatus: "pending"
     });
 
-    console.log("🔥 Before queue");
-
-    // 🔹 Queue blockchain job
     await campaignQueue.addJob({
       campaignIdBytes32,
       ngoWallet: walletAddress
     });
 
-    console.log("✅ Job added to queue:", campaignIdBytes32);
-
-    // 🔹 Response
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
       campaign
     });
 
   } catch (error) {
-    console.error("❌ Error:", error);
+    console.error("❌ FINAL ERROR:", error);
     return sendResponse(res, 500, error.message);
   }
 };
@@ -343,7 +352,205 @@ export const getAllCampaigns = async (req, res) => {
     const total = await Campaign.countDocuments(filter);
 
     const campaigns = await Campaign.find(filter)
-      .select("-_id -__v")
+      .select("-_id -__v -raisedAmount")
+      .populate("organization", "name email walletAddress profileImage")
+      .sort(sortOption)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const updatedCampaigns = await attachFundingStats(campaigns);
+
+    return sendResponse(res, 200, "Campaigns fetched successfully", {
+      page,
+      totalPages: Math.ceil(total / limit),
+      totalCampaigns: total,
+      count: updatedCampaigns.length,
+      campaigns: updatedCampaigns
+    });
+
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return sendResponse(res, 500, error.message);
+  }
+};
+
+export const getAllCampaignsV1 = async (req, res) => {
+  try {
+    let {
+      page = 1,
+      limit = 6,
+      search,
+      cause,
+      location,
+      tag,
+      status,
+      goalToken,
+      sortBy = "latest",
+      view = "list",
+      limitPerCause = 6
+    } = req.query;
+
+    page = parseInt(page);
+    limit = parseInt(limit);
+    limitPerCause = parseInt(limitPerCause);
+
+    if (page < 1) page = 1;
+
+    // =========================================================
+    // ✅ Common Filter
+    // =========================================================
+    const filter = {
+      status: { $in: ["active", "draft"] }
+    };
+
+    if (status) filter.status = status;
+    if (cause) filter.cause = cause;
+    if (goalToken) filter.goalToken = goalToken.toUpperCase();
+
+    if (location) {
+      filter.location = { $regex: location, $options: "i" };
+    }
+
+    if (tag) {
+      filter.tags = { $in: [new RegExp(tag, "i")] };
+    }
+
+    if (search) {
+      filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { cause: { $regex: search, $options: "i" } },
+        { location: { $regex: search, $options: "i" } },
+        { tags: { $elemMatch: { $regex: search, $options: "i" } } }
+      ];
+    }
+
+    // =========================================================
+    // ✅ Sorting
+    // =========================================================
+    let sortOption = { createdAt: -1 };
+
+    if (sortBy === "oldest") sortOption = { createdAt: 1 };
+    if (sortBy === "goal_high") sortOption = { goalAmount: -1 };
+    if (sortBy === "goal_low") sortOption = { goalAmount: 1 };
+
+    // =========================================================
+    // 🧠 Helper: Attach funding stats
+    // =========================================================
+    const attachFundingStats = async (campaigns) => {
+      if (!campaigns.length) return campaigns;
+
+      // ensure consistent type
+      const campaignIds = campaigns.map(c => c._id.toString());
+
+      const stats = await DonationRecord.aggregate([
+        {
+          $match: {
+            campaignId: { $in: campaignIds }
+          }
+        },
+        {
+          $group: {
+            _id: "$campaignId",
+            totalAmount: { $sum: { $toDouble: "$amount" } }
+          }
+        }
+      ]);
+
+      const statsMap = {};
+      stats.forEach(item => {
+        statsMap[item._id] = item.totalAmount;
+      });
+
+      return campaigns.map(campaign => {
+        const totalRaised = statsMap[campaign._id.toString()] || 0;
+        const goal = Number(campaign.goalAmount || 0);
+
+        const obj = campaign.toObject();
+
+        return {
+          ...obj,
+          id: obj._id,
+          _id: undefined,
+          totalRaised,
+          isGoalReached: totalRaised >= goal
+        };
+      });
+    };
+
+    // =========================================================
+    // 🔥 MODE 1: GROUPED
+    // =========================================================
+    if (view === "grouped" && !cause) {
+      const pipeline = [
+        { $match: filter },
+        { $sort: sortOption },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
+            campaigns: { $push: "$$ROOT" }
+          }
+        },
+        {
+          $project: {
+            cause: "$_id",
+            campaigns: { $slice: ["$campaigns", limitPerCause] }
+          }
+        },
+        { $skip: (page - 1) * limit },
+        { $limit: limit }
+      ];
+
+      const groupedData = await Campaign.aggregate(pipeline);
+
+      const populated = await Campaign.populate(groupedData, {
+        path: "campaigns.organization",
+        select: "name email walletAddress profileImage"
+      });
+
+      // 🔥 flatten → aggregate once → remap
+      const allCampaigns = populated.flatMap(g => g.campaigns);
+      const updatedAll = await attachFundingStats(allCampaigns);
+
+      const updatedMap = {};
+      updatedAll.forEach(c => {
+        updatedMap[c.id.toString()] = c;
+      });
+
+      const finalGroups = populated.map(group => ({
+        cause: group.cause,
+        campaigns: group.campaigns.map(c =>
+          updatedMap[c._id.toString()]
+        )
+      }));
+
+      const totalCausesAgg = await Campaign.aggregate([
+        { $match: filter },
+        {
+          $group: {
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } }
+          }
+        },
+        { $count: "total" }
+      ]);
+
+      const totalCauses = totalCausesAgg[0]?.total || 0;
+
+      return sendResponse(res, 200, "Grouped campaigns fetched", {
+        page,
+        totalPages: Math.ceil(totalCauses / limit),
+        totalCauses,
+        count: finalGroups.length,
+        causes: finalGroups
+      });
+    }
+
+    // =========================================================
+    // 🔥 MODE 2: LIST
+    // =========================================================
+    const total = await Campaign.countDocuments(filter);
+
+    const campaigns = await Campaign.find(filter)
+      .select("-__v -raisedAmount") // keep _id internally
       .populate("organization", "name email walletAddress profileImage")
       .sort(sortOption)
       .skip((page - 1) * limit)
@@ -472,7 +679,6 @@ const validateCampaignInput = (body) => {
     status
   } = body;
 
-  // 🔹 Helpers
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -481,16 +687,16 @@ const validateCampaignInput = (body) => {
     url.startsWith("https://res.cloudinary.com/");
 
   const isValidWebsite = (url) =>
-    typeof url === "string" &&
-    url.startsWith("https://");
+    typeof url === "string" && url.startsWith("https://");
 
-  // 🔹 Trim inputs
-  const orgName = organizationName?.trim();
-  const mail = email?.trim();
-  const tax = taxId?.trim();
+  const isValidMediaObject = (obj) =>
+    obj &&
+    typeof obj === "object" &&
+    typeof obj.url === "string" &&
+    isValidUrl(obj.url);
 
-  // 🔹 Required fields
-  if (!orgName || !tax || !mail || !country) {
+  // 🔹 Required
+  if (!organizationName?.trim() || !taxId?.trim() || !email?.trim() || !country) {
     return "Name, Tax Id, email, and country are required";
   }
 
@@ -498,27 +704,19 @@ const validateCampaignInput = (body) => {
     return "All campaign fields are required";
   }
 
-  // 🔹 Email validation
-  if (!isValidEmail(mail)) {
-    return "Invalid email format";
-  }
+  if (!isValidEmail(email)) return "Invalid email";
 
-  // 🔹 Tax ID validation
-  if (typeof tax !== "string" || tax.length < 3) {
-    return "Invalid tax ID";
-  }
+  if (taxId.trim().length < 3) return "Invalid tax ID";
 
-  // 🔹 Website validation
   if (website && !isValidWebsite(website)) {
-    return "Invalid website URL";
+    return "Invalid website";
   }
 
-  // 🔹 Mission statement length
-  if (typeof missionStatement !== "string" || missionStatement.length > 1000) {
-    return "Mission statement must be ≤ 1000 characters";
+  if (missionStatement.length > 1000) {
+    return "Mission statement too long";
   }
 
-  // 🔹 Token config
+  // 🔹 Token
   const token = goalToken.toUpperCase();
 
   const limits = {
@@ -529,75 +727,50 @@ const validateCampaignInput = (body) => {
   };
 
   const config = limits[token];
+  if (!config) return "Invalid token";
 
-  if (!config) {
-    return "Invalid token selected";
-  }
+  const amount = Number(goalAmount);
+  if (isNaN(amount) || amount <= 0) return "Invalid amount";
 
-  // 🔹 Amount validation (fix applied)
-  const amountStr = goalAmount.toString();
-  const amount = Number(amountStr);
-
-  if (isNaN(amount) || amount <= 0) {
-    return "Invalid goal amount";
-  }
-
-  const decimalPart = amountStr.split(".")[1] || "";
+  const decimalPart = goalAmount.toString().split(".")[1] || "";
   if (decimalPart.length > config.decimals) {
-    return `${token} supports up to ${config.decimals} decimal places`;
+    return `${token} supports up to ${config.decimals} decimals`;
   }
 
   if (amount < config.min || amount > config.max) {
-    return `Goal for ${token} must be between ${config.min} and ${config.max}`;
+    return `Goal must be between ${config.min} and ${config.max}`;
   }
 
-  // 🔹 Status validation
-  const allowedStatus = ["draft", "active", "paused"];
-  if (status && !allowedStatus.includes(status)) {
-    return "Invalid status value";
+  if (status && !["draft", "active", "paused"].includes(status)) {
+    return "Invalid status";
   }
 
-  // 🔹 Profile image
-  if (profileImage && !isValidUrl(profileImage)) {
-    return "Invalid profile image URL";
+  // 🔥 MEDIA
+
+  if (profileImage && !isValidMediaObject(profileImage)) {
+    return "Invalid profile image";
   }
 
-  // 🔹 Campaign images
-  if (imageUrl) {
-    if (!Array.isArray(imageUrl)) {
-      return "imageUrl must be an array";
-    }
+  if (imageUrl.length > 5) return "Max 5 images";
 
-    if (imageUrl.length > 5) {
-      return "Max 5 campaign images allowed";
-    }
-
-    if (imageUrl.some((url) => !isValidUrl(url))) {
-      return "Invalid campaign image URL";
-    }
+  if (imageUrl.some((img) => !isValidMediaObject(img))) {
+    return "Invalid campaign images";
   }
 
-  // 🔹 Documents
-  if (documents) {
-    if (!Array.isArray(documents)) {
-      return "documents must be an array";
-    }
+  if (documents.length > 5) return "Max 5 documents";
 
-    if (documents.length > 5) {
-      return "Max 5 documents allowed";
-    }
-
-    if (
-      documents.some(
-        (doc) =>
-          !doc ||
-          typeof doc.name !== "string" ||
-          !isValidUrl(doc.url)
-      )
-    ) {
-      return "Invalid documents";
-    }
+  if (
+    documents.some(
+      (doc) =>
+        !doc ||
+        typeof doc.name !== "string" ||
+        typeof doc.url !== "string" ||
+        !isValidUrl(doc.url)
+    )
+  ) {
+    return "Invalid documents";
   }
 
-  return null; // ✅ No errors
+  return null;
 };
+

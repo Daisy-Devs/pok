@@ -1,3 +1,4 @@
+import cloudinary from "../config/cloudinary.mjs";
 import { Organization } from "../models/organization.mjs";
 import { User } from "../models/user.mjs";
 import { sendResponse } from "../utils/response.mjs";
