@@ -3,6 +3,7 @@ import { Organization } from "../models/organization.mjs";
 import { User } from "../models/user.mjs";
 import { sendResponse } from "../utils/response.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
+import cloudinary from "../config/cloudinary.mjs";
 
 export const uploadDocuments = async (req, res) => {
   try {
@@ -30,12 +31,18 @@ export const uploadDocuments = async (req, res) => {
       }
 
       // PDF size limit
-      if (file.mimetype === "application/pdf" && file.size > 10 * 1024 * 1024) {
+      if (
+        file.mimetype === "application/pdf" &&
+        file.size > 10 * 1024 * 1024
+      ) {
         return sendResponse(res, 400, "Each PDF must be <= 10MB");
       }
 
       // Image size limit
-      if (file.mimetype.startsWith("image/") && file.size > 2 * 1024 * 1024) {
+      if (
+        file.mimetype.startsWith("image/") &&
+        file.size > 2 * 1024 * 1024
+      ) {
         return sendResponse(res, 400, "Each image must be <= 2MB");
       }
 
@@ -46,14 +53,16 @@ export const uploadDocuments = async (req, res) => {
         name: file.originalname,
         url: result.secure_url,
         public_id: result.public_id,
-        type: file.mimetype.startsWith("image/") ? "image" : "pdf",
+        type: file.mimetype.startsWith("image/") ? "image" : "pdf"
       });
     }
 
     // ✅ 3. Final response AFTER loop
-    return sendResponse(res, 200, "Documents uploaded successfully", {
-      documents: uploadedFiles,
+    return sendResponse(res, 200, 'Documents uploaded successfully', {
+      documents: uploadedFiles
     });
+    
+
   } catch (err) {
     console.error(err);
     return sendResponse(res, 500, err.message);
@@ -76,11 +85,7 @@ export const uploadCauseImages = async (req, res) => {
 
     for (const file of files) {
       if (!file.mimetype.startsWith("image/")) {
-        return sendResponse(
-          res,
-          400,
-          `Invalid file: ${file.originalname}. Only images allowed`,
-        );
+        return sendResponse(res, 400, `Invalid file: ${file.originalname}. Only images allowed`);
       }
 
       if (file.size > 2 * 1024 * 1024) {
@@ -97,13 +102,14 @@ export const uploadCauseImages = async (req, res) => {
         name: file.originalname,
         url: result.secure_url,
         public_id: result.public_id,
-        type: "image",
+        type: "image"
       });
     }
 
-    return sendResponse(res, 200, "Images uploaded successfully", {
-      images: uploadedImages,
+    return sendResponse(res, 200, 'Images uploaded successfully', {
+      images: uploadedImages
     });
+    
   } catch (err) {
     console.error(err);
     return sendResponse(res, 500, err.message);
@@ -133,7 +139,7 @@ export const uploadProfileImage = async (req, res) => {
     const result = await uploadToCloudinary(file.buffer);
 
     // ✅ Response (IMPORTANT)
-    return sendResponse(res, 200, "Profile Image uploaded successfully", {
+    return sendResponse(res, 200, 'Profile Image uploaded successfully', {
       profileImage: {
         name: file.originalname,
         url: result.secure_url,
@@ -142,7 +148,7 @@ export const uploadProfileImage = async (req, res) => {
       },
     });
   } catch (err) {
-    return sendResponse(res, 500, err.message);
+   return sendResponse(res, 500, err.message);
   }
 };
 
@@ -166,7 +172,7 @@ export const updateProfileImage = async (req, res) => {
     const org = await Organization.findById(ngoId);
 
     if (!org) {
-      return sendResponse(res, 404, "Organization not found");
+      return sendResponse(res, 404, "Organization not found" );
     }
 
     // ✅ Delete old image (if exists)
@@ -184,7 +190,7 @@ export const updateProfileImage = async (req, res) => {
 
     await org.save();
 
-    return sendResponse(res, 200, "Profile Image updated successfully", {
+    return sendResponse(res, 200, 'Profile Image updated successfully', {
       profileImage: {
         name: file.originalname,
         url: result.secure_url,
@@ -202,7 +208,7 @@ export const deleteProfileImage = async (req, res) => {
     const org = await Organization.findById(ngoId);
 
     if (!org) {
-      return sendResponse(res, 404, "Organization not found");
+       return sendResponse(res, 404, "Organization not found" );
     }
 
     if (!org.profileImage?.public_id) {
@@ -217,9 +223,10 @@ export const deleteProfileImage = async (req, res) => {
 
     await org.save();
 
-    return sendResponse(res, 200, "Profile Image deleted successfully");
+    return sendResponse(res, 200, 'Profile Image deleted successfully');
+
   } catch (err) {
-    return sendResponse(res, 500, err.message);
+   return sendResponse(res, 500, err.message);
   }
 };
 
@@ -229,46 +236,30 @@ export const updateUserProfileImage = async (req, res) => {
     const file = req.file;
 
     if (!file) {
-      console.warn("Validation Failed: No file provided");
       return sendResponse(res, 400, "Image is required");
     }
 
     if (!file.mimetype.startsWith("image/")) {
-      console.warn(`Validation Failed: Invalid MimeType - ${file.mimetype}`);
       return sendResponse(res, 400, "Only image is allowed");
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      console.warn(`Validation Failed: File too large - ${file.size}`);
       return sendResponse(res, 400, "Max size is 2MB");
     }
 
     const user = await User.findById(userId);
 
     if (!user) {
-      console.error(`Error: User with ID ${userId} not found in DB`);
-      return sendResponse(res, 404, "User not found");
+       return sendResponse(res, 404, "User not found" );
     }
 
     // ✅ Delete old image (if exists)
     if (user.profileImage?.public_id) {
-      const deleteResult = await cloudinary.uploader.destroy(
-        user.profileImage.public_id,
-      );
+      await cloudinary.uploader.destroy(user.profileImage.public_id);
     }
 
     // ✅ Upload new image
-
     const result = await uploadToCloudinary(file.buffer);
-
-    if (!result || !result.secure_url) {
-      throw new Error("Cloudinary upload failed");
-    }
-
-    console.log("Cloudinary Upload Success:", {
-      url: result.secure_url,
-      public_id: result.public_id,
-    });
 
     user.profileImage = {
       url: result.secure_url,
@@ -286,8 +277,6 @@ export const updateUserProfileImage = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("--- Update Profile Image Error ---");
-    console.error(`Stack Trace: ${err.stack}`);
     return sendResponse(res, 500, err.message);
   }
 };
@@ -300,7 +289,7 @@ export const deleteUserProfileImage = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return sendResponse(res, 404, "User not found");
+      return sendResponse(res, 404, "User not found" );
     }
     console.log("User found:", user.name);
     console.log("Current Profile Image Data:", user.profileImage);
@@ -322,9 +311,10 @@ export const deleteUserProfileImage = async (req, res) => {
     await user.save();
     console.log("✅ Success: Profile image cleared from Database.");
 
-    return sendResponse(res, 200, "Profile image deleted successfully");
+    return sendResponse(res, 200, "Profile image deleted successfully")
+
   } catch (err) {
-    return sendResponse(res, 500, err.message);
+   return sendResponse(res, 500, err.message);
   }
 };
 
@@ -339,11 +329,13 @@ export const deleteUploadedFile = async (req, res) => {
     const resource_type = type === "pdf" ? "raw" : "image";
 
     await cloudinary.uploader.destroy(public_id, {
-      resource_type,
+      resource_type
     });
 
-    return sendResponse(res, 200, "File deleted successfully");
+    return sendResponse(res, 200, "File deleted successfully")
+
+
   } catch (err) {
-    return sendResponse(res, 500, err.message);
+   return sendResponse(res, 500, err.message);
   }
 };

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema(
   {
@@ -7,25 +7,25 @@ const UserSchema = new mongoose.Schema(
       name: String,
       url: String,
       public_id: String,
-      type: { type: String, default: "" },
+      type: String
     },
     email: { type: String, unique: true, sparse: true },
     password: { type: String }, // not required for social login
     phone: { type: String },
-    walletAddress: { type: String },
+    walletAddress: {type: String},
     googleId: { type: String, unique: true, sparse: true },
     appleId: { type: String, unique: true, sparse: true },
     providers: {
       type: [String],
-      enum: ["manual", "google", "apple"],
-      default: ["manual"],
+      enum: ['manual', 'google', 'apple'],
+      default: ['manual']
     },
     resetPasswordToken: String,
-    resetPasswordExpires: Date,
-  },
+    resetPasswordExpires: Date
+    },
   {
-    timestamps: true,
-  },
+    timestamps: true
+  }
 );
 
-export const User = mongoose.model("User", UserSchema);
+export const User = mongoose.model('User', UserSchema);
