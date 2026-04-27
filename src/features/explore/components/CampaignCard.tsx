@@ -15,8 +15,8 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleDonate = (id: string) => {
     router.push(`/campaign/${campaign.id}`);
   };
-  const image = campaign.image?.[0];
-  console.log(campaign);
+  const image = campaign.image[0];
+  console.log("campsss",campaign);
   
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
@@ -24,11 +24,12 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="relative  overflow-hidden">
         <Image
           src={
-            (image && image.includes("cloudinary")) ? image : DEFAULT_IMAGE_URL
+            (image && image?.url.includes("cloudinary")) ? image?.url : DEFAULT_IMAGE_URL
           }
           alt={campaign.title || "Campaign image"}
           width={500}
           height={500}
+          loading="eager"
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 
@@ -53,7 +54,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         <div>
           <ProgressWithLabel
             className="w-full h-3"
-            value={campaign.progress}
+            value={Number(campaign.raised)}
             label={
               <span>
                 <span className="font-bold text-sm text-secondaryText">
@@ -66,7 +67,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
 
         <div className="flex justify-between items-center">
           <p className="font-bold">
-            {campaign.raised} {campaign.currency}
+            {campaign.raised} {campaign.currency}/{campaign.raised} {campaign.currency}
           </p>
           <Button onClick={() => handleDonate(campaign.id)} text="Donate" />
         </div>

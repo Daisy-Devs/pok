@@ -3,6 +3,7 @@ import { Manrope } from "next/font/google";
 import "./globals.css";
 import Providers from "../components/Providers";
 import { Toaster } from "../components/ui/sonner";
+import GlobalLoader from "../components/GlobalLoader";
 const manrope = Manrope({
   variable: "--font-manrope",
   subsets: ["latin"],
@@ -24,6 +25,7 @@ return (
       <body className="min-h-full">
         <Providers>
           {children}
+          <GlobalLoader />
         </Providers>
         <Toaster richColors={true} position="top-center" theme="light"/>
       </body>

@@ -7,7 +7,6 @@ import { UploadDocumentType } from "@/src/constants/types";
     country: string;
     website: string;
     profileImage: UploadDocumentType;
-    public_id?: string;
     documents: Array<UploadDocumentType>;
     title: string;
     missionStatement: string;

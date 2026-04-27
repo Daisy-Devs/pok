@@ -19,7 +19,7 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
   const donations = data ?? [];
 
   return (
-    <div>
+    <div className="md:px-6">
       <h2 className="text-3xl font-extrabold text-secondaryText mb-8">
         Live Donation Activity
       </h2>

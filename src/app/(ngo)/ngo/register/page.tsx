@@ -17,8 +17,7 @@ const NGORegistration = () => {
   email: "",
   country: "",
   website: "",
-  profileImage:{ name: "", url: "" },
-  public_id: "",
+  profileImage:{ name: "", url: "",public_id:"", type: "" },
   documents: [
   ],
   title: "",
@@ -75,7 +74,7 @@ const NGORegistration = () => {
       </div>
      {activeStep=='1' && <RegistrationForm1 changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData} />}
      {activeStep=='2' && <RegistrationForm2 changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData}/>}
-     {activeStep=='3' && <RegistrationForm3  changeStep={setActiveStep} ngoData={ngoData} updateNgoData={setNgoData}/>}
+     {activeStep=='3' && <RegistrationForm3  changeStep={setActiveStep} ngoData={ngoData}/>}
     </div>
   );
 };

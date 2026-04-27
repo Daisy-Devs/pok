@@ -70,6 +70,19 @@ export default function ExplorePage() {
  
   if (isLoading) return <p>Loading campaigns...</p>;
   if (error) return <p>Failed to load campaigns</p>;
+  const filtered = useMemo(() => {
+    return campaigns.filter((c) => {
+      const matchesCategory =
+        activeCategory === "All" || c.category.toLowerCase() === activeCategory.toLowerCase();
+
+      const matchesSearch =
+        c.title.toLowerCase().includes(search.toLowerCase()) ||
+        c.description.toLowerCase().includes(search.toLowerCase()) ||
+        c.category.toLowerCase().includes(search.toLowerCase());
+
+      return matchesCategory && matchesSearch;
+    });
+  }, [campaigns, activeCategory, search]);
 
   return (
     <div className="bg-white min-h-screen  ">

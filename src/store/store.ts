@@ -4,6 +4,8 @@ import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from 'redux-persist';
 import storage from '../lib/persistStorage';
 import { apiSlice } from './services/slice/apiSlice';
+import { loaderSlice } from './services/slice/loaderSlice';
+import { loaderMiddleware } from './middleware/loaderMiddleware';
 
 const persistConfig = {
   key: 'root',
@@ -15,6 +17,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
   [apiSlice.reducerPath]: apiSlice.reducer,
   auth: authSlice.reducer,
+  loader:loaderSlice.reducer
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -27,7 +30,7 @@ export const store=configureStore({
         // Required: ignore redux-persist internal actions
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(apiSlice.middleware),
+    }).concat(apiSlice.middleware,loaderMiddleware),
 });
 
 export const persistor = persistStore(store);

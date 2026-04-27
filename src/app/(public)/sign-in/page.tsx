@@ -30,7 +30,6 @@ export default function SignIn() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-
   const validate = () => {
     const newErrors = Object.fromEntries(
       Object.entries(formData).map(([key, value]) => [

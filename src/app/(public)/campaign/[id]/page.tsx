@@ -16,7 +16,7 @@ const Campaign = async ({ params }: CampaignProps) => {
     console.error("Failed to fetch cause on server:", error);
   }
   return (
-    <div className="flex flex-col space-y-20 py-15">
+    <div className="flex flex-col space-y-20 py-15 px-4">
       <CampaignInfoSection campaignId={id} />
       <ProtocolTransparency />
       <LiveDonationActivity campaignId={id} />

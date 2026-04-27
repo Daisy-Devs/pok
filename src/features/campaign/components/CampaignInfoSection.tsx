@@ -11,15 +11,7 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { splitTitle } from "@/src/lib/utils";
-import {
-  CheckCircle2,
-  GlassWater,
-  ShieldCheck,
-  Users2,
-  UserSquare,
-  Globe2,
-  Mail,
-} from "lucide-react";
+import { CheckCircle2, ShieldCheck, Users2, Globe2, Mail } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
@@ -60,6 +52,8 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   };
   console.log("Mapped Organisation Props:", organisationData);
 
+  console.log("campaign", campaign);
+
   return (
     <div className="flex flex-col md:flex-row items-start gap-10 xl:gap-35 md:px-6">
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
@@ -86,22 +80,26 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
           ]}
         >
           <CarouselContent className="-ml-2">
-            {campaign.imageUrl.map((image: string, index: number) => (
-              <CarouselItem key={index} className="pl-2 basis-full">
-                <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
-                  <Image
-                    src={
-                      image.includes("cloudinary") ? image : DEFAULT_IMAGE_URL
-                    }
-                    alt={"image" + index}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover"
-                    priority={index === 0}
-                  />
-                </div>
-              </CarouselItem>
-            ))}
+            {campaign.imageUrl.map((image: string, index: number) => {
+              return (
+                <CarouselItem key={index} className="pl-2 basis-full">
+                  <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
+                    <Image
+                      src={
+                        image.url.includes("cloudinary")
+                          ? image.url
+                          : DEFAULT_IMAGE_URL
+                      }
+                      alt={"image" + index}
+                      fill
+                      sizes="320px"
+                      className="object-cover"
+                      priority={index === 0}
+                    />
+                  </div>
+                </CarouselItem>
+              );
+            })}
           </CarouselContent>
 
           <CarouselPrevious className="left-5" />
@@ -155,7 +153,10 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
         </div>
       </div>
       <div>
-        <DonationCard campaignId={campaign.campaignIdBytes32} />
+        <DonationCard
+          campaignId={campaign.campaignIdBytes32}
+          campaignToken={campaign.goalToken}
+        />
         <OrganisationDetails organisation={organisationData} />
       </div>
     </div>

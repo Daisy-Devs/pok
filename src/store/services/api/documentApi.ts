@@ -27,8 +27,14 @@ export const documentApi = apiSlice.injectEndpoints({
                 formData:true
               }),
     }),
-
+    deleteDocument: builder.mutation({
+      query: (docs) => ({
+        body: docs,
+        url: ENDPOINTS.documents.deleteDocument,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useUploadCompanyProfileImageMutation, useUploadSupportingNgoDocumentsMutation, useUploadCampaignImagesMutation } = documentApi;
+export const { useUploadCompanyProfileImageMutation, useUploadSupportingNgoDocumentsMutation, useUploadCampaignImagesMutation, useDeleteDocumentMutation } = documentApi;

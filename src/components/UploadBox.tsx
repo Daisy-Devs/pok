@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
 import { ImageUp, Upload } from "lucide-react";
-import React, { ChangeEvent, useRef, useState } from "react";
+import React, { ChangeEvent, useRef } from "react";
 import { toast } from "sonner";
 import UploadedFileList from "./UploadedFileList";
 import {
@@ -11,7 +11,6 @@ import {
 } from "../store/services/api/documentApi";
 import { UploadDocumentType } from "../constants/types";
 import { Spinner } from "./ui/spinner";
-import { NgoRegistrationFormData } from "../features/ngo-registration/types";
 
 interface UploadBoxProps {
   fieldName: string;
@@ -22,7 +21,6 @@ interface UploadBoxProps {
   multifile?: boolean;
   limit?: number;
   onChange: (value: Array<UploadDocumentType> | UploadDocumentType) => void;
-  setNGOData?: React.Dispatch<React.SetStateAction<NgoRegistrationFormData>>;
 }
 export const UploadBox: React.FC<UploadBoxProps> = ({
   fieldName,
@@ -33,7 +31,6 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   limit,
   multifile = false,
   onChange,
-  setNGOData
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [
@@ -85,11 +82,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload company profile image:", res);
-          setNGOData?.((prev) => ({
-            ...prev,
-            public_id: res.profileImage.public_id,
-          }));
-          onChange({ name: res.profileImage.name, url: res.profileImage.url });
+          onChange({ name: res.data.profileImage.name, url: res.data.profileImage.url, type: res.data.profileImage.type, public_id: res.data.profileImage.public_id });
           if (uploadingCompanyProfileImage) {
             console.log("Uploading Profile");
           }
@@ -107,9 +100,11 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload campaign images:", res);
-          const uploadedFiles = res.images.map((file: UploadDocumentType) => ({
+          const uploadedFiles = res.data.images.map((file: UploadDocumentType) => ({
             name: file.name,
             url: file.url,
+            type: file.type,
+            public_id: file.public_id
           }));
           onChange([...existingFiles, ...uploadedFiles]);
         })
@@ -127,10 +122,12 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload supporting documents:", res);
-          const uploadedFiles = res.documents.map(
+          const uploadedFiles = res.data.documents.map(
             (file: UploadDocumentType) => ({
               name: file.name,
               url: file.url,
+              type: file.type,
+              public_id: file.public_id
             }),
           ) as UploadDocumentType[];
           onChange([...existingFiles, ...uploadedFiles]);
@@ -144,7 +141,9 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
     }
   };
   const fileList = Array.isArray(value) ? value : value?.name ? [value] : [];
-
+  const handleRemoveFile = (file: UploadDocumentType) => {
+    onChange(fileList.filter((f) => f.public_id !== file.public_id));
+  }
   return (
     <div className="space-y-2">
       <div className="space-y-2">
@@ -192,7 +191,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
           )}
         </div>
       </div>
-      {fileList.length > 0 && <UploadedFileList files={fileList} />}
+      {fileList.length > 0 && <UploadedFileList files={fileList} handleRemoveFile={handleRemoveFile}/>}
     </div>
   );
 };
