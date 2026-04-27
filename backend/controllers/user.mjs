@@ -491,7 +491,7 @@ export const getUserProfile = async (req, res) => {
       profile: {
         name: user.name,
         walletAddress: user.walletAddress,
-        profileImage: user.profileImage?.url || null,
+        profileImage: user.profileImage || null,
         memberSince: user.createdAt
       },
       stats: {
