@@ -62,6 +62,7 @@ export const donorAuthApi = apiSlice.injectEndpoints({
         url: ENDPOINTS.donorAuth.profile,
         method: "GET",
       }),
+      transformResponse: (response) => response.data,
       providesTags: ["User"],
     }),
     updateProfileImage: builder.mutation({

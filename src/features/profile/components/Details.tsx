@@ -16,7 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
@@ -28,22 +28,34 @@ const Details = () => {
   const { data: profileData, isLoading: isProfileLoading } =
     useDonorProfileQuery({});
   const { data: user, isLoading: isUserLoading } = useValidateUserAuthQuery({});
+  useEffect(() => {
+    if (profileData) {
+      console.log("📥 [Profile Data Sync]:", profileData.profile);
+      console.log("📸 [Current Image URL]:", profileData.profile?.profileImage?.url || profileData.profile?.profileImage);
+    }
+  }, [profileData]);
 
+  const [preview, setPreview] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const displayName =
     user?.data?.name || profileData?.profile?.name || "Anonymous";
 
-  const profile = profileData?.profile;
+  const profile = profileData?.profile || profileData?.data?.profile;
+
+const profileImage =
+  preview ||
+  (profile?.profileImage?.url) || // If it's an object
+  (typeof profile?.profileImage === "string" ? profile.profileImage : null);
 
   const [updateProfileImage, { isLoading: isUpdating }] =
     useUpdateProfileImageMutation();
   const [deleteProfileImage, { isLoading: isDeleting }] =
     useDeleteProfileImageMutation();
 
-  const [preview, setPreview] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  
 
-  const profileImage = preview ?? profile?.profileImage;
+  
 
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
@@ -64,9 +76,15 @@ const Details = () => {
     formData.append("profileImage", file);
 
     try {
-      await updateProfileImage(formData).unwrap();
+      console.log("📤 [Uploading Image]...");
+      const response = await updateProfileImage(formData).unwrap();
+      
+      // 2. LOG: Check exactly what the server sent back after upload
+      console.log("✅ [Upload Success - Server Response]:", response);
+      
       toast.success("Profile picture updated!");
-    } catch {
+    } catch (err) {
+      console.error("❌ [Upload Error]:", err);
       toast.error("Failed to upload image");
       setPreview(null);
     } finally {
@@ -76,12 +94,18 @@ const Details = () => {
 
   const handleDeleteImage = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    try {
-      await deleteProfileImage(undefined).unwrap();
+   try {
+      console.log("🗑️ [Attempting to Delete Image]...");
+      const response = await deleteProfileImage(undefined).unwrap();
+      
+      // 3. LOG: Check response after deletion
+      console.log("✅ [Delete Success - Server Response]:", response);
+      
       toast.success("Profile picture removed");
       setPreview(null);
       if (inputRef.current) inputRef.current.value = "";
     } catch (error) {
+      console.error("❌ [Delete Error]:", error);
       toast.error("Failed to remove image");
     }
   };

@@ -24,7 +24,7 @@ export default function OrganisationDetails({
             Campaign Host
           </h1>
           <div className="flex items-center gap-4">
-            <div className="relative">
+            <div className="relative w-15 h-15 shrink-0">
               <Image
                 src={
                   image && image.includes("cloudinary")
@@ -32,9 +32,8 @@ export default function OrganisationDetails({
                     : DEFAULT_IMAGE_URL
                 }
                 alt={organisation.name}
-                width={56}
-                height={56}
-                className="rounded- object-cover"
+                fill
+                className="rounded-full object-cover"
               />
               <span className="absolute bottom-0 right-0 w-5 h-5 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center">
                 <Check className="w-3 h-3 text-white" />

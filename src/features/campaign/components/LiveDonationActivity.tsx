@@ -45,7 +45,17 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
                 <TableCell className="font-semibold text-secondaryText text-base">
                   {activity.amount}
                 </TableCell>
-                <TableCell>{timeAgo(activity.date)}</TableCell>
+                <TableCell suppressHydrationWarning>
+                  {(() => {
+                    const dateValue = activity.date || activity.createdAt;
+                    if (!dateValue) return "Recently";
+
+                    const parsedDate = new Date(dateValue);
+                    return isNaN(parsedDate.getTime())
+                      ? "Recently"
+                      : timeAgo(parsedDate.toISOString());
+                  })()}
+                </TableCell>
                 <TableCell>
                   <a
                     href={activity.etherScanLink}

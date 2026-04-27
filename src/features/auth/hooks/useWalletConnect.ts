@@ -35,7 +35,7 @@ export const useWalletConnectHandler = () => {
               })
             );
 
-            router.push("/explore");
+            
           });
         },
         onError: (err) => {
