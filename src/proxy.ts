@@ -31,7 +31,9 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/profile")) {
-    if (!token && role === "donor") {
+    console.log(role==="donor",!token);
+    
+    if (!token) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
     if (token && role === "ngo") {

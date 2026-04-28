@@ -6,7 +6,7 @@ export interface CampaignApi {
   cause: string;
   imageUrl: string[];
   goalAmount: number;
-  raisedAmount?: number;
+  totalRaised?: number;
 }
 
 // UI type (used by CampaignCard)
@@ -19,4 +19,5 @@ export interface Campaign {
   progress: number;
   raised: number;
   currency: string;
+  goal: number;
 }

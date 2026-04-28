@@ -399,3 +399,74 @@ export const CONTRACT_ABI = [
     "type": "function"
   }
 ]
+
+export const erc20Abi = [
+  {
+    name: 'approve',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount',  type: 'uint256' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'allowance',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'owner',   type: 'address' },
+      { name: 'spender', type: 'address' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+] as const
+
+export const swapRouterAbi = [
+  {
+    name: 'exactInputSingle',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [{
+      components: [
+        { name: 'tokenIn',           type: 'address' },
+        { name: 'tokenOut',          type: 'address' },
+        { name: 'fee',               type: 'uint24'  },
+        { name: 'recipient',         type: 'address' },
+        { name: 'amountIn',          type: 'uint256' },
+        { name: 'amountOutMinimum',  type: 'uint256' },
+        { name: 'sqrtPriceLimitX96', type: 'uint160' },
+      ],
+      name: 'params', type: 'tuple',
+    }],
+    outputs: [{ name: 'amountOut', type: 'uint256' }],
+  },
+] as const
+
+export const quoterAbi = [
+  {
+    name: 'quoteExactInputSingle',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'tokenIn',           internalType: 'address', type: 'address' },
+          { name: 'tokenOut',          internalType: 'address', type: 'address' },
+          { name: 'amountIn',          internalType: 'uint256', type: 'uint256' },
+          { name: 'fee',               internalType: 'uint24',  type: 'uint24'  },
+          { name: 'sqrtPriceLimitX96', internalType: 'uint160', type: 'uint160' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'amountOut',                internalType: 'uint256', type: 'uint256' },
+      { name: 'sqrtPriceX96After',        internalType: 'uint160', type: 'uint160' },
+      { name: 'initializedTicksCrossed',  internalType: 'uint32',  type: 'uint32'  },
+      { name: 'gasEstimate',              internalType: 'uint256', type: 'uint256' },
+    ],
+  },
+] as const

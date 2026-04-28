@@ -19,8 +19,9 @@ export default function CampaignCauses() {
       description: c.missionStatement,
       category: c.cause,
       image: c.imageUrl,
-      progress: Math.floor(((c.raisedAmount || 0) / c.goalAmount) * 100),
-      raised: c.raisedAmount || 0,
+      progress: Math.floor(((c.totalRaised || 0) / c.goalAmount) * 100),
+      raised: c.totalRaised || 0,
+      goal: c.goalAmount,
       currency: "ETH",
     })) || [];
 
