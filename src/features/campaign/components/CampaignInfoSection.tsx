@@ -35,7 +35,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
   const progress = campaign.goalAmount
-    ? ((campaign.raisedAmount || 0) / campaign.goalAmount) * 100
+    ? ((campaign.totalRaised || 0) / campaign.goalAmount) * 100
     : 0;
 
   const isActive = campaign.status === "active";

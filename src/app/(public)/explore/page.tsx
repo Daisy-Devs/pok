@@ -81,9 +81,9 @@ export default function ExplorePage() {
         category: c.cause,
         image: c.imageUrl,
         progress: c.goalAmount
-          ? ((c.raisedAmount || 0) / c.goalAmount) * 100
+          ? ((c.totalRaised || 0) / c.goalAmount) * 100
           : 0,
-        raised: c.raisedAmount || 0,
+        raised: c.totalRaised || 0,
         currency: "ETH",
       })) || []
     );

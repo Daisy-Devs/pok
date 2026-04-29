@@ -3,7 +3,6 @@ import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
-import image from "next/image";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -54,7 +53,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         <div>
           <ProgressWithLabel
             className="w-full h-3"
-            value={Number(campaign.raised)}
+            value={campaign.progress}
             label={
               <span>
                 <span className="font-bold text-sm text-secondaryText">
