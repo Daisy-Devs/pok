@@ -12,11 +12,11 @@ export const createOrgAndCampaign = async (req, res) => {
     console.log("📥 RAW BODY:", body);
 
     // 🔥 STEP 1: Parse ONLY these fields
-    body.documents = parseIfNeeded(body.documents, "documents");
-    body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
-    body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
+    // body.documents = parseIfNeeded(body.documents, "documents");
+    // body.imageUrl = parseIfNeeded(body.imageUrl, "imageUrl");
+    // body.profileImage = parseIfNeeded(body.profileImage, "profileImage");
 
-    console.log("🧾 AFTER PARSE:", body);
+    // console.log("🧾 AFTER PARSE:", body);
 
     // 🔥 STEP 2: Normalize (VERY IMPORTANT)
     body.documents = Array.isArray(body.documents) ? body.documents : [];
