@@ -465,6 +465,77 @@ export const getCampaignsByOrganization = async (req, res) => {
   }
 };
 
+export const getCampaignById = async (req, res) => {
+  try {
+    const { campaignId } = req.params;
+
+    // 1️⃣ Fetch campaign
+    const campaign = await Campaign.findOne({ id: campaignId })
+      .select('-__v')
+      .populate(
+        'organization',
+        'name email walletAddress website profileImage documents'
+      );
+
+    if (!campaign) {
+      return sendResponse(res, 404, 'Campaign not found');
+    }
+
+    // 2️⃣ Aggregate stats for THIS campaign
+    const stats = await DonationRecord.aggregate([
+      {
+        $match: {
+          campaignId: campaignId
+        }
+      },
+      {
+        $group: {
+          _id: "$campaignId",
+          uniqueDonors: { $addToSet: "$donor" },
+          totalAmount: {
+            $sum: { $toDouble: "$amount" }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalDonors: { $size: "$uniqueDonors" },
+          totalRaised: "$totalAmount"
+        }
+      }
+    ]);
+
+    const stat = stats[0] || {
+      totalDonors: 0,
+      totalRaised: 0
+    };
+
+    // 3️⃣ Progress calculation
+    const goal = Number(campaign.goalAmount);
+
+    const progressPercent =
+      goal > 0
+        ? Number(((stat.totalRaised / goal) * 100).toFixed(2))
+        : 0;
+
+    // 4️⃣ Final response
+    const result = {
+      ...campaign.toObject(),
+      totalDonors: stat.totalDonors,
+      totalRaised: stat.totalRaised,
+      progressPercent,
+      isGoalReached: stat.totalRaised >= goal
+    };
+
+    return sendResponse(res, 200, 'Campaign fetched successfully', result);
+
+  } catch (error) {
+    console.error("❌ Error:", error);
+    return sendResponse(res, 500, error.message);
+  }
+};
+
 const validateCampaignInput = (body) => {
   const {
     organizationName,
