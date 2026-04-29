@@ -40,10 +40,7 @@ export function useDonationFlow({
   anonymous: boolean;
 }) {
   const [step, setStep] = useState<Step>("idle");
-  const [txHash, setHash] = useState<`0x${string}` | undefined>();
-
   const { mutateAsync: writeContractAsync } = useWriteContract();
-  const { data: receipt } = useWaitForTransactionReceipt({ hash: txHash });
 
   const DONATION_CONTRACT = process.env
     .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
@@ -120,7 +117,6 @@ export function useDonationFlow({
           args: [UNISWAP_ROUTER, amountIn],
         });
 
-        setHash(hash);
         await waitForTx(hash);
       }
 
@@ -158,7 +154,6 @@ export function useDonationFlow({
           value: userToken === "ETH" ? amountIn : 0n,
         });
 
-        setHash(hash);
         await waitForTx(hash);
       }
 
@@ -173,7 +168,6 @@ export function useDonationFlow({
           args: [DONATION_CONTRACT, donateAmount],
         });
 
-        setHash(hash);
         await waitForTx(hash);
       }
 
@@ -183,7 +177,7 @@ export function useDonationFlow({
       const donateToken =
         campaignToken === "ETH"
           ? "0x0000000000000000000000000000000000000000"
-          : TOKENS[campaignToken].address!;
+          : TOKENS[userToken].address!;
 
       if (campaignToken === "ETH") {
         const hash = await writeContractAsync({
@@ -194,7 +188,6 @@ export function useDonationFlow({
           value: amountIn,
         });
 
-        setHash(hash);
         await waitForTx(hash);
         setStep("done");
       } else {
@@ -205,14 +198,13 @@ export function useDonationFlow({
           args: [campaignId, donateAmount, donateToken, anonymous],
         });
 
-        setHash(hash);
         await waitForTx(hash);
         setStep("done");
       }
     } catch (e) {
       console.error(e);
       setStep("error");
-      throw e("Transaction reverted");
+      throw e;
     }
   }
 
@@ -229,10 +221,7 @@ async function waitForTx(hash: `0x${string}`) {
     ),
   });
 
-  client.waitForTransactionReceipt({ hash }).catch((e) => {
-    console.error(e);
-    throw e("Transaction reverted");
-  });
+  await client.waitForTransactionReceipt({ hash })
 }
 
 // import { CONTRACT_ABI, swapRouterAbi } from "@/src/constants/contract";
