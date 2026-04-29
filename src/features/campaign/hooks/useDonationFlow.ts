@@ -69,7 +69,10 @@ export function useDonationFlow({
 
         // ❌ ETH is NOT ERC20 → skip balanceOf
         if (campaignToken !== "ETH") {
-          if (!tokenAddress || tokenAddress === "0x0000000000000000000000000000000000000000") {
+          if (
+            !tokenAddress ||
+            tokenAddress === "0x0000000000000000000000000000000000000000"
+          ) {
             throw new Error(`Invalid token address for ${campaignToken}`);
           }
 
@@ -148,7 +151,7 @@ export function useDonationFlow({
               fee: 3000,
               recipient: userAddress,
               amountIn,
-              amountOutMinimum: amountOut * 95n / 100n,
+              amountOutMinimum: (amountOut * 95n) / 100n,
               sqrtPriceLimitX96: 0n,
             },
           ],
@@ -209,7 +212,7 @@ export function useDonationFlow({
     } catch (e) {
       console.error(e);
       setStep("error");
-      toast.error("Donation failed. Please try again.");
+      throw e("Transaction reverted");
     }
   }
 
@@ -222,17 +225,14 @@ async function waitForTx(hash: `0x${string}`) {
   const client = createPublicClient({
     chain: walletConfig.chains[0],
     transport: http(
-      `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`
+      `https://eth-sepolia.g.alchemy.com/v2/${process.env.NEXT_PUBLIC_ALCHEMY_KEY}`,
     ),
   });
 
-  const receipt = await client.waitForTransactionReceipt({ hash });
-
-  if (receipt?.status === "success") {
-    toast.success("Donation successful! Thank you 🫶");
-  } else {
-    throw new Error("Transaction reverted");
-  }
+  client.waitForTransactionReceipt({ hash }).catch((e) => {
+    console.error(e);
+    throw e("Transaction reverted");
+  });
 }
 
 // import { CONTRACT_ABI, swapRouterAbi } from "@/src/constants/contract";
@@ -293,7 +293,7 @@ async function waitForTx(hash: `0x${string}`) {
 //           functionName: "approve",
 //           args: [UNISWAP_ROUTER, amountIn],
 //         });
-        
+
 //         const hash = await writeContractAsync({
 //           address: TOKENS[userToken].address!,
 //           abi: erc20Abi,
@@ -327,7 +327,7 @@ async function waitForTx(hash: `0x${string}`) {
 //               amountOutMinimum: amountOut, // slippage = exact output expected
 //               sqrtPriceLimitX96: 0n,
 //             },);
-            
+
 //         const hash = await writeContractAsync({
 //           address: UNISWAP_ROUTER,
 //           abi: swapRouterAbi,
@@ -358,7 +358,7 @@ async function waitForTx(hash: `0x${string}`) {
 //           functionName: "approve",
 //           args: [DONATION_CONTRACT, amountOut],
 //         });
-        
+
 //         // after swap, the token sitting in wallet is campaignToken
 //         const tokenToApprove = TOKENS[campaignToken].address!;
 //         const hash = await writeContractAsync({
@@ -398,7 +398,7 @@ async function waitForTx(hash: `0x${string}`) {
 //         args: [campaignId,amountIn,donateToken, anonymous],
 //         gas: 100000n,
 //       });
-      
+
 //       const hash= await writeContractAsync({
 //         address: DONATION_CONTRACT,
 //         abi: CONTRACT_ABI,
@@ -407,7 +407,7 @@ async function waitForTx(hash: `0x${string}`) {
 //         gas: 100000n,
 //       })
 //       console.log("donate token hash",hash);
-      
+
 //     }
 
 //     } catch (e) {
@@ -423,7 +423,7 @@ async function waitForTx(hash: `0x${string}`) {
 // async function waitForTx(hash: `0x${string}`) {
 //   const { waitForTransactionReceipt } = await import("viem/actions");
 //   console.log(waitForTransactionReceipt);
-  
+
 //   // wagmi's useWaitForTransactionReceipt is hook-only
 //   // for async flows, use viem client directly:
 //   const { createPublicClient, http } = await import("viem");

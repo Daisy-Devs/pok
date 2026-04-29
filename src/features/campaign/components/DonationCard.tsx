@@ -89,7 +89,13 @@ export default function DonationCard({
       value: amount, // sends ETH along with the call
       gas: 100000n,
     });
-    execute();
+    execute().then(() => {
+      setAmount("");
+      toast.success("Donation successful! Thank you for your generosity.🫶");
+    }).catch((e) => {
+      console.error(e);
+      toast.error("Donation failed. Please try again.");
+    });
   }
   return (
     <div className="flex items-center justify-center p-4 xl:p-10">
