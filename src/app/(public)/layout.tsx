@@ -3,7 +3,8 @@ import AppSidebar from "@/src/components/AppSidebar";
 import Footer from "@/src/components/Footer";
 import Navbar from "@/src/components/Navbar";
 import { SidebarProvider } from "@/src/components/ui/sidebar";
-import { useValidateUserAuthQuery } from "@/src/store/services/api/donorAuthApi";
+import { useDonorLogoutMutation, useValidateUserAuthQuery } from "@/src/store/services/api/donorAuthApi";
+import { useWalletLogoutMutation } from "@/src/store/services/api/walletApi";
 import { selectIsAuthenticated } from "@/src/store/services/selectors/authSelectors";
 import { loggedOut } from "@/src/store/services/slice/authSlice";
 import { useAppSelector } from "@/src/store/store";
@@ -17,9 +18,12 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const {  isError } = useValidateUserAuthQuery({}, {
     skip: !isLoggedIn, // ← skips the call if not authenticated
   });
-
+  const [walletLogout ] = useWalletLogoutMutation();
+  const [donorLogout] = useDonorLogoutMutation();
   useEffect(() => {
     if (isError) {
+      walletLogout({});
+      donorLogout({});
       console.log("Logging out!caught");
       dispatch(loggedOut());
     }
