@@ -21,11 +21,12 @@ export const getDonationsByCampaign = async (req, res) => {
     const { campaignId } = req.params;
 
     const donations = await DonationRecord.find({ campaignId })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .select("-_id -__v");
 
-    return sendResponse(res, 200, 'Campaign Donations fetched successfully', {
+    return sendResponse(res, 200, "Campaign Donations fetched successfully", {
       count: donations.length,
-      data: donations
+      donations
     });
 
   } catch (err) {
@@ -41,7 +42,7 @@ export const getDonationsByDonor = async (req, res) => {
 
     return sendResponse(res, 200, 'Donor Donations fetched successfully', {
       count: donations.length,
-      data: donations
+      donations
     });
 
   } catch (err) {
