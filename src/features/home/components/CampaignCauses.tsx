@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "../../explore/types";
 import CampaignCard from "../../explore/components/CampaignCard";
-import LottieHandler from "@/src/components/LottieHandler";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 type Tag = {
   label: string;
@@ -52,9 +52,22 @@ export default function CampaignCauses() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {topCampaigns.map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
-            ))}
+            {isLoading ? (
+              <p className="text-sm text-gray-500">Loading campaigns...</p>
+            )  : topCampaigns.length === 0 ? (
+              <div className="col-span-full flex justify-center">
+                <DotLottieReact
+                    src="/gif/empty.lottie"
+                    loop
+                    autoplay
+                    style={{ width: 200, height: 200 }}
+                  />
+              </div>
+            ) : (
+              topCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))
+            )}
           </div>
         </div>
       </section>

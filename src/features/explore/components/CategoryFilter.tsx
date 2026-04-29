@@ -3,16 +3,16 @@ import { Button } from "@/src/components/ui/button";
 export default function CategoryFilter({
   active,
   setActive,
+  categories,
 }: {
   active: string;
   setActive: (val: string) => void;
+  categories: string[];
 }) {
-  const cause = ["All", "Environment","Education","HealthCare","Social Justice","Disaster Relief","Animal Welfare" , "Hunger Relief"];
-
  
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar">
-      {cause.map((cat) => {
+   <div className="flex gap-2 overflow-x-auto no-scrollbar">
+      {categories.map((cat) => {
         const isActive = active === cat;
 
         return (

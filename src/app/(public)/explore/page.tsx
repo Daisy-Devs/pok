@@ -11,6 +11,7 @@ import SearchBar from "@/src/features/explore/components/SearchProp";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "@/src/features/explore/types";
 import { useSearchParams } from "next/navigation";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 export default function ExplorePage() {
   const searchParams = useSearchParams();
@@ -25,17 +26,22 @@ export default function ExplorePage() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500); 
+    }, 500);
     return () => clearTimeout(handler);
   }, [search]);
-  
 
   const { data, isLoading, error } = useGetAllCampaignsQuery({
     page,
     limit: 6,
-    category: activeCategory,
+    category: activeCategory === "All" ? "" : activeCategory,
     searchTerm: debouncedSearch,
-    sort: sortBy
+    sort: sortBy,
+  });
+
+  //SECOND QUERY (for categories only)
+  const { data: allData } = useGetAllCampaignsQuery({
+    page: 1,
+    limit: 100, // enough to extract categories
   });
 
   useEffect(() => {
@@ -48,7 +54,23 @@ export default function ExplorePage() {
     }
   }, [causeFromUrl]);
 
-  
+  const availableCategories: string[] = useMemo(() => {
+    const list: string[] =
+      allData?.data?.campaigns?.map((c: CampaignApi) => String(c.cause)) || [];
+
+    const unique: string[] = Array.from(new Set<string>(list));
+
+    return ["All", ...unique];
+  }, [allData]);
+
+  useEffect(() => {
+    if (
+      availableCategories.length > 0 &&
+      !availableCategories.includes(activeCategory)
+    ) {
+      setActiveCategory("All");
+    }
+  }, [availableCategories, activeCategory]);
 
   const campaigns: Campaign[] = useMemo(() => {
     return (
@@ -67,13 +89,13 @@ export default function ExplorePage() {
     );
   }, [data]);
 
- 
   if (isLoading) return <p>Loading campaigns...</p>;
   if (error) return <p>Failed to load campaigns</p>;
   const filtered = useMemo(() => {
     return campaigns.filter((c) => {
       const matchesCategory =
-        activeCategory === "All" || c.category.toLowerCase() === activeCategory.toLowerCase();
+        activeCategory === "All" ||
+        c.category.toLowerCase() === activeCategory.toLowerCase();
 
       const matchesSearch =
         c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -97,19 +119,36 @@ export default function ExplorePage() {
       </div>
       {/* Filters */}
       <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <CategoryFilter active={activeCategory} setActive={setActiveCategory} />
+        <CategoryFilter
+          active={activeCategory}
+          setActive={setActiveCategory}
+          categories={availableCategories}
+        />
         <div className="w-full md:w-auto flex justify-end">
-          <SortDropdown value={sortBy} onChange={setSortBy}/>
+          <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
       </div>
 
       {/* Grid */}
       <div className="max-w-6xl mx-auto px-6 pb-10">
-        <CampaignGrid 
+        {campaigns.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <DotLottieReact
+              src="/gif/empty.lottie"
+              loop
+              autoplay
+              style={{ width: 200, height: 200 }}
+            />
+            <p className="text-gray-500 mt-4 text-sm">No campaigns found</p>
+          </div>
+        ) : (
+          <CampaignGrid
             totalPages={data?.data?.totalPages || 1}
             currentPage={page}
             onPageChange={setPage}
-            data={campaigns} />
+            data={campaigns}
+          />
+        )}
       </div>
       <NetworkBanner />
     </div>

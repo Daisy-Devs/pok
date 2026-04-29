@@ -21,7 +21,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}
-      <div className="relative  overflow-hidden">
+      <div className="relative h-48 overflow-hidden">
         <Image
           src={
             (image && image?.url.includes("cloudinary")) ? image?.url : DEFAULT_IMAGE_URL

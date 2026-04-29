@@ -216,7 +216,7 @@ export default function SignUp() {
 
             <p className="text-sm text-gray-500 text-center">
               Already have an account?{" "}
-              <Link href="/sign-up" className="text-blue-500 hover:underline">
+              <Link href="/sign-in" className="text-blue-500 hover:underline">
                 {nomenclature.SIGN_IN}
               </Link>
             </p>
