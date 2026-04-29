@@ -3,7 +3,6 @@ import { Organization } from "../models/organization.mjs";
 import { User } from "../models/user.mjs";
 import { sendResponse } from "../utils/response.mjs";
 import { uploadToCloudinary } from "../utils/uploadToCloudinary.mjs";
-import cloudinary from "../config/cloudinary.mjs";
 
 export const uploadDocuments = async (req, res) => {
   try {
