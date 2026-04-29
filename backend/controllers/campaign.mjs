@@ -257,11 +257,14 @@ export const getAllCampaigns = async (req, res) => {
     const attachFundingStats = async (campaigns) => {
       if (!campaigns.length) return campaigns;
 
-      const campaignIds = campaigns.map(c => c._id || c.id);
+      // ✅ ALWAYS use custom campaignId string
+      const campaignIds = campaigns.map(c => c.id);
 
       const stats = await DonationRecord.aggregate([
         {
-          $match: { campaignId: { $in: campaignIds } }
+          $match: {
+            campaignId: { $in: campaignIds }
+          }
         },
         {
           $group: {
@@ -277,7 +280,7 @@ export const getAllCampaigns = async (req, res) => {
       });
 
       return campaigns.map(campaign => {
-        const totalRaised = statsMap[campaign._id] || 0;
+        const totalRaised = statsMap[campaign.id] || 0;
         const goal = Number(campaign.goalAmount);
 
         return {
@@ -287,7 +290,6 @@ export const getAllCampaigns = async (req, res) => {
         };
       });
     };
-
     // =========================================================
     // 🔥 MODE 1: GROUPED
     // =========================================================
@@ -352,205 +354,7 @@ export const getAllCampaigns = async (req, res) => {
     const total = await Campaign.countDocuments(filter);
 
     const campaigns = await Campaign.find(filter)
-      .select("-_id -__v -raisedAmount")
-      .populate("organization", "name email walletAddress profileImage")
-      .sort(sortOption)
-      .skip((page - 1) * limit)
-      .limit(limit);
-
-    const updatedCampaigns = await attachFundingStats(campaigns);
-
-    return sendResponse(res, 200, "Campaigns fetched successfully", {
-      page,
-      totalPages: Math.ceil(total / limit),
-      totalCampaigns: total,
-      count: updatedCampaigns.length,
-      campaigns: updatedCampaigns
-    });
-
-  } catch (error) {
-    console.error("❌ Error:", error);
-    return sendResponse(res, 500, error.message);
-  }
-};
-
-export const getAllCampaignsV1 = async (req, res) => {
-  try {
-    let {
-      page = 1,
-      limit = 6,
-      search,
-      cause,
-      location,
-      tag,
-      status,
-      goalToken,
-      sortBy = "latest",
-      view = "list",
-      limitPerCause = 6
-    } = req.query;
-
-    page = parseInt(page);
-    limit = parseInt(limit);
-    limitPerCause = parseInt(limitPerCause);
-
-    if (page < 1) page = 1;
-
-    // =========================================================
-    // ✅ Common Filter
-    // =========================================================
-    const filter = {
-      status: { $in: ["active", "draft"] }
-    };
-
-    if (status) filter.status = status;
-    if (cause) filter.cause = cause;
-    if (goalToken) filter.goalToken = goalToken.toUpperCase();
-
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
-
-    if (tag) {
-      filter.tags = { $in: [new RegExp(tag, "i")] };
-    }
-
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { cause: { $regex: search, $options: "i" } },
-        { location: { $regex: search, $options: "i" } },
-        { tags: { $elemMatch: { $regex: search, $options: "i" } } }
-      ];
-    }
-
-    // =========================================================
-    // ✅ Sorting
-    // =========================================================
-    let sortOption = { createdAt: -1 };
-
-    if (sortBy === "oldest") sortOption = { createdAt: 1 };
-    if (sortBy === "goal_high") sortOption = { goalAmount: -1 };
-    if (sortBy === "goal_low") sortOption = { goalAmount: 1 };
-
-    // =========================================================
-    // 🧠 Helper: Attach funding stats
-    // =========================================================
-    const attachFundingStats = async (campaigns) => {
-      if (!campaigns.length) return campaigns;
-
-      // ensure consistent type
-      const campaignIds = campaigns.map(c => c._id.toString());
-
-      const stats = await DonationRecord.aggregate([
-        {
-          $match: {
-            campaignId: { $in: campaignIds }
-          }
-        },
-        {
-          $group: {
-            _id: "$campaignId",
-            totalAmount: { $sum: { $toDouble: "$amount" } }
-          }
-        }
-      ]);
-
-      const statsMap = {};
-      stats.forEach(item => {
-        statsMap[item._id] = item.totalAmount;
-      });
-
-      return campaigns.map(campaign => {
-        const totalRaised = statsMap[campaign._id.toString()] || 0;
-        const goal = Number(campaign.goalAmount || 0);
-
-        const obj = campaign.toObject();
-
-        return {
-          ...obj,
-          id: obj._id,
-          _id: undefined,
-          totalRaised,
-          isGoalReached: totalRaised >= goal
-        };
-      });
-    };
-
-    // =========================================================
-    // 🔥 MODE 1: GROUPED
-    // =========================================================
-    if (view === "grouped" && !cause) {
-      const pipeline = [
-        { $match: filter },
-        { $sort: sortOption },
-        {
-          $group: {
-            _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
-            campaigns: { $push: "$$ROOT" }
-          }
-        },
-        {
-          $project: {
-            cause: "$_id",
-            campaigns: { $slice: ["$campaigns", limitPerCause] }
-          }
-        },
-        { $skip: (page - 1) * limit },
-        { $limit: limit }
-      ];
-
-      const groupedData = await Campaign.aggregate(pipeline);
-
-      const populated = await Campaign.populate(groupedData, {
-        path: "campaigns.organization",
-        select: "name email walletAddress profileImage"
-      });
-
-      // 🔥 flatten → aggregate once → remap
-      const allCampaigns = populated.flatMap(g => g.campaigns);
-      const updatedAll = await attachFundingStats(allCampaigns);
-
-      const updatedMap = {};
-      updatedAll.forEach(c => {
-        updatedMap[c.id.toString()] = c;
-      });
-
-      const finalGroups = populated.map(group => ({
-        cause: group.cause,
-        campaigns: group.campaigns.map(c =>
-          updatedMap[c._id.toString()]
-        )
-      }));
-
-      const totalCausesAgg = await Campaign.aggregate([
-        { $match: filter },
-        {
-          $group: {
-            _id: { $toLower: { $ifNull: ["$cause", "Others"] } }
-          }
-        },
-        { $count: "total" }
-      ]);
-
-      const totalCauses = totalCausesAgg[0]?.total || 0;
-
-      return sendResponse(res, 200, "Grouped campaigns fetched", {
-        page,
-        totalPages: Math.ceil(totalCauses / limit),
-        totalCauses,
-        count: finalGroups.length,
-        causes: finalGroups
-      });
-    }
-
-    // =========================================================
-    // 🔥 MODE 2: LIST
-    // =========================================================
-    const total = await Campaign.countDocuments(filter);
-
-    const campaigns = await Campaign.find(filter)
-      .select("-__v -raisedAmount") // keep _id internally
+      .select("-__v")
       .populate("organization", "name email walletAddress profileImage")
       .sort(sortOption)
       .skip((page - 1) * limit)

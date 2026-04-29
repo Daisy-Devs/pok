@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const DonationRecordSchema = new mongoose.Schema(
   {
     donor: { type: String, required: true }, // normalized wallet
-    campaignId: { type: String, required: true }, // readable
+    campaignId: { type: String, index: true, required: true }, // readable
     campaignIdBytes32: { type: String, required: true }, // blockchain
     ngoWallet: { type: String, required: true }, // normalized wallet
     amount: { type: String, required: true }, // formatted (for display)
