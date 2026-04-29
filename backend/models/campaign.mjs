@@ -9,8 +9,8 @@ const DocumentSchema = new mongoose.Schema({
 
 const CampaignSchema = new mongoose.Schema(
   {
-    id: { type: String, required: true, unique: true },
-    campaignIdBytes32: { type: String, required: true, unique: true, index: true },
+    id: { type: String, required: true },
+    campaignIdBytes32: { type: String, required: true, index: true },
     // Reference to organization
     organization: {
       type: mongoose.Schema.Types.ObjectId,
@@ -36,7 +36,7 @@ const CampaignSchema = new mongoose.Schema(
       enum: ['draft', 'active', 'completed'],
       default: 'draft'
     },
-    txHash: { type: String },
+    txHash: { type: String, unique: true },
     onChain: { type: Boolean, default: false },
     onChainStatus: {
       type: String,
