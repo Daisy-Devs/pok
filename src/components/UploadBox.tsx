@@ -11,6 +11,7 @@ import {
 } from "../store/services/api/documentApi";
 import { UploadDocumentType } from "../constants/types";
 import { Spinner } from "./ui/spinner";
+import { checkResolution } from "../lib/checkResolution";
 
 interface UploadBoxProps {
   fieldName: string;
@@ -43,7 +44,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   ] = useUploadSupportingNgoDocumentsMutation();
   const [uploadCampaignImages, { isLoading: uploadingCampaignImages }] =
     useUploadCampaignImagesMutation();
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async(e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const formData = new FormData();
 
@@ -51,6 +52,21 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
       toast.error(`You can only upload up to ${limit} files.`);
       return;
     }
+if (onlyImage && multifile) {
+  const resolutions = await Promise.all(files.map(checkResolution));
+
+  const allPassResolution = resolutions.every(
+    (res) => res.width > 800 && res.height > 600
+  );
+
+  console.log("resolutions", resolutions);
+  console.log("allPassResolution", allPassResolution);
+
+  if (!allPassResolution) {
+    toast.error("All images must be at least 800×600");
+    return;
+  }
+}
     if (!files.every((file) => file.type.startsWith("image/")) && onlyImage) {
       toast.error(
         "Invalid file type. Please upload a JPG, PNG, or WEBP image.",
@@ -82,7 +98,12 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload company profile image:", res);
-          onChange({ name: res.data.profileImage.name, url: res.data.profileImage.url, type: res.data.profileImage.type, public_id: res.data.profileImage.public_id });
+          onChange({
+            name: res.data.profileImage.name,
+            url: res.data.profileImage.url,
+            type: res.data.profileImage.type,
+            public_id: res.data.profileImage.public_id,
+          });
           if (uploadingCompanyProfileImage) {
             console.log("Uploading Profile");
           }
@@ -100,12 +121,14 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
         .unwrap()
         .then((res) => {
           console.log("Upload campaign images:", res);
-          const uploadedFiles = res.data.images.map((file: UploadDocumentType) => ({
-            name: file.name,
-            url: file.url,
-            type: file.type,
-            public_id: file.public_id
-          }));
+          const uploadedFiles = res.data.images.map(
+            (file: UploadDocumentType) => ({
+              name: file.name,
+              url: file.url,
+              type: file.type,
+              public_id: file.public_id,
+            }),
+          );
           onChange([...existingFiles, ...uploadedFiles]);
         })
         .catch((err) => {
@@ -127,7 +150,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
               name: file.name,
               url: file.url,
               type: file.type,
-              public_id: file.public_id
+              public_id: file.public_id,
             }),
           ) as UploadDocumentType[];
           onChange([...existingFiles, ...uploadedFiles]);
@@ -143,7 +166,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   const fileList = Array.isArray(value) ? value : value?.name ? [value] : [];
   const handleRemoveFile = (file: UploadDocumentType) => {
     onChange(fileList.filter((f) => f.public_id !== file.public_id));
-  }
+  };
   return (
     <div className="space-y-2">
       <div className="space-y-2">
@@ -176,8 +199,12 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
           {uploadingCompanyProfileImage ||
           uploadingSupportingNgoDocuments ||
           uploadingCampaignImages ? (
-            <Button text="Uploading..."
-        disabled className="mt-3 text-xs font-semibold" leftIcon={<Spinner data-icon="inline-start" />}/>
+            <Button
+              text="Uploading..."
+              disabled
+              className="mt-3 text-xs font-semibold"
+              leftIcon={<Spinner data-icon="inline-start" />}
+            />
           ) : (
             <Button
               disabled={
@@ -191,7 +218,12 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
           )}
         </div>
       </div>
-      {fileList.length > 0 && <UploadedFileList files={fileList} handleRemoveFile={handleRemoveFile}/>}
+      {fileList.length > 0 && (
+        <UploadedFileList
+          files={fileList}
+          handleRemoveFile={handleRemoveFile}
+        />
+      )}
     </div>
   );
 };
