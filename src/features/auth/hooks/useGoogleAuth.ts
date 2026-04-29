@@ -38,8 +38,8 @@ export const useGoogleAuth = () => {
 
       dispatch(
         loggedIn({
-          name: res.data.name,
-          email: res.data.email,
+          name: res.data.data.name,
+          email: res.data.data.email,
           role: "Donor",
         }),
       );
