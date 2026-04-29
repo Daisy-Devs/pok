@@ -10,7 +10,6 @@ export const startDonationListener = () => {
   contract.on("DonationReceived", async (...args) => {
     try {
       const event = args[args.length - 1];
-
       const {
         donor,
         campaignId, // bytes32 from contract
@@ -20,6 +19,9 @@ export const startDonationListener = () => {
         token
       } = event.args;
 
+      console.log("🔥 Event received");
+      console.log("DB campaignIdBytes32:", campaignId);
+
       const txHash = event.log.transactionHash;
 
       const normalizedDonor = donor.toLowerCase();
@@ -27,7 +29,7 @@ export const startDonationListener = () => {
 
       // 🔥 IMPORTANT: find campaign using bytes32
       const campaign = await Campaign.findOne({
-        campaignIdBytes32: campaignId
+        campaignIdBytes32: campaignId.toLowerCase()
       });
 
       if (!campaign) {
