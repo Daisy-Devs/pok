@@ -22,61 +22,68 @@ export const registerUser = async (req, res) => {
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
 
     if (!passwordRegex.test(password)) {
-      return sendResponse(res, 400, 'Password must be 8-15 chars, include uppercase, lowercase, number, and special character');
+      return sendResponse(
+        res,
+        400,
+        'Password must be 8-15 chars, include uppercase, lowercase, number, and special character'
+      );
     }
 
-    let user = await User.findOne({ email });
+    const existingUser = await User.findOne({ email });
 
-    if (user) {
-      // If user exists but no manual login yet → allow adding password
-      if (!user.password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        user.password = hashedPassword;
-        if (!user.providers.includes('manual')) {
-          user.providers.push('manual');
-        }
-
-        await user.save();
-      } else {
-        return sendResponse(res, 400, 'User already exists');
+    // 🚫 BLOCK if user already exists with ANY provider
+    if (existingUser) {
+      // 🔥 If registered via Google (or any non-manual)
+      if (!existingUser.providers.includes('manual')) {
+        return sendResponse(
+          res,
+          400,
+          'This email is registered using Google. Please login with Google.'
+        );
       }
-    } else {
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      user = new User({
-        name,
-        email,
-        password: hashedPassword,
-        phone,
-        providers: ['manual']
-      });
-
-      await user.save();
+      // 🔥 If already manual user
+      return sendResponse(res, 400, 'User already exists. Please login.');
     }
 
-    // 🔐 Create JWT
+    // ✅ Create new manual user ONLY
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      phone,
+      providers: ['manual']
+    });
+
+    await user.save();
+
+    // 🔐 JWT
     const token = jwt.sign(
-      { 
-        userId: user._id, 
-        role: "donor" 
+      {
+        userId: user._id,
+        role: "donor"
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // 🍪 Set cookie
+    // 🍪 Cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // 👉 set true in production (HTTPS)
+      secure: false, // 👉 true in production
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     const userObj = user.toObject();
     delete userObj.password;
 
-    return sendResponse(res, 201, 'User registered successfully', {userObj, role: "donor"});
+    return sendResponse(res, 201, 'User registered successfully', {
+      userObj,
+      role: "donor"
+    });
 
   } catch (error) {
     return sendResponse(res, 500, error.message);
@@ -104,12 +111,10 @@ export const googleAuth = async (req, res) => {
       return sendResponse(res, 400, 'Google email not verified');
     }
 
-    // ✅ Find user by googleId OR email
-    let user = await User.findOne({
-      $or: [{ googleId: sub }, { email }]
-    });
+    // 🔍 Find user by email
+    let user = await User.findOne({ email });
 
-    // 🆕 Create new user
+    // 🆕 Create new Google user
     if (!user) {
       user = new User({
         name,
@@ -120,33 +125,34 @@ export const googleAuth = async (req, res) => {
 
       await user.save();
     } 
-    // 🔄 Existing user (merge accounts)
     else {
-      let updated = false;
+      // 🚫 BLOCK if user is manual login user
+      if (user.providers.includes('manual')) {
+        return sendResponse(
+          res,
+          400,
+          'This email is registered with email/password. Please login using credentials.'
+        );
+      }
 
+      // ✅ Existing Google user → allow login
       if (!user.googleId) {
         user.googleId = sub;
-        updated = true;
+        await user.save();
       }
-
-      if (!user.providers.includes('google')) {
-        user.providers.push('google');
-        updated = true;
-      }
-
-      if (updated) await user.save();
     }
 
     // 🔐 Create JWT
     const jwtToken = jwt.sign(
-      { userId: user._id,
+      {
+        userId: user._id,
         role: "donor"
       },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    // 🍪 Set cookie
+    // 🍪 Cookie
     res.cookie('token', jwtToken, {
       httpOnly: true,
       secure: false, // 👉 true in production
