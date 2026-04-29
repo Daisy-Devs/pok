@@ -1,4 +1,29 @@
-export const CONTRACT_ABI = [
+export const CONTRACT_ABI =  [
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "campaignId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "oldOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "CampaignOwnerUpdated",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -72,6 +97,32 @@ export const CONTRACT_ABI = [
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
     "type": "event"
   },
   {
@@ -303,7 +354,68 @@ export const CONTRACT_ABI = [
   },
   {
     "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "rescueETH",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "rescueTokens",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -358,6 +470,31 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "campaignId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "newNgo",
+        "type": "address"
+      }
+    ],
+    "name": "updateCampaignOwner",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -397,5 +534,80 @@ export const CONTRACT_ABI = [
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
+
+export const erc20Abi = [
+  {
+    name: 'approve',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'spender', type: 'address' },
+      { name: 'amount',  type: 'uint256' },
+    ],
+    outputs: [{ type: 'bool' }],
+  },
+  {
+    name: 'allowance',
+    type: 'function',
+    stateMutability: 'view',
+    inputs: [
+      { name: 'owner',   type: 'address' },
+      { name: 'spender', type: 'address' },
+    ],
+    outputs: [{ type: 'uint256' }],
+  },
+] as const
+
+export const swapRouterAbi = [
+  {
+    name: 'exactInputSingle',
+    type: 'function',
+    stateMutability: 'payable',
+    inputs: [{
+      components: [
+        { name: 'tokenIn',           type: 'address' },
+        { name: 'tokenOut',          type: 'address' },
+        { name: 'fee',               type: 'uint24'  },
+        { name: 'recipient',         type: 'address' },
+        { name: 'amountIn',          type: 'uint256' },
+        { name: 'amountOutMinimum',  type: 'uint256' },
+        { name: 'sqrtPriceLimitX96', type: 'uint160' },
+      ],
+      name: 'params', type: 'tuple',
+    }],
+    outputs: [{ name: 'amountOut', type: 'uint256' }],
+  },
+] as const
+
+export const quoterAbi = [
+  {
+    name: 'quoteExactInputSingle',
+    type: 'function',
+    stateMutability: 'nonpayable',
+    inputs: [
+      {
+        name: 'params',
+        type: 'tuple',
+        components: [
+          { name: 'tokenIn',           internalType: 'address', type: 'address' },
+          { name: 'tokenOut',          internalType: 'address', type: 'address' },
+          { name: 'amountIn',          internalType: 'uint256', type: 'uint256' },
+          { name: 'fee',               internalType: 'uint24',  type: 'uint24'  },
+          { name: 'sqrtPriceLimitX96', internalType: 'uint160', type: 'uint160' },
+        ],
+      },
+    ],
+    outputs: [
+      { name: 'amountOut',                internalType: 'uint256', type: 'uint256' },
+      { name: 'sqrtPriceX96After',        internalType: 'uint160', type: 'uint160' },
+      { name: 'initializedTicksCrossed',  internalType: 'uint32',  type: 'uint32'  },
+      { name: 'gasEstimate',              internalType: 'uint256', type: 'uint256' },
+    ],
+  },
+] as const

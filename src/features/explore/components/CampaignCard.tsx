@@ -67,7 +67,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
 
         <div className="flex justify-between items-center">
           <p className="font-bold">
-            {campaign.raised} {campaign.currency}/{campaign.raised} {campaign.currency}
+            {campaign.raised} {campaign.currency}/{campaign.goal} {campaign.currency}
           </p>
           <Button onClick={() => handleDonate(campaign.id)} text="Donate" />
         </div>
