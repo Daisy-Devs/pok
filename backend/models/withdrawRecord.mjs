@@ -17,8 +17,5 @@ const WithdrawRecordSchema = new mongoose.Schema(
   }
 );
 
-// 🔥 indexes
-WithdrawRecordSchema.index({ campaignId: 1 });
-WithdrawRecordSchema.index({ ngoWallet: 1 });
 
 export const WithdrawRecord = mongoose.model("WithdrawRecord", WithdrawRecordSchema);
