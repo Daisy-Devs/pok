@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAppSelector } from "../store/store";
-import { selectIsAuthenticated } from "../store/services/selectors/authSelectors";
+import { selectIsAuthenticated, selectUser } from "../store/services/selectors/authSelectors";
 import { useDispatch } from "react-redux";
 import { loggedOut } from "../store/services/slice/authSlice";
 import { useDonorLogoutMutation } from "../store/services/api/donorAuthApi";
@@ -28,7 +28,9 @@ const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
   const { isConnected } = useConnection();
   const { mutate } = useDisconnect();
-  const isLoggedIn = useAppSelector(selectIsAuthenticated);
+  const user = useAppSelector(selectUser);
+  const authenticated = useAppSelector(selectIsAuthenticated);
+  const isLoggedIn = authenticated && user?.role === "Donor";
   const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
@@ -120,7 +122,7 @@ const handleLogout = async () => {
                   <Link href="/profile">View Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleWalletConnect}>
-                  {isConnected ? "Disconnect Wallet" : "Connect Wallet"}
+                  {isConnected && isLoggedIn ? "Disconnect Wallet" : "Connect Wallet"}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-500"

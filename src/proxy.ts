@@ -31,8 +31,6 @@ export function proxy(request: NextRequest) {
   }
 
   if (pathname.startsWith("/profile")) {
-    console.log(role==="donor",!token);
-    
     if (!token) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
@@ -51,14 +49,6 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL("/ngo/sign-in", request.url));
     }
   }
-  // 🔒 Protect payment/donation routes
-  /*   if (pathname.includes('/donate')) {
-    if (!token) {
-      return NextResponse.redirect(
-        new URL(`/sign-in`, request.url)
-      );
-    }
-  } */
 
   return NextResponse.next();
 }

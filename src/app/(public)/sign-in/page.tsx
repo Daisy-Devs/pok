@@ -50,8 +50,8 @@ export default function SignIn() {
         toast.success("Sign-in successful!");
         dispatch(
           loggedIn({
-            name: res.name,
-            email: res.email,
+            name: res.data.userObj.name,
+            email: res.data.userObj.email,
             role: "Donor",
           }),
         );

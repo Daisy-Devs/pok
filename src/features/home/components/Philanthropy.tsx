@@ -9,11 +9,13 @@ import { useDispatch } from "react-redux";
 import { useRouter } from "next/dist/client/components/navigation";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { useAppSelector } from "@/src/store/store";
-import { selectIsAuthenticated } from "@/src/store/services/selectors/authSelectors";
+import { selectIsAuthenticated, selectUser } from "@/src/store/services/selectors/authSelectors";
 import { toast } from "sonner";
 
 export default function Philanthropy() {
   const { isConnected } = useConnection();
+  const user = useAppSelector(selectUser);
+  const roleDonor = user?.role === "Donor";
   const isAuthenticated= useAppSelector(selectIsAuthenticated);
   const { mutate } = useConnect();
   const connectors = useConnectors();
@@ -22,7 +24,7 @@ export default function Philanthropy() {
   const dispatch = useDispatch();
   const router = useRouter();
   const handleWalletConnect = async () => {
-    if(!isAuthenticated){
+    if(!isAuthenticated || !roleDonor){
       router.push("/sign-in");
       toast.info("Please sign in to connect your wallet and start donating!");
       return;
@@ -151,7 +153,7 @@ export default function Philanthropy() {
               <div className="flex items-center justify-center gap-3">
                 {" "}
                 <Button
-                  text={isConnected ? "Disconnect Wallet" : "Connect Wallet"}
+                  text={isConnected && roleDonor ? "Disconnect Wallet" : "Connect Wallet"}
                   variant={"blue"}
                   size={"default"}
                   onClick={handleWalletConnect}
