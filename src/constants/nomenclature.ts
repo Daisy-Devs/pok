@@ -48,8 +48,9 @@ export const nomenclature={
  CONTRIBUTE_PARA:"Donate without revealing your identity or wallet address. Using ZK-Snarks, we ensure your privacy while maintaining a clear audit trail for the receiving NGO.",
  ZERO_FEES:"Near-Zero Fees",
  ZERO_FEES_PARA:"Avoid the 5–10% overhead of traditional platforms. PhilanthroChain leverages L2 tech to keep fees under 0.1%.",
-
-
-
  HOME_PARA:"The first decentralized custodian platform enabling secure, private, and verifiable crypto contributions to vetted NGOs worldwide with near-zero fees.",
+ OVERVIEW:"Overview",
+ ACTIVE_CAUSES:"Active Causes",
+ DONATION_HISTORY:"Donation History",
+ WITHDRAW_FUNDS:"Withdraw funds",
 }
