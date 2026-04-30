@@ -46,9 +46,9 @@ const AppSidebar = () => {
               </Link>
 
               <Link
-                href="/causes"
+                href="/ngo/causes"
                 className={`text-sm px-4 py-3 text-primaryText font-semibold rounded-lg hover:bg-primary hover:text-white ${
-                  pathname === "/causes" && "bg-primary/95 text-white font-bold"
+                  pathname === "/ngo/causes" && "bg-primary/95 text-white font-bold"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -58,9 +58,9 @@ const AppSidebar = () => {
               </Link>
 
               <Link
-                href="/donation-history"
+                href="/ngo/donation-history"
                 className={`text-sm px-4 py-3 text-primaryText font-semibold rounded-lg hover:bg-primary hover:text-white ${
-                  pathname === "/donation-history" &&
+                  pathname === "/ngo/donation-history" &&
                   "bg-primary/95 text-white font-bold"
                 }`}
               >
@@ -70,9 +70,9 @@ const AppSidebar = () => {
                 </div>
               </Link>
               <Link
-                href="/withdraw"
+                href="/ngo/withdraw"
                 className={`text-sm px-4 py-3 text-primaryText font-semibold rounded-lg hover:bg-primary hover:text-white ${
-                  pathname === "/withdraw" &&
+                  pathname === "/ngo/withdraw" &&
                   "bg-primary/95 text-white font-bold"
                 }`}
               >
