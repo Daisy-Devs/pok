@@ -207,7 +207,7 @@ export const deleteProfileImage = async (req, res) => {
     const org = await Organization.findById(ngoId);
 
     if (!org) {
-       return sendResponse(res, 404, "Organization not found" );
+      return sendResponse(res, 404, "Organization not found" );
     }
 
     if (!org.profileImage?.public_id) {

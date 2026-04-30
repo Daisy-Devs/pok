@@ -19,6 +19,11 @@ const DonationRecordSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true
+    },
+    status: {
+      type: String,
+      enum: ["pending", "success", "failed"],
+      default: "pending"
     }
   },
   {

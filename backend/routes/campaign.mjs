@@ -10,7 +10,7 @@ router.post('/:id', ngoAuth, updateCampaign);
 
 router.get('/', getAllCampaigns);
 router.get('/:campaignId', getCampaignById);
-router.get('/:id', getCampaignsByOrganization);
+router.get('/org', ngoAuth, getCampaignsByOrganization);
 
 
 
