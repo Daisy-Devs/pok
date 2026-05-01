@@ -7,6 +7,7 @@ export interface CampaignApi {
   imageUrl: string[];
   goalAmount: number;
   totalRaised?: number;
+  goalToken: "ETH" | "USDC" | "USDT" | "DAI";
 }
 
 // UI type (used by CampaignCard)

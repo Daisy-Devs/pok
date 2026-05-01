@@ -81,30 +81,19 @@ export default function ExplorePage() {
         category: c.cause,
         image: c.imageUrl,
         progress: c.goalAmount
-          ? ((c.totalRaised || 0) / c.goalAmount) * 100
+          ?Math.floor(((c.totalRaised || 0) / c.goalAmount) * 100)
           : 0,
-        raised: c.totalRaised || 0,
-        currency: "ETH",
+        raised: c.totalRaised? Number(c.totalRaised).toFixed(2): 0,
+        currency:c.goalToken,
+        goal: c.goalAmount,
       })) || []
     );
   }, [data]);
 
   if (isLoading) return <p>Loading campaigns...</p>;
   if (error) return <p>Failed to load campaigns</p>;
-  const filtered = useMemo(() => {
-    return campaigns.filter((c) => {
-      const matchesCategory =
-        activeCategory === "All" ||
-        c.category.toLowerCase() === activeCategory.toLowerCase();
 
-      const matchesSearch =
-        c.title.toLowerCase().includes(search.toLowerCase()) ||
-        c.description.toLowerCase().includes(search.toLowerCase()) ||
-        c.category.toLowerCase().includes(search.toLowerCase());
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [campaigns, activeCategory, search]);
+  console.log("actual",data?.data?.campaigns);
 
   return (
     <div className="bg-white min-h-screen  ">
@@ -134,7 +123,7 @@ export default function ExplorePage() {
         {campaigns.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <DotLottieReact
-              src="/gif/empty.lottie"
+              src="/gif/Empty.lottie"
               loop
               autoplay
               style={{ width: 200, height: 200 }}

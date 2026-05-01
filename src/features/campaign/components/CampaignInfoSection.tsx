@@ -19,27 +19,25 @@ import Heading from "@/src/components/Heading";
 import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
 import { CAUSE_CATEGORIES, DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 import OrganisationDetails from "./OrganisationDetails";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 interface CampaignInfoSectionProps {
   campaignId: string;
 }
 
 const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
-  const { data, isLoading, error } = useGetCampaignByIdQuery(campaignId);
+  const { data, error } = useGetCampaignByIdQuery(campaignId);
   console.log("Full API Data:", data);
-
-  if (isLoading) return <p>Loading campaign...</p>;
-  if (error) return <p>Failed to load campaign.</p>;
 
   const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
   if (!campaign) return <p>Campaign not found.</p>;
   const title = splitTitle(campaign.title);
   const progress = campaign.goalAmount
-    ? ((campaign.totalRaised || 0) / campaign.goalAmount) * 100
+    ? Math.floor(((campaign.totalRaised || 0) / campaign.goalAmount) * 100)
     : 0;
 
-  const isActive = campaign.status === "active";
-  const nearGoal = progress >= 75;
+  const isActive = campaign.status === "active" && campaign.isGoalReached;
+  const nearGoal = progress >= 75 && progress !== 100;
   const Icon = CAUSE_CATEGORIES.find(
     (category) => category.name === campaign.cause,
   )!.icon;
@@ -59,7 +57,7 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
         <div className="flex flex-col justify-center">
           <div className="flex gap-3">
-            {isActive && <Pill text="Active Campaign" variant="primary" />}
+            {isActive  && <Pill text="Active Campaign" variant="primary" />}
             {nearGoal && (
               <Pill
                 text="Goal Near"
@@ -119,9 +117,9 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
             label={
               <span className="text-primaryText text-lg">
                 <span className="font-extrabold text-2xl text-secondaryText">
-                  {campaign.raisedAmount || 0} ETH
+                  {Number(campaign.totalRaised).toFixed(2) || 0} {campaign.goalToken}
                 </span>{" "}
-                of {campaign.goalAmount} ETH raised
+                of {campaign.goalAmount} {campaign.goalToken} raised
               </span>
             }
           />
@@ -153,10 +151,22 @@ const CampaignInfoSection = ({ campaignId }: CampaignInfoSectionProps) => {
         </div>
       </div>
       <div>
+        {campaign.isGoalReached?
+        <div className="flex flex-col justify-center items-center space-y-3 p-7 rounded-3xl border-2 border-primary-light">
+          <DotLottieReact
+                      src="/gif/GoalAchieved.lottie"
+                      loop
+                      autoplay
+                      style={{ width: 200, height: 200 }}
+                    />
+                    <p className="text-xl font-extrabold text-center text-primary mt-2">
+                      Goal Achieved🎉. Kindness Reached Its Target!
+                    </p>
+                  </div>:
         <DonationCard
           campaignId={campaign.campaignIdBytes32}
           campaignToken={campaign.goalToken}
-        />
+        />}
         <OrganisationDetails organisation={organisationData} />
       </div>
     </div>

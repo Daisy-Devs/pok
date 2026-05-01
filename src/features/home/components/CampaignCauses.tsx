@@ -20,9 +20,9 @@ export default function CampaignCauses() {
       category: c.cause,
       image: c.imageUrl,
       progress: Math.floor(((c.totalRaised || 0) / c.goalAmount) * 100),
-      raised: c.totalRaised || 0,
+      raised: Number(c.totalRaised).toFixed(2) || 0,
       goal: c.goalAmount,
-      currency: "ETH",
+      currency: c.goalToken,
     })) || [];
 
   const topCampaigns = campaigns
@@ -58,7 +58,7 @@ export default function CampaignCauses() {
             )  : topCampaigns.length === 0 ? (
               <div className="col-span-full flex justify-center">
                 <DotLottieReact
-                    src="/gif/empty.lottie"
+                    src="/gif/Empty.lottie"
                     loop
                     autoplay
                     style={{ width: 200, height: 200 }}
