@@ -141,7 +141,7 @@ const Profile = () => {
                 <TableCell colSpan={4} className="h-60">
                   <div className="flex flex-col items-center justify-center">
                     <DotLottieReact
-                      src="/gif/empty.lottie"
+                      src="/gif/Empty.lottie"
                       loop
                       autoplay
                       style={{ width: 200, height: 200 }}

@@ -6,8 +6,8 @@ import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const progressColor = "bg-primary";
 const categoryStyle = "bg-white text-secondary-dark font-bold";
+
 
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
         <div>
           <ProgressWithLabel
             className="w-full h-3"
-            value={campaign.progress}
+            value={Math.floor(campaign.progress) || 0}
             label={
               <span>
                 <span className="font-bold text-sm text-secondaryText">
