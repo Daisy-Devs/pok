@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useWalletLogoutMutation } from "../store/services/api/walletApi";
 import { toast } from "sonner";
 import { loggedOut } from "../store/services/slice/authSlice";
@@ -19,20 +19,36 @@ import { selectIsAuthenticated, selectUser } from "../store/services/selectors/a
 import { splitTitle } from "../lib/utils";
 
 interface NGOHeaderProps {
-  pageTitle: string;
   walletAddress: string;
 }
-const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
+const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const path = usePathname();
   const [walletLogout] = useWalletLogoutMutation();
   const {mutate:disconnectWallet}=useDisconnect();
   const authenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
   const isLoggedIn = authenticated && user?.role === "NGO";
-  console.log(user);
-  
+  let pageTitle="";
+  switch (path) {
+    case "/ngo":
+      pageTitle = "Dashboard Overview";
+      break;
+    case "/ngo/causes":
+      pageTitle = "Active Causes";
+      break;
+    case "/ngo/donation-history":
+      pageTitle = "Donation History";
+      break;
+    case "/ngo/withdraw":
+      pageTitle = "Withdraw Funds";
+      break;
+    default:
+      pageTitle = "Dashboard Overview";
+  }
   const{firstHalf,secondHalf}=splitTitle(nomenclature.PRODUCT_NAME);
+
   const handleLogout = async () => {
     try{
     const res = await walletLogout({}).unwrap();

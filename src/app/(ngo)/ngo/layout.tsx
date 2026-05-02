@@ -19,9 +19,8 @@ export default function NGOLayout({ children }: { children: React.ReactNode }) {
       <div className={`flex w-full ${!isLoggedIn && "flex-col"}`}>
         {/* Sidebar ONLY if logged in */}
         {(isLoggedIn && isNGO) && <AppSidebar />}
-        <div>
+        <div className="w-full">
           <NGOHeader
-            pageTitle={"Dashboard Overview"}
             walletAddress={hideWalletAddress(address)}
           />
           <main className="bg-background w-full overflow-y-auto p-4">
