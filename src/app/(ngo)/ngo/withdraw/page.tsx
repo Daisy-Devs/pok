@@ -8,31 +8,31 @@ const WithdrawFunds = () => {
     campaignName:"Campaign 1",
     campaignId:"1",
     balance:"42.95 ETH",
-    actions:""
+    actions:"Environment"
   },
   {
     campaignName:"Campaign 2",
     campaignId:"2",
     balance:"40.95 ETH",
-    actions:""
+    actions:"Social Justice"
   },
   {
     campaignName:"Campaign 3",
     campaignId:"3",
     balance:"22.95 ETH",
-    actions:""
+    actions:"Disaster Relief"
   },
   {
     campaignName:"Campaign 4",
     campaignId:"4",
     balance:"12.95 ETH",
-    actions:""
+    actions:"Animal Welfare"
   },
   {
     campaignName:"Campaign 5",
     campaignId:"5",
     balance:"32.95 ETH",
-    actions:""
+    actions:"Disaster Relief"
   }
 ]
 const claimHistoryData=[{
