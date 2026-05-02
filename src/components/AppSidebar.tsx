@@ -10,9 +10,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { splitTitle } from "../lib/utils";
-import { Coins, HandHeart, History, LayoutPanelTop } from "lucide-react";
+import { Coins, HandHeart, History, LayoutPanelTop, Plus } from "lucide-react";
 import { useAppSelector } from "../store/store";
 import { selectUser } from "../store/services/selectors/authSelectors";
+import { Button } from "./ui/button";
+import Image from "next/image";
 
 const AppSidebar = () => {
   const pathname = usePathname();
@@ -31,7 +33,7 @@ const AppSidebar = () => {
       </SidebarHeader>
       <SidebarContent>
         {isNGO ? (
-          <SidebarGroup>
+          <SidebarGroup className="flex flex-col justify-between h-full">
             <div className="flex flex-col gap-4 mt-7 px-3">
               <Link
                 href="/ngo"
@@ -81,6 +83,21 @@ const AppSidebar = () => {
                   <p>{nomenclature.WITHDRAW_FUNDS}</p>
                 </div>
               </Link>
+            </div>
+            <div className="flex flex-col space-x-3 items-center">
+            <Link
+              href="/ngo/new-cause">
+                <Button text={nomenclature.POST_A_CAUSE}
+                leftIcon={<Plus size={20}/>}
+                />
+              </Link>
+              <div className="bg-white flex p-3 rounded-lg w-9/10 my-5">
+                <Image className="w-10 h-10 rounded-full" quality={90} loading="eager" src="https://images.unsplash.com/photo-1777153200096-f68a98d12fa4?q=80&w=1157&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="NGO profile image" width={500} height={500}/>
+                <div className="flex flex-col ml-3">
+                  <span className="font-semibold text-secondaryText text-sm">{'Global Relief NGO'}</span>
+                  <span className="text-xs">{'Verified Partner'}</span>
+                </div>
+              </div>
             </div>
           </SidebarGroup>
         ) : (
