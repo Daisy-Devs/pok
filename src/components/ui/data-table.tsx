@@ -10,6 +10,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 import { Button } from "./button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -85,20 +86,33 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          leftIcon={<ChevronLeft size={15} color="#ffff"/>}
-        />
-        <Button
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          leftIcon={<ChevronRight size={15} color="#ffff"/>}
-        />
+ <div className="flex items-center justify-between px-2">
+      <div className="flex-1 text-sm text-muted-foreground">
+        Showing {table.getState().pagination.pageIndex + 1} of{" "}
+        {table.getPageCount()} of{" "}  
+        {table.getFilteredRowModel().rows.length} records
       </div>
+      <div className="flex items-center space-x-6 lg:space-x-8">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="size-8"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            leftIcon={<ChevronLeft />}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="size-8"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            leftIcon={<ChevronRight />}
+          />
+        </div>
+      </div>
+    </div>
     </div>
   );
 }
