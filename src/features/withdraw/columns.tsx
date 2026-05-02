@@ -1,12 +1,13 @@
+"use client"
 import { ColumnDef } from "@tanstack/react-table"
-import { Button } from "../../components/ui/button"
-import { createElement } from "react"
-import { ExternalLink } from "lucide-react"
+import WithdrawModal from "./components/WithdrawModal";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
 export type ClaimableCampaigns={
     campaignName: string,
     campaignId: string,
     balance: string,
-    actions: (campaignId: string) => void
+    actions: string
 }
 export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
   {
@@ -25,7 +26,11 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
     accessorKey: "actions",
     header: "",
     cell: ({ row }) => {
-      return createElement(Button, { onClick: () => row.original.actions(row.original.campaignId) }, "Withdraw");
+      const campaignId = row.original.campaignId
+      const campainName = row.original.campaignName
+      const balance = row.original.balance
+      const category = row.original.actions
+      return <WithdrawModal campaignId={campaignId} campaignName={campainName} balance={balance} category={category}/>
     },
   },
 ];
@@ -34,7 +39,7 @@ export type ClaimHistory={
     amount: string,
     campaignName: string,
     date: string,
-    actions: (campaignId: string) => void
+    txHash: string
 }
 
 export const claimHistoryColumns: ColumnDef<ClaimHistory>[] = [
@@ -58,7 +63,7 @@ export const claimHistoryColumns: ColumnDef<ClaimHistory>[] = [
     accessorKey: "actions",
     header: "",
     cell: ({ row }) => {
-      return createElement(ExternalLink, { onClick: () => {} });
+      return <Link href={`https://sepolia.etherscan.io/tx/${row.original.txHash}`} target="_blank" className="text-primary"><ChevronRight size={20} /></Link>
     },
   },
 ];

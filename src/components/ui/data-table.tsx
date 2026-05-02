@@ -10,7 +10,6 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 import { Button } from "./button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -86,7 +85,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
- <div className="flex items-center justify-between px-2">
+ <div className="flex items-center justify-between px-2 mt-4">
       <div className="flex-1 text-sm text-muted-foreground">
         Showing {table.getState().pagination.pageIndex + 1} of{" "}
         {table.getPageCount()} of{" "}  

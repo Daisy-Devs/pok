@@ -1,6 +1,6 @@
 "use client"
 import { DataTable } from "@/src/components/ui/data-table";
-import { claimableCampaignsColumns, claimHistoryColumns } from "@/src/features/withdraw/constants";
+import { claimableCampaignsColumns, claimHistoryColumns } from "@/src/features/withdraw/columns";
 import React from "react";
 
 const WithdrawFunds = () => {
@@ -40,21 +40,21 @@ const claimHistoryData=[{
   amount:"42.95 ETH",
   campaignName:"Campaign 1",
   date:"2023-01-01",
-  actions:(campaignId:string)=>{}
+  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
 },
 {
   payoutId:"2",
   amount:"40.95 ETH",
   campaignName:"Campaign 2",
   date:"2023-01-01",
-  actions:(campaignId:string)=>{}
+  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
 },
 {
   payoutId:"3",
   amount:"22.95 ETH",
   campaignName:"Campaign 3",
   date:"2023-01-01",
-  actions:(campaignId:string)=>{}
+  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
 },
 ]
   return(
