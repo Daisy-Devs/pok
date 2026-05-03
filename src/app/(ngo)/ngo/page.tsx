@@ -22,13 +22,13 @@ const statsData = [
 
 const NGODashboard = () => {
   return (
-    <div className="mx-4">
+    <div className="mx-1">
       <div className="flex gap-4 flex-row">
         {statsData.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-6 mt-5">
+      <div className="grid grid-cols-3 gap-3 mt-5">
         <div className="col-span-2 ">
           <IncomingDonations />
         </div>

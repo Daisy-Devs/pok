@@ -11,7 +11,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   image,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-white-100 rounded-2xl p-10 w-full shadow-sm relative">
+    <div className="flex items-center justify-between bg-white   rounded-2xl p-10 w-full shadow-sm relative">
       {/* Left Content */}
       <div className="flex flex-col gap-2 text-foreground font-semibold">
         <p>{title}</p>

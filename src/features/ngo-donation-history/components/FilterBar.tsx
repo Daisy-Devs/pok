@@ -17,12 +17,12 @@ export const FilterBar = ({
   totalRecords,
 }: any) => {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl ">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center justify-between gap-4  p-4 rounded-xl ">
+      <div className="flex items-center gap-3 ">
         {/* 1. Date Filter */}
         <Select onValueChange={onDateChange} defaultValue="30">
-          <SelectTrigger className="w-45 bg-white">
-            <Calendar className="w-4 h-4 mr-2 opacity-50" />
+          <SelectTrigger className="w-45 bg-white shadow-sm ">
+            <Calendar className="w-4 h-4 mr-2 opacity-50 " />
             <SelectValue placeholder="Select Range" />
           </SelectTrigger>
           <SelectContent>
@@ -34,7 +34,7 @@ export const FilterBar = ({
 
         {/* 2. Asset Filter */}
         <Select onValueChange={onAssetChange} defaultValue="eth">
-          <SelectTrigger className="w-42.5 bg-white">
+          <SelectTrigger className="w-42.5 bg-white shadow-sm ">
             <RefreshCcw className="w-4 h-4 mr-2 opacity-50" />
             <SelectValue placeholder="Asset" />
           </SelectTrigger>
@@ -49,7 +49,7 @@ export const FilterBar = ({
         <div className=" w-75">
           {/* <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 opacity-50" /> */}
           <Input
-            className=""
+            className="shadow-sm text-semibold text-foreground bg-white"
             placeholder="Filter by campaign"
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -58,16 +58,18 @@ export const FilterBar = ({
 
       <div className="flex items-center gap-6">
         <div className="text-sm font-medium">
-          <span className="text-slate-500 mr-2 uppercase tracking-wider text-xs">
+          <span className="text-primary-color mr-2 uppercase  text-bold">
             Total Screened:
           </span>
-          <span className="text-emerald-600 font-bold">{totalRecords}</span>
+          <span className="text-secondary-dark font-bold">
+            {totalRecords} Records
+          </span>
         </div>
         <Button
           variant="ghost"
-          className="text-indigo-600 font-semibold hover:text-indigo-700 hover:bg-indigo-50"
+          className="font-semibold"
           text="Export CSV"
-          leftIcon={<Download className="w-4 h-4 mr-2" />}
+          leftIcon={<Download className="w-4 h-4 " />}
         />
       </div>
     </div>

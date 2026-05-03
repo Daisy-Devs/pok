@@ -11,6 +11,7 @@ import {
 import { Button } from "@/src/components/ui/button";
 import { Badge } from "@/src/components/ui/badge";
 import { LucideIcon, PilcrowLeftIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type Donation = {
   icon: LucideIcon;
@@ -49,15 +50,14 @@ const data: Donation[] = [
 ];
 
 export default function IncomingDonations() {
+  const router=useRouter();
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-      {/* Header */}
+    <div className="bg-white rounded-2xl p-4 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Incoming Donations</h2>
-        <Button variant="ghost" text="View All" />
+        <Button variant="ghost" text="View All" onClick={()=>{router.push("/ngo/donation-history")}} />
       </div>
 
-      {/* Table */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -74,15 +74,15 @@ export default function IncomingDonations() {
               {/* Donor */}
               <TableCell>
                 <div className="flex flex-col">
-                  <span className="font-medium">{item.donor}</span>
-                  <Badge variant="secondary" className="w-fit text-[10px] mt-1">
+                  <span className="font-semibold">{item.donor}</span>
+                  <Badge variant='default' className="font-bold mt-1">
                     {item.type}
                   </Badge>
                 </div>
               </TableCell>
 
               {/* Amount */}
-              <TableCell className="font-medium">{item.amount}</TableCell>
+              <TableCell className="font-bold">{item.amount}</TableCell>
 
               {/* Cause */}
               <TableCell>{item.cause}</TableCell>
@@ -92,14 +92,14 @@ export default function IncomingDonations() {
                 <span
                   className={`flex items-center gap-2 text-sm font-medium ${
                     item.status === "Confirmed"
-                      ? "text-green-600"
+                      ? "text-secondary-dark"
                       : "text-red-500"
                   }`}
                 >
                   <span
                     className={`h-2 w-2 rounded-full ${
                       item.status === "Confirmed"
-                        ? "bg-green-500"
+                        ? "bg-secondary"
                         : "bg-red-500"
                     }`}
                   />
