@@ -27,6 +27,7 @@ export const ENDPOINTS = {
     getAllCampaigns: "/campaign/",
     getCampaignById: "/campaign/",
     getAllOrganizations: "/campaign/organizations/:organizationId",
+    createCampaign: "/campaign/create",
   },
   donation: {
     getAllDonations: "/donation/",

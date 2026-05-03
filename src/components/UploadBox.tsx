@@ -14,7 +14,7 @@ import { Spinner } from "./ui/spinner";
 import { checkResolution } from "../lib/checkResolution";
 
 interface UploadBoxProps {
-  fieldName: string;
+  fieldName?: string;
   title: string;
   value?: Array<UploadDocumentType> | UploadDocumentType;
   subtitle: string;
@@ -170,10 +170,10 @@ if (onlyImage && multifile) {
   return (
     <div className="space-y-2">
       <div className="space-y-2">
-        <p className="text-sm font-semibold text-primaryText uppercase">
+      {fieldName &&  <p className="text-sm font-semibold text-primaryText uppercase">
           {fieldName} <span className="text-destructive">*</span>
         </p>
-
+}
         <div className="border-3 bg-background-secondary border-dashed rounded-xl p-6 text-center flex flex-col items-center space-y-3">
           {!onlyImage ? (
             <Upload size={45} color="#C6C6CD" className="self-center" />

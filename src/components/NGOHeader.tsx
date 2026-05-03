@@ -1,6 +1,6 @@
 "use client";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { Bell, WalletIcon } from "lucide-react";
+import { WalletIcon } from "lucide-react";
 import React from "react";
 import {
   DropdownMenu,
@@ -43,6 +43,9 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
       break;
     case "/ngo/withdraw":
       pageTitle = "Withdraw Funds";
+      break;
+    case "/ngo/new-cause":
+      pageTitle = "Create a New Cause";
       break;
     default:
       pageTitle = "Dashboard Overview";
