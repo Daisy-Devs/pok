@@ -1,9 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { StatsCardProps } from "../types";
-
-
-
+import { Button } from "@/src/components/ui/button";
 
 const StatsCard: React.FC<StatsCardProps> = ({
   title,
@@ -13,26 +11,23 @@ const StatsCard: React.FC<StatsCardProps> = ({
   image,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-gray-100 rounded-2xl p-6 w-full shadow-sm">
-      
+    <div className="flex items-center justify-between bg-white-100 rounded-2xl p-10 w-full shadow-sm relative">
       {/* Left Content */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 text-foreground font-semibold">
         <p>{title}</p>
 
-        <h2 className="text-2xl font-bold text-gray-900">
-          {value}
-        </h2>
+        <h2 className="text-2xl font-bold text-tertiary">{value}</h2>
 
         <div className="flex items-center gap-2 text-sm">
-          <span className="bg-green-200 text-green-800 px-2 py-0.5 rounded-md font-medium">
-            {change}
-          </span>
-          <span className="text-gray-500">{changeLabel}</span>
+          <Button variant={"green"} size={"short"} text={change} />
+
+          <span className="text-primary-color">{changeLabel}</span>
         </div>
       </div>
 
       {/* Image */}
-      <div className="opacity-80">
+
+      <div className="opacity-30 absolute top-4 right-4">
         <Image
           src={image}
           alt="stat icon"

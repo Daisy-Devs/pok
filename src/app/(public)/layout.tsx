@@ -30,11 +30,11 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   }, [isError, dispatch]);
   return (
     <div>
-      <SidebarProvider className="flex flex-col">
+      <SidebarProvider className="flex flex-col  ">
         <Navbar />
         <div className="flex-col">
           <AppSidebar />
-          <main className="flex-1 bg-background overflow-y-auto">
+          <main className="flex-1 bg-background overflow-y-auto min-h-screen">
             {children}
           </main>
           <Footer />

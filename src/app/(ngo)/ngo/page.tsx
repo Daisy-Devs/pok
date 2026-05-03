@@ -1,3 +1,5 @@
+import IncomingDonations from "@/src/features/ngo-overview/components/IncomingDonations";
+import { RecentActivity } from "@/src/features/ngo-overview/components/RecentActivity";
 import StatsCard from "@/src/features/ngo-overview/components/StatsCard";
 import React from "react";
 
@@ -20,10 +22,21 @@ const statsData = [
 
 const NGODashboard = () => {
   return (
-    <div className="flex gap-4 flex-row">
-      {statsData.map((stat, index) => (
-        <StatsCard key={index} {...stat} />
-      ))}
+    <div className="mx-4">
+      <div className="flex gap-4 flex-row">
+        {statsData.map((stat, index) => (
+          <StatsCard key={index} {...stat} />
+        ))}
+      </div>
+      <div className="grid grid-cols-3 gap-6 mt-5">
+        <div className="col-span-2 ">
+          <IncomingDonations />
+        </div>
+
+        <div className="mt-7">
+          <RecentActivity />
+        </div>
+      </div>
     </div>
   );
 };
