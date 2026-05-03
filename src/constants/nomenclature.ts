@@ -53,4 +53,5 @@ export const nomenclature={
  ACTIVE_CAUSES:"Active Causes",
  DONATION_HISTORY:"Donation History",
  WITHDRAW_FUNDS:"Withdraw funds",
+ POST_A_CAUSE:"Post a New Cause",
 }
