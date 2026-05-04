@@ -1,6 +1,6 @@
 // import mongoose from "mongoose";
 // import dotenv from "dotenv";
-// import { User, Organization, Campaign } from "../models/index.mjs";
+//import { User, Organization, Campaign } from "../models/index.mjs";
 
 // dotenv.config({ path: "../.env" }); // 🔥 FIX
 
@@ -15,10 +15,9 @@
 // console.log("DB cleared");
 // process.exit();
 
-
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { DonationRecord } from "../models/index.mjs";
+import {Campaign} from "../models/campaign.mjs"; // ✅ adjust path if needed
 
 dotenv.config({ path: "../.env" });
 
@@ -29,13 +28,33 @@ async function run() {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ Connected to DB");
 
-    await DonationRecord.collection.dropIndex("campaignId_1");
+    // ✅ Convert string → ObjectId
+    const campaignId = "0xc5cae79b7f03dde3e4c8f7830696613d448337b8ddb899a367a404e59e474311";
 
-    console.log("✅ campaignId_1 index dropped");
+    // ✅ Update campaign
+    const result = await Campaign.updateOne(
+      { campaignIdBytes32: campaignId },
+      {
+        $set: {
+          status: "completed",
+          completedAt: new Date() // optional but recommended
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      console.log("⚠️ No campaign found with this ID");
+    } else if (result.modifiedCount === 0) {
+      console.log("ℹ️ Campaign already updated");
+    } else {
+      console.log("✅ Campaign status updated successfully");
+    }
+
   } catch (err) {
-    console.log("⚠️ Error:", err.message);
+    console.log("❌ Error:", err.message);
   } finally {
     await mongoose.disconnect();
+    console.log("🔌 Disconnected from DB");
     process.exit();
   }
 }

@@ -3,25 +3,39 @@ import { WithdrawRecord } from "../models/withdrawRecord.mjs";
 
 export const saveDonation = async (data) => {
   try {
-    const { txHash } = data;
+    const { txHash, status } = data;
 
-    // 🔒 Prevent duplicates
+    // 🔍 Check if already exists
     const existing = await DonationRecord.findOne({
       transactionHash: txHash
     });
 
+    // 🔁 If exists → update status safely
     if (existing) {
-      console.log("⚠️ Duplicate donation skipped:", txHash);
-      return;
+      console.log("⚠️ Existing donation found:", txHash);
+
+      // ✅ If success comes → always override
+      if (status === "success") {
+        existing.status = "success";
+      }
+      // ❌ Don't override success with failed
+      else if (existing.status !== "success") {
+        existing.status = status;
+      }
+
+      await existing.save();
+
+      console.log("✅ Donation updated:", existing.status);
+      return existing;
     }
 
-    // ✅ Save
+    // 🆕 If new → create
     const donation = await DonationRecord.create({
       ...data,
       transactionHash: txHash
     });
 
-    console.log("✅ Donation saved:", txHash);
+    console.log("✅ Donation saved:", txHash, status);
 
     return donation;
 

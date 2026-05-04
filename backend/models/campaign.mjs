@@ -43,7 +43,8 @@ const CampaignSchema = new mongoose.Schema(
       enum: ["pending", "success", "failed"],
       default: "pending"
     },
-    retryCount: { type: Number, default: 0 }
+    retryCount: { type: Number, default: 0 },
+    completedAt: { type: Date, default: null }
   },
   { timestamps: true }
 );

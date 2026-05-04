@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Campaign, DonationRecord, Organization } from '../models/index.mjs';
 import { v4 as uuidv4 } from 'uuid';
 import { sendResponse } from '../utils/response.mjs';
@@ -83,7 +84,7 @@ export const createOrgAndCampaign = async (req, res) => {
       imageUrl,
       goalAmount,
       goalToken: normalizedToken,
-      status: status || "draft",
+      status: status || "active",
       onChainStatus: "pending"
     });
 
@@ -107,7 +108,7 @@ export const createCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
     const walletAddress = req.walletAddress;
-    const { title, missionStatement, cause, imageUrl, goalAmount, status } = req.body;
+    const { title, missionStatement, cause, imageUrl, goalAmount, goalToken, status } = req.body;
 
     const organization = await Organization.findById(ngoId);
 
@@ -119,18 +120,26 @@ export const createCampaign = async (req, res) => {
       return sendResponse(res, 403, "Unauthorized NGO");
     }
 
+    const campaignIdBytes32 = ethers.id(campaignId);
+
     const campaign = new Campaign({
       id: `campaign-${uuidv4()}`,
+      campaignIdBytes32: campaignIdBytes32.toLowerCase(),
       organization: organization._id,
       title,
       missionStatement,
       cause,
       imageUrl,
       goalAmount,
-      status: status || 'draft'
+      status: status || 'active'
     });
 
     await campaign.save();
+
+    await campaignQueue.addJob({
+      campaignIdBytes32,
+      ngoWallet: walletAddress
+    });
 
     return sendResponse(res, 201, 'Campaign created successfully', campaign);
 
@@ -371,63 +380,149 @@ export const getAllCampaigns = async (req, res) => {
 
 export const getCampaignsByOrganization = async (req, res) => {
   try {
-    const { id } = req.params;
+    const ngoId = req.ngoId;
 
-    // 1️⃣ Fetch campaigns
-    const campaigns = await Campaign.find({ organization: id })
-      .select('-__v')
-      .populate(
-        'organization',
-        'name email walletAddress website profileImage documents'
-      )
-      .sort({ createdAt: -1 });
+    const org = await Organization.findById(ngoId);
 
-    if (!campaigns.length) {
-      return sendResponse(res, 404, 'No campaigns found for this organization');
+    if (!org) {
+      return sendResponse(res, 404, "Organization not found");
     }
 
-    // 2️⃣ Extract campaign IDs
+    const {
+      page = 1,
+      limit = 6,
+      status // all | active | completed | draft
+    } = req.query;
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // 🔥 Base filter
+    let campaignFilter = { organization: ngoId };
+
+    if (status && status !== "all") {
+      campaignFilter.status = status;
+    }
+
+    // 📊 Fetch campaigns
+    const campaigns = await Campaign.find(campaignFilter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNumber)
+      .lean();
+
+    const totalCampaigns = await Campaign.countDocuments(campaignFilter);
+
+    if (!campaigns.length) {
+      return sendResponse(res, 200, "No campaigns found", {
+        page: pageNumber,
+        limit: limitNumber,
+        totalCampaigns,
+        totalPages: Math.ceil(totalCampaigns / limitNumber),
+
+        totalRaised: 0,
+        activeDonors: 0,
+        successRate: 0,
+
+        campaigns: []
+      });
+    }
+
+    // 🆔 Campaign IDs
     const campaignIds = campaigns.map(c => c.id);
 
-    // 3️⃣ Aggregate donors + total raised
-    const stats = await DonationRecord.aggregate([
+    const normalizedWallet = org.walletAddress.toLowerCase();
+
+    // 💰 Aggregate donation stats
+    const donationStats = await DonationRecord.aggregate([
       {
         $match: {
+          ngoWallet: normalizedWallet,
           campaignId: { $in: campaignIds }
+        }
+      },
+      {
+        $addFields: {
+          amountNumber: {
+            $convert: {
+              input: "$amount",
+              to: "double",
+              onError: 0,
+              onNull: 0
+            }
+          }
         }
       },
       {
         $group: {
           _id: "$campaignId",
-          uniqueDonors: { $addToSet: "$donor" },
-          totalAmount: {
-            $sum: { $toDouble: "$amount" } // 🔥 convert string → number
-          }
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          totalDonors: { $size: "$uniqueDonors" },
-          totalRaised: "$totalAmount"
+          totalRaised: { $sum: "$amountNumber" },
+          donors: { $addToSet: "$donor" }
         }
       }
     ]);
 
-    // 4️⃣ Convert to map
+    // 🔁 Map stats
     const statsMap = {};
-    stats.forEach(item => {
-      statsMap[item._id] = {
-        totalDonors: item.totalDonors,
-        totalRaised: item.totalRaised
-      };
+    donationStats.forEach(item => {
+      statsMap[item._id] = item;
     });
 
-    // 5️⃣ Attach stats to campaigns
+    // 📊 Total Raised (overall)
+    const totalRaisedAgg = await DonationRecord.aggregate([
+      { $match: { ngoWallet: normalizedWallet } },
+      {
+        $addFields: {
+          amountNumber: {
+            $convert: {
+              input: "$amount",
+              to: "double",
+              onError: 0,
+              onNull: 0
+            }
+          }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amountNumber" }
+        }
+      }
+    ]);
+
+    const totalRaised = totalRaisedAgg[0]?.total || 0;
+
+    // 👥 Active donors (unique)
+    const donorsAgg = await DonationRecord.aggregate([
+      { $match: { ngoWallet: normalizedWallet } },
+      { $group: { _id: "$donor" } },
+      { $count: "count" }
+    ]);
+
+    const activeDonors = donorsAgg[0]?.count || 0;
+
+    // 📈 Success rate
+    const allCampaignsCount = await Campaign.countDocuments({
+      organization: ngoId
+    });
+
+    const completedCampaigns = await Campaign.countDocuments({
+      organization: ngoId,
+      status: "completed"
+    });
+
+    const successRate =
+      allCampaignsCount > 0
+        ? Number(((completedCampaigns / allCampaignsCount) * 100).toFixed(2))
+        : 0;
+
+    // 🔄 Attach progress
     const updatedCampaigns = campaigns.map(campaign => {
       const stat = statsMap[campaign.id] || {
-        totalDonors: 0,
-        totalRaised: 0
+        totalRaised: 0,
+        donors: []
       };
 
       const goal = Number(campaign.goalAmount);
@@ -438,23 +533,30 @@ export const getCampaignsByOrganization = async (req, res) => {
           : 0;
 
       return {
-        ...campaign.toObject(),
-        totalDonors: stat.totalDonors,
+        ...campaign,
         totalRaised: stat.totalRaised,
+        totalDonors: stat.donors.length,
         progressPercent,
         isGoalReached: stat.totalRaised >= goal
       };
     });
 
-    // 6️⃣ Response
-    return sendResponse(res, 200, 'campaigns fetched successfully', {
-      count: updatedCampaigns.length,
+    return sendResponse(res, 200, "Dashboard fetched successfully", {
+      page: pageNumber,
+      limit: limitNumber,
+      totalCampaigns,
+      totalPages: Math.ceil(totalCampaigns / limitNumber),
+
+      totalRaised,
+      activeDonors,
+      successRate,
+
       campaigns: updatedCampaigns
     });
 
-  } catch (error) {
-    console.error("❌ Error:", error);
-    return sendResponse(res, 500, error.message);
+  } catch (err) {
+    console.error("❌ Error:", err);
+    return sendResponse(res, 500, err.message);
   }
 };
 

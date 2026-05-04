@@ -74,15 +74,23 @@ export const startDonationListener = () => {
         isAnonymous,
         donorName,
         userId,
-        txHash
+        txHash,
+        status: "success"
       });
 
       console.log("✅ Donation saved:", readableCampaignId);
 
       const current = BigInt(campaign.raisedAmount || "0");
       const updated = current + BigInt(amount);
+      const goal = BigInt(campaign.goalAmount || "0");
 
       campaign.raisedAmount = updated.toString();
+
+      if (campaign.status !== "completed" && updated >= goal) {
+        campaign.status = "completed";
+        campaign.completedAt = new Date();
+      }
+
       await campaign.save();
 
       console.log("✅ Donation processed & campaign updated");
