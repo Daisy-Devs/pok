@@ -1,77 +1,115 @@
-"use client"
+"use client";
 import { DataTable } from "@/src/components/ui/data-table";
-import { claimableCampaignsColumns, claimHistoryColumns } from "@/src/features/withdraw/columns";
-import React from "react";
+import {
+  claimableCampaignsColumns,
+  claimHistoryColumns,
+} from "@/src/features/withdraw/columns";
+import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
+import { useGetAllWithdrawalsQuery } from "@/src/store/services/api/donationApi";
 
 const WithdrawFunds = () => {
-  const campaignData=[{
-    campaignName:"Campaign 1",
-    campaignId:"1",
-    balance:"42.95 ETH",
-    actions:"Environment"
-  },
-  {
-    campaignName:"Campaign 2",
-    campaignId:"2",
-    balance:"40.95 ETH",
-    actions:"Social Justice"
-  },
-  {
-    campaignName:"Campaign 3",
-    campaignId:"3",
-    balance:"22.95 ETH",
-    actions:"Disaster Relief"
-  },
-  {
-    campaignName:"Campaign 4",
-    campaignId:"4",
-    balance:"12.95 ETH",
-    actions:"Animal Welfare"
-  },
-  {
-    campaignName:"Campaign 5",
-    campaignId:"5",
-    balance:"32.95 ETH",
-    actions:"Disaster Relief"
-  }
-]
-const claimHistoryData=[{
-  payoutId:"1",
-  amount:"42.95 ETH",
-  campaignName:"Campaign 1",
-  date:"2023-01-01",
-  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
-},
-{
-  payoutId:"2",
-  amount:"40.95 ETH",
-  campaignName:"Campaign 2",
-  date:"2023-01-01",
-  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
-},
-{
-  payoutId:"3",
-  amount:"22.95 ETH",
-  campaignName:"Campaign 3",
-  date:"2023-01-01",
-  txHash:'0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e'
-},
-]
-  return(
-  <div className="px-4 space-y-7">
-    <div className="flex flex-col bg-tertiary rounded-3xl p-8">
-        <p className="text-secondary-mute font-semibold">Total Available for Withdrawal</p>
-        <h1 className="text-white font-extrabold text-4xl">{42.95+" ETH"}</h1>
+  const campaignData = [
+    {
+      campaignName: "Campaign 1",
+      campaignId: "1",
+      balance: "42.95 ETH",
+      actions: "Environment",
+    },
+    {
+      campaignName: "Campaign 2",
+      campaignId: "2",
+      balance: "40.95 ETH",
+      actions: "Social Justice",
+    },
+    {
+      campaignName: "Campaign 3",
+      campaignId: "3",
+      balance: "22.95 ETH",
+      actions: "Disaster Relief",
+    },
+    {
+      campaignName: "Campaign 4",
+      campaignId: "4",
+      balance: "12.95 ETH",
+      actions: "Animal Welfare",
+    },
+    {
+      campaignName: "Campaign 5",
+      campaignId: "5",
+      balance: "32.95 ETH",
+      actions: "Disaster Relief",
+    },
+  ];
+  const claimHistoryData = [
+    {
+      payoutId: "1",
+      amount: "42.95 ETH",
+      campaignName: "Campaign 1",
+      date: "2023-01-01",
+      txHash:
+        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+    },
+    {
+      payoutId: "2",
+      amount: "40.95 ETH",
+      campaignName: "Campaign 2",
+      date: "2023-01-01",
+      txHash:
+        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+    },
+    {
+      payoutId: "3",
+      amount: "22.95 ETH",
+      campaignName: "Campaign 3",
+      date: "2023-01-01",
+      txHash:
+        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+    },
+  ];
+  const { data, error } = useGetCampaignByOrgQuery({});
+  const { data: claimHistory, error: claimHistoryError } = useGetAllWithdrawalsQuery({});
+  const claimableCampaigns = data?.data?.campaigns?.map((campaign: any) => ({
+    campaignName: campaign.title,
+    campaignId: campaign._id,
+    balance: campaign.totalRaised,
+    actions: campaign.cause,
+  })).filter((campaign: any) => campaign.balance > 0);
+    console.log(claimHistory);
+  /** TODO: After a withdrawal, check the response and add to table */
+  // const claimHistoryData = claimHistory?.data?.withdrawals?.map((withdrawal: any) => ({
+  //   payoutId: "",
+  //     amount: withdrawal.amount,
+  //     campaignName: "",
+  //     date: "",
+  //     txHash:withdrawal.transactionHash
+  // }))
+  return (
+    <div className="px-4 space-y-7">
+      <div className="flex flex-col bg-tertiary rounded-3xl p-8">
+        <p className="text-secondary-mute font-semibold">
+          Total Available for Withdrawal
+        </p>
+        <h1 className="text-white font-extrabold text-4xl">{42.95 + " ETH"}</h1>
+      </div>
+      <div className="space-y-6">
+        <h3 className="text-xl font-extrabold">{"Claimable Campaigns"}</h3>
+        <DataTable
+          columns={claimableCampaignsColumns}
+          data={claimableCampaigns || []}
+          rowLimit={3}
+          emptyMessage={"No claimable campaigns"}
+        />
+      </div>
+      <div className="space-y-6">
+        <h3 className="text-xl font-extrabold">{"Claim History"}</h3>
+        <DataTable
+          columns={claimHistoryColumns}
+          data={claimHistoryData}
+          rowLimit={3}
+          emptyMessage={"No claim history"}
+        />
+      </div>
     </div>
-    <div className="space-y-6">
-    <h3 className="text-xl font-extrabold">{'Claimable Campaigns'}</h3>
-    <DataTable columns={claimableCampaignsColumns} data={campaignData} rowLimit={3}/>
-    </div>
-    <div className="space-y-6">
-    <h3 className="text-xl font-extrabold">{'Claim History'}</h3>
-    <DataTable columns={claimHistoryColumns} data={claimHistoryData} rowLimit={3}/>
-    </div>
-  </div>
   );
 };
 
