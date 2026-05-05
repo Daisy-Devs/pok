@@ -10,16 +10,19 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./table";
 import { Button } from "./button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  rowLimit?: number
+  rowLimit?: number;
+  emptyMessage?: string;
 }
 export function DataTable<TData, TValue>({
   columns,
   data,
-  rowLimit=7
+  rowLimit=7,
+  emptyMessage = "No data found",
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -56,7 +59,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table?.getRowModel()?.rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -75,10 +78,20 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns?.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  <div className="flex p-5 flex-col justify-between items-center">
+                <DotLottieReact
+                      src="/gif/Empty.lottie"
+                      loop
+                      autoplay
+                      style={{ width: 200, height: 200 }}
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      {emptyMessage}
+                    </p>
+                    </div>
                 </TableCell>
               </TableRow>
             )}
@@ -89,7 +102,7 @@ export function DataTable<TData, TValue>({
       <div className="flex-1 text-sm text-muted-foreground">
         Showing {table.getState().pagination.pageIndex + 1} of{" "}
         {table.getPageCount()} of{" "}  
-        {table.getFilteredRowModel().rows.length} records
+        {table?.getFilteredRowModel()?.rows?.length} records
       </div>
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">

@@ -19,8 +19,9 @@ import Image from "next/image";
 const AppSidebar = () => {
   const pathname = usePathname();
   const { firstHalf, secondHalf } = splitTitle(nomenclature.PRODUCT_NAME);
-  const isNGO = useAppSelector(selectUser)?.role == "NGO";
-
+  const user=useAppSelector(selectUser)
+  const isNGO = user?.role == "NGO";
+  
   return (
     <Sidebar className={isNGO?"":"md:hidden"}>
       <SidebarHeader>
@@ -91,10 +92,10 @@ const AppSidebar = () => {
                 leftIcon={<Plus size={20}/>}
                 />
               </Link>
-              <div className="bg-white flex p-3 rounded-lg w-9/10 my-5">
-                <Image className="w-10 h-10 rounded-full" quality={90} loading="eager" src="https://images.unsplash.com/photo-1777153200096-f68a98d12fa4?q=80&w=1157&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="NGO profile image" width={500} height={500}/>
+              <div className="bg-white flex items-center px-5 py-3 rounded-lg my-5">
+                <Image className="w-10 h-10 rounded-full" quality={90} loading="eager" src={user?.profileImage} alt="NGO profile image" width={500} height={500}/>
                 <div className="flex flex-col ml-3">
-                  <span className="font-semibold text-secondaryText text-sm">{'Global Relief NGO'}</span>
+                  <span className="font-semibold text-secondaryText text-sm">{user.name}</span>
                   <span className="text-xs">{'Verified Partner'}</span>
                 </div>
               </div>

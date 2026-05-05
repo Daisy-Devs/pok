@@ -25,7 +25,7 @@ const UploadedFile=({fileName,public_id,type,onDelete}:UploadedFileProps) => {
     }
   }  
   return (
-    <div className='flex h-18 md:h-8 flex-row items-center gap-2 p-2 rounded border'>
+    <div className='flex h-18 ml-2 md:h-8 min-w-2 justify-center items-center gap-2 p-4 rounded border'>
      <CircleCheck size={16} className="text-green-700 text-xs shrink-0" />
      <p className='text-sm text-primaryText truncate min-w-0'>{fileName}</p>
      <Button variant={'ghost'} className='text-xs p-0' disabled={isLoading} onClick={handleDelete} leftIcon={isLoading?<Spinner/>:<X size={16} className="text-green-700 hover:text-red-600" />}/>
@@ -36,7 +36,7 @@ const UploadedFile=({fileName,public_id,type,onDelete}:UploadedFileProps) => {
 const UploadedFileList = ({files,handleRemoveFile}:{files:Array<UploadDocumentType>,handleRemoveFile:(file:UploadDocumentType) => void} ) => {
     console.log("files", files);
   return (
-    <div className='grid gap-2 grid-cols-2 md:grid-cols-5'>
+    <div className='grid gap-2 grid-cols-2 md:grid-cols-3 w-full'>
         {files.length > 0 && files.map((file, index) => (
             <UploadedFile key={index} fileName={file.name} public_id={file.public_id} type={file.type} onDelete={()=>{ handleRemoveFile(file)}}/>
         ))}

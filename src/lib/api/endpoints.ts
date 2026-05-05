@@ -28,13 +28,13 @@ export const ENDPOINTS = {
     getCampaignById: "/campaign/",
     getAllOrganizations: "/campaign/organizations/:organizationId",
     createCampaign: "/campaign/create",
+    getCampaignByOrg:"/campaign/org"
   },
   donation: {
     getAllDonations: "/donation/",
     getDonationsByCampaign: "/donation/:campaignId",
     getDonationsByDonor: "/donation/user",
-    getAllWithdrawals: "/donation/withdraw",
-    getWithdrawalsByCampaign: "/donation/withdraw/:campaignId",
+    getWithdrawal: "/withdraw",
   },
   documents: {
     uploadCompanyProfileImage: "/cloudinary/profile",

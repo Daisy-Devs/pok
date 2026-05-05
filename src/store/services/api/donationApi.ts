@@ -34,7 +34,19 @@ export const donationApi = apiSlice.injectEndpoints({
       }),
       transformResponse: (response: any) => response.data.data,
     }),
+    getAllWithdrawals: builder.query({
+      query: () => ({
+        url: ENDPOINTS.donation.getWithdrawal,
+        method: "GET",
+      }),
+    }),
+    getWithdrawalByCampaign: builder.query({
+      query: (campaignId) => ({
+        url: ENDPOINTS.donation.getWithdrawal+"/"+campaignId,
+        method: "GET",
+      }),
+    })
   }),
 });
 
-export const { useGetDonationsByDonorQuery, useGetDonationsByCampaignQuery } = donationApi;
+export const { useGetDonationsByDonorQuery, useGetDonationsByCampaignQuery, useGetWithdrawalByCampaignQuery,useGetAllWithdrawalsQuery } = donationApi;

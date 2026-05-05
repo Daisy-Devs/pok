@@ -52,6 +52,8 @@ const NGOSignIn = () => {
                   name: res.data.ngo.name,
                   email: res.data.ngo.email,
                   role: "NGO",
+                  profileImage: res.data.ngo.profileImage.url,
+                  ngoId: res.data.ngo._id,
                 }),
               );
               router.replace("/ngo");

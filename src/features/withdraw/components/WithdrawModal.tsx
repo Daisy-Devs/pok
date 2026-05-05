@@ -8,10 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/src/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
 import { CAUSE_CATEGORIES } from "@/src/constants/misc";
+import { hideWalletAddress } from "@/src/lib/utils";
 import { BadgeCheck, Coins } from "lucide-react";
 import React, { FC } from "react";
+import { useConnection } from "wagmi";
 
 type WithdrawModalProps = {
   campaignId: string;
@@ -29,7 +30,8 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
     (currentCategory) => currentCategory.name === category,
   )!.icon;
   const [amount, setAmount] = React.useState("");
-  const [token, setToken] = React.useState("ETH");
+  const token=balance.split(' ')[1];
+  const{address}=useConnection();
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -77,7 +79,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
               onChange={(e) => setAmount(e.target.value)}
               className="flex-1 bg-input text-primaryText text-xl font-medium px-4 py-3.5 outline-none placeholder-gray-300 w-0"
             />
-            <Select value={token} onValueChange={setToken}>
+            {/* <Select value={token} onValueChange={setToken}>
               <SelectTrigger
                 size="sm"
                 className="w-27 p-2 mr-2 h-2 bg-background-secondary font-semibold text-primary"
@@ -92,7 +94,8 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
+            <div className="font-extrabold p-4 text-primary">{token}</div>
           </div>
           <span className="text-xs text-primary font-semibold">
           Maximum Withdrawal: {balance}
@@ -100,7 +103,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
         <div className="border border-border flex p-3 gap-3 rounded-lg">
           <BadgeCheck className="w-5 h-5 text-primary" />
           <span className="text-sm text-secondaryText font-semibold items-center justify-center">
-            Funds will be transferred to your verified institutional wallet:<span className="font-extrabold">{'0x1234....67'}</span>
+            Funds will be transferred to your verified institutional wallet:<span className="font-extrabold">{hideWalletAddress(address)}</span>
           </span>
         </div>
         <div className="w-full flex flex-col gap-2">
