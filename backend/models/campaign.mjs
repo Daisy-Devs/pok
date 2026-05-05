@@ -36,7 +36,11 @@ const CampaignSchema = new mongoose.Schema(
       enum: ['draft', 'active', 'completed'],
       default: 'draft'
     },
-    txHash: { type: String, unique: true },
+    txHash: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
     onChain: { type: Boolean, default: false },
     onChainStatus: {
       type: String,
