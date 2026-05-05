@@ -107,7 +107,7 @@ export const createOrgAndCampaign = async (req, res) => {
 export const createCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
-    const walletAddress = req.walletAddress?.toLowerCase();
+    const walletAddress = req.walletAddress;
 
     const {
       title,
