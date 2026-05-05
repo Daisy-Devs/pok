@@ -107,8 +107,22 @@ export const createOrgAndCampaign = async (req, res) => {
 export const createCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
-    const walletAddress = req.walletAddress;
-    const { title, missionStatement, cause, imageUrl, goalAmount, goalToken, status } = req.body;
+    const walletAddress = req.walletAddress?.toLowerCase();
+
+    const {
+      title,
+      missionStatement,
+      cause,
+      imageUrl,
+      goalAmount,
+      goalToken,
+      status
+    } = req.body;
+
+    // ✅ Basic validation
+    if (!title ||!missionStatement || !cause || !imageUrl || !goalAmount || !goalToken) {
+      return sendResponse(res, 400, "Missing required fields");
+    }
 
     const organization = await Organization.findById(ngoId);
 
@@ -116,14 +130,16 @@ export const createCampaign = async (req, res) => {
       return sendResponse(res, 404, "Organization not found");
     }
 
-    if ( organization.walletAddress.toLowerCase() !== walletAddress.toLowerCase()) {
+    if (organization.walletAddress.toLowerCase() !== walletAddress) {
       return sendResponse(res, 403, "Unauthorized NGO");
     }
 
+    // ✅ Generate IDs
+    const campaignId = `campaign-${uuidv4()}`;
     const campaignIdBytes32 = ethers.id(campaignId);
 
     const campaign = new Campaign({
-      id: `campaign-${uuidv4()}`,
+      id: campaignId,
       campaignIdBytes32: campaignIdBytes32.toLowerCase(),
       organization: organization._id,
       title,
@@ -131,19 +147,22 @@ export const createCampaign = async (req, res) => {
       cause,
       imageUrl,
       goalAmount,
-      status: status || 'active'
+      goalToken,
+      status: status || "active",
     });
 
     await campaign.save();
 
+    // ✅ Queue job
     await campaignQueue.addJob({
       campaignIdBytes32,
       ngoWallet: walletAddress
     });
 
-    return sendResponse(res, 201, 'Campaign created successfully', campaign);
+    return sendResponse(res, 201, "Campaign created successfully", campaign);
 
   } catch (error) {
+    console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
   }
 };
