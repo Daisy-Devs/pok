@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
       name: String,
       url: String,
       public_id: String,
-      type: String
+      type: { type: String, default: "" },
     },
     email: { type: String, unique: true, sparse: true },
     password: { type: String }, // not required for social login
