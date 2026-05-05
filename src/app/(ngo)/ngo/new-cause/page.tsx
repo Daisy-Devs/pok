@@ -1,5 +1,6 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
+import { Spinner } from "@/src/components/ui/spinner";
 import BasicInformation from "@/src/features/new-cause/components/BasicInformation";
 import CampaignVisuals from "@/src/features/new-cause/components/CampaignVisuals";
 import Financials from "@/src/features/new-cause/components/Financials";
@@ -8,7 +9,9 @@ import { Campaign } from "@/src/features/new-cause/type";
 import { useCreateCampaignMutation } from "@/src/store/services/api/campaignApi";
 import { SendHorizonalIcon, Users2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const CreateNewCause = () => {
   const [campaignData, setCampaignData] = useState<Campaign>({
@@ -20,17 +23,34 @@ const CreateNewCause = () => {
     goalToken: "ETH",
   });
   const [createCampaign,{isLoading}]=useCreateCampaignMutation();
-  const createAndPublishCampaign=async()=>{
-    console.log("huh",{
-      ...campaignData,
-      status:"active"
-    });
-    
+  const router=useRouter();
+  const createAndPublishCampaign=async()=>{    
+    try{
     const res=await createCampaign({
       ...campaignData,
       status:"active"
     }).unwrap();
     console.log(res);
+    console.log("created new cause",{
+      ...campaignData,
+      status:"active"
+    });
+    setCampaignData({
+      title: "",
+      cause: "",
+      missionStatement: "",
+      imageUrl: [],
+      goalAmount: 0,
+      goalToken: "ETH",
+    })
+    toast.success("Campaign created successfully");
+    router.push('/ngo')
+  }
+  catch(err){
+    console.log(err);
+    toast.error("Campaign creation failed");
+  }
+
   }
   return (
     <div>
@@ -84,7 +104,7 @@ const CreateNewCause = () => {
       {/** CTAs */}
       <div className="flex gap-5 mt-7 justify-end p-4 border-t-2 border-border">
       <Button text="Save Draft" variant="ghost" />
-      <Button onClick={()=>{createAndPublishCampaign()}} text="Publish Cause" rightIcon={<SendHorizonalIcon className="text-white h-4"/>}/>
+      <Button onClick={()=>{createAndPublishCampaign()}} disabled={isLoading||!campaignData.cause||!campaignData.missionStatement||!campaignData.title||campaignData?.imageUrl?.length===0||!campaignData?.goalAmount||!campaignData?.goalToken} text="Publish Cause" rightIcon={isLoading?<Spinner/>:<SendHorizonalIcon className="text-white h-4"/>}/>
       </div>
     </div>
   );
