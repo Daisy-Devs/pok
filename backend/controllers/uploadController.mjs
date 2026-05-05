@@ -234,44 +234,67 @@ export const updateUserProfileImage = async (req, res) => {
     const userId = req.userId;
     const file = req.file;
 
+    // ✅ Validation
     if (!file) {
+      console.warn("Validation Failed: No file provided");
       return sendResponse(res, 400, "Image is required");
     }
 
     if (!file.mimetype.startsWith("image/")) {
-      return sendResponse(res, 400, "Only image is allowed");
+      console.warn(`Validation Failed: Invalid MimeType - ${file.mimetype}`);
+      return sendResponse(res, 400, "Only images are allowed");
     }
 
     if (file.size > 2 * 1024 * 1024) {
+      console.warn(`Validation Failed: File too large - ${file.size}`);
       return sendResponse(res, 400, "Max size is 2MB");
     }
 
+    // ✅ Find user
     const user = await User.findById(userId);
-
     if (!user) {
-       return sendResponse(res, 404, "User not found" );
+      console.error(`Error: User with ID ${userId} not found`);
+      return sendResponse(res, 404, "User not found");
     }
 
     // ✅ Delete old image (if exists)
     if (user.profileImage?.public_id) {
-      await cloudinary.uploader.destroy(user.profileImage.public_id);
+      try {
+        await cloudinary.uploader.destroy(user.profileImage.public_id);
+        console.log("Old image deleted:", user.profileImage.public_id);
+      } catch (deleteErr) {
+        console.warn("Failed to delete old image:", deleteErr.message);
+      }
     }
 
     // ✅ Upload new image
     const result = await uploadToCloudinary(file.buffer);
 
+    if (!result?.secure_url) {
+      throw new Error("Cloudinary upload failed");
+    }
+
+    console.log("Cloudinary Upload Success:", {
+      url: result.secure_url,
+      public_id: result.public_id
+    });
+
+    // ✅ Update user
     user.profileImage = {
       url: result.secure_url,
-      public_id: result.public_id,
+      public_id: result.public_id
     };
 
     await user.save();
 
-    return res.status(200).json({
-      message: "Profile image updated successfully",
-      profileImage: user.profileImage, // Return the object consistent with your schema
+    return sendResponse(res, 200, "Profile image updated successfully", {
+      profileImage: user.profileImage
     });
+
   } catch (err) {
+    console.error("❌ Update Profile Image Error:", err.message);
+    console.error(err.stack);
+
     return sendResponse(res, 500, err.message);
   }
 };
