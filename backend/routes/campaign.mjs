@@ -9,8 +9,8 @@ router.post('/create', ngoAuth, createCampaign);
 router.post('/:id', ngoAuth, updateCampaign);
 
 router.get('/', getAllCampaigns);
-router.get('/:campaignId', getCampaignById);
 router.get('/org', ngoAuth, getCampaignsByOrganization);
+router.get('/:campaignId', getCampaignById);
 
 
 
