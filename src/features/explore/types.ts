@@ -6,7 +6,7 @@ export interface CampaignApi {
   cause: string;
   imageUrl: Array<{ public_id: string; url: string }>;
   goalAmount: number;
-  totalRaised?: number;
+  totalRaised: number;
   goalToken: "ETH" | "USDC" | "USDT" | "DAI";
   status: "active" | "completed" | "draft";
   isGoalReached?: boolean;

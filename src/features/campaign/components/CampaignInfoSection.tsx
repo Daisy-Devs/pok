@@ -10,7 +10,7 @@ import {
   CarouselPrevious,
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
-import { splitTitle } from "@/src/lib/utils";
+import { formatCryptoAmount, splitTitle } from "@/src/lib/utils";
 import { CheckCircle2, ShieldCheck, Users2, Globe2, Mail } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
@@ -29,7 +29,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
   const campaign = data?.data
   const title = splitTitle(campaign?.title);
   const progress = campaign?.goalAmount
-    ? Math.floor(((campaign?.totalRaised || 0) / campaign?.goalAmount) * 100)
+    ? Math.ceil(((campaign?.totalRaised || 0) / campaign?.goalAmount) * 100)
     : 0;
 
   const isActive = campaign?.status === "active" && campaign?.isGoalReached;
@@ -113,7 +113,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
             label={
               <span className="text-primaryText text-lg">
                 <span className="font-extrabold text-2xl text-secondaryText">
-                  {Number(campaign?.totalRaised).toFixed(2) || 0} {campaign?.goalToken}
+                  {formatCryptoAmount(campaign?.totalRaised,campaign?.goalToken) || 0} {campaign?.goalToken}
                 </span>{" "}
                 of {campaign?.goalAmount} {campaign?.goalToken} raised
               </span>

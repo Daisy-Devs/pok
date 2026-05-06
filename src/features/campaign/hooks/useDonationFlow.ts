@@ -238,6 +238,7 @@ export function useDonationFlow({
           functionName: "donate",
           args: [campaignId, anonymous],
           value: actualDonateAmount,
+          gas: 100000n,
         });
         await waitForTx(hash);
       } else {
@@ -251,6 +252,7 @@ export function useDonationFlow({
             TOKENS[campaignToken].address!,
             anonymous,
           ],
+          gas: 100000n,
         });
         await waitForTx(hash);
       }

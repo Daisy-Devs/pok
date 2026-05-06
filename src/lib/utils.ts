@@ -58,3 +58,15 @@ export function hideWalletAddress(address: `0x${string}` | undefined) {
   return `${address?.slice(0, 6)}...${address?.slice(-4)}`;
 }
 
+
+export function formatCryptoAmount(amount: number, currency: string): string {
+  const decimalsMap: Record<string, number> = {
+    ETH: 6,
+    DAI: 2,
+    USDC: 2,
+    USDT: 2,
+  };
+
+  const decimals = decimalsMap[currency?.toUpperCase()] ?? 2;
+  return parseFloat(amount?.toFixed(decimals))?.toString();
+}
