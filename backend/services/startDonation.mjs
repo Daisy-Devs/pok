@@ -12,7 +12,7 @@ export const startDonationListener = () => {
       const event = args[args.length - 1];
       const {
         donor,
-        campaignId, // bytes32 from contract
+        campaignId,
         campaignOwner,
         amount,
         isAnonymous,
@@ -27,7 +27,7 @@ export const startDonationListener = () => {
       const normalizedDonor = donor.toLowerCase();
       const normalizedNgo = campaignOwner.toLowerCase();
 
-      // 🔥 IMPORTANT: find campaign using bytes32
+      // 🔥 Find campaign using bytes32
       const campaign = await Campaign.findOne({
         campaignIdBytes32: campaignId.toLowerCase()
       });
@@ -37,11 +37,10 @@ export const startDonationListener = () => {
         return;
       }
 
-      const readableCampaignId = campaign.id; // ✅ ALWAYS correct
+      const readableCampaignId = campaign.id;
 
       // 💰 Format amount
       let formattedAmount;
-
       if (token === ethers.ZeroAddress) {
         formattedAmount = ethers.formatEther(amount);
       } else {
@@ -53,21 +52,18 @@ export const startDonationListener = () => {
       let userId = null;
 
       if (!isAnonymous) {
-        const user = await User.findOne({
-          walletAddress: normalizedDonor
-        });
-
+        const user = await User.findOne({ walletAddress: normalizedDonor });
         if (user) {
           donorName = user.name || "Unknown";
           userId = user._id;
         }
       }
 
-      // ✅ Save donation (NOW PERFECT)
+      // ✅ Save donation
       await saveDonation({
         donor: normalizedDonor,
-        campaignId: readableCampaignId, // ✅ normal ID
-        campaignIdBytes32: campaignId,  // ✅ store this also (recommended)
+        campaignId: readableCampaignId,
+        campaignIdBytes32: campaignId,
         ngoWallet: normalizedNgo,
         amount: formattedAmount,
         token,
@@ -80,18 +76,28 @@ export const startDonationListener = () => {
 
       console.log("✅ Donation saved:", readableCampaignId);
 
-      const current = BigInt(campaign.raisedAmount || "0");
-      const updated = current + BigInt(amount);
-      const goal = BigInt(campaign.goalAmount || "0");
+      // ✅ Aggregate total from DB
+      const stats = await DonationRecord.aggregate([
+        { $match: { campaignId: campaign.id } },
+        { $group: { _id: null, total: { $sum: { $toDouble: "$amount" } } } }
+      ]);
 
-      campaign.raisedAmount = updated.toString();
+      // ✅ Add current donation to handle race condition
+      const aggregatedTotal = stats[0]?.total || 0;
+      const currentDonation = parseFloat(formattedAmount);
+      const totalRaised = aggregatedTotal + currentDonation;
 
-      if (campaign.status !== "completed" && updated >= goal) {
+      const goal = Number(campaign.goalAmount);
+
+      console.log(`📊 totalRaised: ${totalRaised}, goal: ${goal}`);
+
+      // ✅ Mark completed only when goal is truly reached
+      if (campaign.status !== "completed" && totalRaised >= goal) {
         campaign.status = "completed";
         campaign.completedAt = new Date();
+        await campaign.save();
+        console.log("🏁 Campaign marked as completed:", readableCampaignId);
       }
-
-      await campaign.save();
 
       console.log("✅ Donation processed & campaign updated");
 
