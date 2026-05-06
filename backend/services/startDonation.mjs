@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { saveDonation } from "../services/donation.mjs";
 import { User } from "../models/user.mjs";
 import { Campaign } from "../models/campaign.mjs";
+import { DonationRecord } from "../models/donationRecord.mjs";
 
 export const startDonationListener = () => {
   console.log("Listening to DonationReceived events...");
