@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import { Campaign, DonationRecord, Organization } from '../models/index.mjs';
 import { v4 as uuidv4 } from 'uuid';
 import { sendResponse } from '../utils/response.mjs';
@@ -76,7 +75,7 @@ export const createOrgAndCampaign = async (req, res) => {
 
     const campaign = await Campaign.create({
       id: campaignId,
-      campaignIdBytes32: campaignIdBytes32.toLowerCase(),
+      campaignIdBytes32: campaignIdBytes32,
       organization: organization._id,
       title,
       missionStatement,
@@ -119,6 +118,8 @@ export const createCampaign = async (req, res) => {
       status
     } = req.body;
 
+    const normalizedToken = goalToken.toUpperCase();
+
     // ✅ Basic validation
     if (!title ||!missionStatement || !cause || !imageUrl || !goalAmount || !goalToken) {
       return sendResponse(res, 400, "Missing required fields");
@@ -140,15 +141,16 @@ export const createCampaign = async (req, res) => {
 
     const campaign = new Campaign({
       id: campaignId,
-      campaignIdBytes32: campaignIdBytes32.toLowerCase(),
+      campaignIdBytes32: campaignIdBytes32,
       organization: organization._id,
       title,
       missionStatement,
       cause,
       imageUrl,
       goalAmount,
-      goalToken,
+      goalToken: normalizedToken,
       status: status || "active",
+      onChainStatus: "pending"
     });
 
     await campaign.save();
