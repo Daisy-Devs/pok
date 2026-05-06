@@ -241,7 +241,7 @@ export const getAllCampaigns = async (req, res) => {
     // ✅ Common Filter
     // =========================================================
     const filter = {
-      status: { $in: ["active", "draft"] }
+      status: { $in: ["active", "draft", "completed"] }
     };
 
     if (status) filter.status = status;
