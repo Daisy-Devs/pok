@@ -11,13 +11,11 @@ const categoryStyle = "bg-white text-secondary-dark font-bold";
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const router = useRouter();
   const handleDonate = (id: string) => {
-    router.push(`/campaign/${campaign.id}`);
+    router.push(`/campaign/${id}`);
   };
-  const image = campaign.image[0];
-  console.log("campsss", campaign);
-
-  const imageSource = campaign.image?.[0];
-
+  const image= campaign.image[0];
+  console.log("campsss",campaign);
+  
   return (
     <Card variant="campaign" className="hover:shadow-md transition border ">
       {/* Image */}

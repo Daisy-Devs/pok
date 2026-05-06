@@ -12,6 +12,7 @@ import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "@/src/features/explore/types";
 import { useSearchParams } from "next/navigation";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { formatCryptoAmount } from "@/src/lib/utils";
 
 export default function ExplorePage() {
   const searchParams = useSearchParams();
@@ -72,25 +73,20 @@ export default function ExplorePage() {
     }
   }, [availableCategories, activeCategory]);
 
-  const campaigns: Campaign[] = useMemo(() => {
-    return (
+  const campaigns: Campaign[] = 
       data?.data?.campaigns?.map((c: CampaignApi) => ({
         id: c.id,
         title: c.title,
         description: c.missionStatement,
         category: c.cause,
         image: c.imageUrl,
-        progress: c.goalAmount
-          ?Math.floor(((c.totalRaised || 0) / c.goalAmount) * 100)
-          : 0,
-        raised: c.totalRaised? Number(c.totalRaised).toFixed(2): 0,
+        progress:Math.ceil((c.totalRaised / c.goalAmount) * 100),
+        raised: c.totalRaised? formatCryptoAmount(Number(c.totalRaised),c.goalToken): 0,
         currency:c.goalToken,
         goal: c.goalAmount,
       })) || []
-    );
-  }, [data]);
 
-  if (isLoading) return <p>Loading campaigns...</p>;
+
   if (error) return <p>Failed to load campaigns</p>;
 
   console.log("actual",data?.data?.campaigns);

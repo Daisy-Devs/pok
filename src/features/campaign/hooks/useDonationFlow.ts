@@ -32,7 +32,7 @@ export function useDonationFlow({
   needsDonationApproval = true,
   anonymous = false,
 }: {
-  userAddress: `0x${string}`;
+  userAddress: `0x${string}`|undefined;
   userToken: TokenSymbol;
   campaignToken: TokenSymbol;
   campaignId: string;
@@ -51,9 +51,6 @@ export function useDonationFlow({
 
   async function execute() {
     try {
-      // ─────────────────────────────────────────────
-      // ✅ SINGLE SOURCE OF TRUTH: donateAmount
-      // ─────────────────────────────────────────────
       const donateAmount = needsSwap ? amountOut : amountIn;
       let actualDonateAmount = donateAmount;
 
@@ -61,11 +58,6 @@ export function useDonationFlow({
         throw new Error("Donation amount is zero");
       }
 
-      // When swapping to ETH, router keeps WETH internally
-      // we send recipient=router then call unwrapWETH9 to get native ETH
-      const isWethDonation = needsSwap && campaignToken === "ETH";
-
-      // Create public client once for all reads
       const publicClient = createPublicClient({
         chain: walletConfig.chains[0],
         transport: http(
@@ -74,50 +66,82 @@ export function useDonationFlow({
       });
 
       // ─────────────────────────────────────────────
-      // 1. APPROVE ROUTER
+      // 1. APPROVE ROUTER (skip for CASE 1 — contract handles internally)
       // ─────────────────────────────────────────────
       if (needsSwap && needsRouterApproval && userToken !== "ETH") {
-        setStep("approving_router");
+        if (campaignToken !== "ETH") {  // ✅ skip for ERC20 → ETH
+          setStep("approving_router");
 
-        const tokenInAddress = TOKENS[userToken].address;
-        if (!tokenInAddress) throw new Error("Invalid user token address");
+          const tokenInAddress = TOKENS[userToken].address;
+          if (!tokenInAddress) throw new Error("Invalid user token address");
 
-        const hash = await writeContractAsync({
-          address: tokenInAddress,
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [UNISWAP_ROUTER, amountIn],
-        });
+          const hash = await writeContractAsync({
+            address: tokenInAddress,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [UNISWAP_ROUTER, amountIn],
+          });
 
-        await waitForTx(hash);
+          await waitForTx(hash);
+        }
       }
 
       // ─────────────────────────────────────────────
       // 2. SWAP
       // ─────────────────────────────────────────────
-      // Add before swap to verify pool has liquidity
-      const usdcBalance = await publicClient.readContract({
-        address: TOKENS.USDC.address!,
-        abi: erc20Abi,
-        functionName: "balanceOf",
-        args: [userAddress],
-      });
-      console.log("🔍 SWAP PARAMS:", {
-        tokenIn:
-          userToken === "ETH"
-            ? TOKENS.ETH.wrappedAddress
-            : TOKENS[userToken].address,
-        tokenOut:
-          campaignToken === "ETH"
-            ? TOKENS.ETH.wrappedAddress
-            : TOKENS[campaignToken].address,
-        amountIn: amountIn.toString(),
-        amountOut: amountOut.toString(),
-        userUSDCBalance: usdcBalance,
-      });
-
-      console.log("💰 USDC Balance:", usdcBalance.toString());
       if (needsSwap) {
+
+        // 🔥 CASE 1: ERC20 → ETH campaign (swapAndDonate)
+        if (campaignToken === "ETH" && userToken !== "ETH") {
+          setStep("approving_donation");
+
+          const tokenInAddress = TOKENS[userToken].address!;
+
+          // Approve donation contract to spend user's token
+          const existingAllowance = await publicClient.readContract({
+            address: tokenInAddress,
+            abi: erc20Abi,
+            functionName: "allowance",
+            args: [userAddress, DONATION_CONTRACT],
+          });
+
+          if (existingAllowance < amountIn) {
+            const approveHash = await writeContractAsync({
+              address: tokenInAddress,
+              abi: erc20Abi,
+              functionName: "approve",
+              args: [DONATION_CONTRACT, amountIn],
+            });
+            await waitForTx(approveHash);
+          }
+
+          // Call swapAndDonate — contract handles swap + unwrap + donate
+          setStep("swapping");
+
+          const hash = await writeContractAsync({
+            address: DONATION_CONTRACT,
+            abi: CONTRACT_ABI,
+            functionName: "swapAndDonate",
+            args: [
+              campaignId,
+              tokenInAddress,
+              amountIn,
+              1n,
+              anonymous,
+            ],
+            gas: 500000n,
+          });
+
+          await waitForTx(hash);
+          console.log("✅ RETURNING AFTER swapAndDonate"); // ← add this
+          setStep("done");
+          return;
+        }
+
+        console.log("🔴 REACHED DONATE STEP — should not be here for ETH campaign");
+        setStep("donating");
+
+        // 🟡 CASE 2: ALL OTHER SWAPS (ETH → ERC20, ERC20 → ERC20)
         setStep("swapping");
 
         const tokenIn =
@@ -130,10 +154,6 @@ export function useDonationFlow({
             ? TOKENS.ETH.wrappedAddress
             : TOKENS[campaignToken].address!;
 
-        // For WETH output, recipient = router so we can unwrapWETH9 after
-        // For ERC20 output, recipient = user directly
-        const swapRecipient = isWethDonation ? UNISWAP_ROUTER : userAddress;
-
         const hash = await writeContractAsync({
           address: UNISWAP_ROUTER,
           abi: swapRouterAbi,
@@ -143,7 +163,7 @@ export function useDonationFlow({
               tokenIn,
               tokenOut,
               fee: 3000,
-              recipient: swapRecipient,
+              recipient: userAddress,
               amountIn,
               amountOutMinimum: (amountOut * 95n) / 100n,
               sqrtPriceLimitX96: 0n,
@@ -154,103 +174,36 @@ export function useDonationFlow({
 
         const receipt = await waitForTx(hash);
 
-        // ── Parse actual received amount from receipt logs ──
-        if (isWethDonation) {
-          // Parse WETH Transfer to router to get actual swap output
-          const wethAddress = TOKENS.ETH.wrappedAddress!.toLowerCase();
+        // Parse actual received tokens from logs
+        const tokenOutAddress = TOKENS[campaignToken].address!.toLowerCase();
 
-          for (const log of receipt.logs) {
-            if (log.address.toLowerCase() !== wethAddress) continue;
-            try {
-              const decoded = decodeEventLog({
-                abi: erc20Abi,
-                data: log.data,
-                topics: log.topics,
-              });
-              if (
-                decoded.eventName === "Transfer" &&
-                decoded.args.to.toLowerCase() === UNISWAP_ROUTER.toLowerCase()
-              ) {
-                actualDonateAmount = decoded.args.value;
-                console.log(
-                  "✅ Actual WETH received from swap:",
-                  actualDonateAmount,
-                );
-                break;
-              }
-            } catch {
-              continue;
+        for (const log of receipt.logs) {
+          if (log.address.toLowerCase() !== tokenOutAddress) continue;
+          try {
+            const decoded = decodeEventLog({
+              abi: erc20Abi,
+              data: log.data,
+              topics: log.topics,
+            });
+            if (
+              decoded.eventName === "Transfer" &&
+              decoded.args.to.toLowerCase() === userAddress.toLowerCase()
+            ) {
+              actualDonateAmount = decoded.args.value;
+              break;
             }
+          } catch {
+            continue;
           }
+        }
 
-          if (actualDonateAmount === donateAmount) {
-            console.warn(
-              "⚠️ Could not parse WETH transfer, using 95% of quote",
-            );
-            actualDonateAmount = (donateAmount * 95n) / 100n;
-          }
-
-          // Unwrap WETH → native ETH, send directly to user
-          const unwrapHash = await writeContractAsync({
-            address: UNISWAP_ROUTER,
-            abi: [
-              {
-                type: "function",
-                name: "unwrapWETH9",
-                inputs: [
-                  { name: "amountMinimum", type: "uint256" },
-                  { name: "recipient", type: "address" },
-                ],
-                outputs: [],
-                stateMutability: "nonpayable",
-              },
-            ] as const,
-            functionName: "unwrapWETH9",
-            args: [actualDonateAmount, userAddress],
-          });
-
-          await waitForTx(unwrapHash);
-          console.log("✅ WETH unwrapped to native ETH");
-        } else {
-          // ERC20 out — parse Transfer event to userAddress
-          const tokenOutAddress = TOKENS[campaignToken].address!.toLowerCase();
-
-          for (const log of receipt.logs) {
-            if (log.address.toLowerCase() !== tokenOutAddress) continue;
-            try {
-              const decoded = decodeEventLog({
-                abi: erc20Abi,
-                data: log.data,
-                topics: log.topics,
-              });
-              if (
-                decoded.eventName === "Transfer" &&
-                decoded.args.to.toLowerCase() === userAddress.toLowerCase()
-              ) {
-                actualDonateAmount = decoded.args.value;
-                console.log(
-                  "✅ Actual tokens received from swap:",
-                  actualDonateAmount,
-                );
-                break;
-              }
-            } catch {
-              continue;
-            }
-          }
-
-          if (actualDonateAmount === donateAmount) {
-            console.warn(
-              "⚠️ Could not parse token transfer, using 95% of quote",
-            );
-            actualDonateAmount = (donateAmount * 95n) / 100n;
-          }
+        if (actualDonateAmount === donateAmount) {
+          actualDonateAmount = (donateAmount * 95n) / 100n;
         }
       }
 
       // ─────────────────────────────────────────────
-      // 3. APPROVE DONATION CONTRACT
-      // isWethDonation → now native ETH after unwrap → no approval needed
+      // 3. APPROVE DONATION CONTRACT (ERC20 only)
       // ─────────────────────────────────────────────
       if (needsDonationApproval && campaignToken !== "ETH") {
         setStep("approving_donation");
@@ -270,8 +223,6 @@ export function useDonationFlow({
             args: [DONATION_CONTRACT, maxUint256],
           });
           await waitForTx(hash);
-        } else {
-          console.log("✅ Allowance already sufficient, skipping approval");
         }
       }
 
@@ -281,17 +232,16 @@ export function useDonationFlow({
       setStep("donating");
 
       if (campaignToken === "ETH") {
-        // Native ETH — direct donation or post-unwrap
         const hash = await writeContractAsync({
           address: DONATION_CONTRACT,
           abi: CONTRACT_ABI,
           functionName: "donate",
           args: [campaignId, anonymous],
           value: actualDonateAmount,
+          gas: 100000n,
         });
         await waitForTx(hash);
       } else {
-        // ERC20 donation
         const hash = await writeContractAsync({
           address: DONATION_CONTRACT,
           abi: CONTRACT_ABI,
@@ -302,6 +252,7 @@ export function useDonationFlow({
             TOKENS[campaignToken].address!,
             anonymous,
           ],
+          gas: 100000n,
         });
         await waitForTx(hash);
       }
@@ -327,5 +278,11 @@ async function waitForTx(hash: `0x${string}`) {
     ),
   });
 
-  return await client.waitForTransactionReceipt({ hash });
+  const receipt = await client.waitForTransactionReceipt({ hash });
+  
+  if (receipt.status === "reverted") {
+    throw new Error(`Transaction reverted: ${hash}`);
+  }
+  
+  return receipt;
 }
