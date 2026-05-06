@@ -70,11 +70,12 @@ const WithdrawFunds = () => {
   const { data: claimHistory, error: claimHistoryError } = useGetAllWithdrawalsQuery({});
   const claimableCampaigns = data?.data?.campaigns?.map((campaign: any) => ({
     campaignName: campaign.title,
-    campaignId: campaign._id,
-    balance: campaign.totalRaised,
+    // campaignId: campaign._id,
+    balance: campaign.totalRaised +" "+ campaign.goalToken,
     actions: campaign.cause,
+    campaignId: campaign.campaignIdBytes32
   })).filter((campaign: any) => campaign.balance > 0);
-    console.log(claimHistory);
+    console.log(data);
   /** TODO: After a withdrawal, check the response and add to table */
   // const claimHistoryData = claimHistory?.data?.withdrawals?.map((withdrawal: any) => ({
   //   payoutId: "",

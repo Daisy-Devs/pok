@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import WithdrawModal from "./components/WithdrawModal";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { hideWalletAddress } from "@/src/lib/utils";
 export type ClaimableCampaigns={
     campaignName: string,
     campaignId: string,
@@ -17,6 +18,7 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
   {
     accessorKey: "campaignId",
     header: "Campaign ID",
+    cell: ({row})=>(<div>{hideWalletAddress(row.original.campaignId)}</div>)
   },
   {
     accessorKey: "balance",
@@ -30,6 +32,8 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
       const campainName = row.original.campaignName
       const balance = row.original.balance
       const category = row.original.actions
+      console.log("hafsgsg",row.original);
+      
       return <WithdrawModal campaignId={campaignId} campaignName={campainName} balance={balance} category={category}/>
     },
   },

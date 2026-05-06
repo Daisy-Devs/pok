@@ -13,6 +13,9 @@ import { hideWalletAddress } from "@/src/lib/utils";
 import { BadgeCheck, Coins } from "lucide-react";
 import React, { FC } from "react";
 import { useConnection } from "wagmi";
+import { useWithdraw } from "../hooks/useWithdraw";
+import { TOKENS, TokenSymbol } from "@/src/constants/tokens";
+import { parseUnits } from "viem";
 
 type WithdrawModalProps = {
   campaignId: string;
@@ -29,9 +32,14 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
   const Icon = CAUSE_CATEGORIES.find(
     (currentCategory) => currentCategory.name === category,
   )!.icon;
-  const [amount, setAmount] = React.useState("");
-  const token=balance.split(' ')[1];
+  const [amount, setAmount] = React.useState<string>();
+  const token=balance.split(' ')[1] as TokenSymbol
   const{address}=useConnection();
+  const donationAmount =
+      amount && !isNaN(Number(amount)) && Number(amount) > 0
+        ? parseUnits(amount, TOKENS[token].decimals)
+        : 0n;
+  const {withdraw}=useWithdraw({ campaignIdBytes32: campaignId,amount:donationAmount,campaignToken: token as TokenSymbol });
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -54,7 +62,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
                   <span className="font-semibold text-secondaryText">
                     {campaignName}
                   </span>
-                  <span className="text-sm">ID: {campaignName}</span>
+                  <span className="text-sm">ID: {hideWalletAddress(campaignId)}</span>
                 </div>
               </div>
               <div className="flex flex-col">
@@ -73,6 +81,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
             <input
               type="number"
               min="0"
+              max={balance.split(" ")[0]}
               step="0.01"
               placeholder="0.00"
               value={amount}
@@ -107,11 +116,10 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
           </span>
         </div>
         <div className="w-full flex flex-col gap-2">
-        <Button size={'lg'} className="w-full font-extrabold rounded-lg" text="Confirm Withdrawal"/>
+        <Button onClick={()=>{withdraw()}} size={'lg'} className="w-full font-extrabold rounded-lg" text="Confirm Withdrawal"/>
         <DialogClose asChild>
             <Button variant={'ghost'} type="button" className="w-full" text="Cancel"/>
           </DialogClose>
-
           </div>
       </DialogContent>
     </Dialog>
