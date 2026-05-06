@@ -17,6 +17,7 @@ import { useDisconnect } from "wagmi";
 import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated, selectUser } from "../store/services/selectors/authSelectors";
 import { splitTitle } from "../lib/utils";
+import { apiSlice } from "../store/services/slice/apiSlice";
 
 interface NGOHeaderProps {
   walletAddress: string;
@@ -58,6 +59,7 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
     disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
+    dispatch(apiSlice.util.resetApiState());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");
     }catch(err){

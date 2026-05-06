@@ -23,6 +23,7 @@ import { useConnection, useDisconnect } from "wagmi";
 import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
 import { splitTitle } from "../lib/utils";
 import { googleLogout } from "@react-oauth/google";
+import { apiSlice } from "../store/services/slice/apiSlice";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -52,6 +53,7 @@ const handleLogout = async () => {
       }
     }
     await donorLogout({}).unwrap();
+    dispatch(apiSlice.util.resetApiState());
     dispatch(loggedOut());
     googleLogout();
     toast.success("You've been logged out");

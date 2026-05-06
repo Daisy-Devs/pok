@@ -8,7 +8,7 @@ export interface CampaignApi {
   goalAmount: number;
   totalRaised?: number;
   goalToken: "ETH" | "USDC" | "USDT" | "DAI";
-  status: "active" | "completed" | "cancelled";
+  status: "active" | "completed" | "draft";
   isGoalReached?: boolean;
   organization: {
     name: string;
@@ -18,6 +18,7 @@ export interface CampaignApi {
   };
   totalDonors: number;
   campaignIdBytes32: string;
+  campaignId: string;
 }
 
 // UI type (used by CampaignCard)

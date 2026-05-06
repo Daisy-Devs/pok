@@ -160,6 +160,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
                     </p>
                   </div>:
         <DonationCard
+          campaignIdentifier={campaign?.campaignId}
           campaignId={campaign?.campaignIdBytes32}
           campaignToken={campaign?.goalToken}
         />}

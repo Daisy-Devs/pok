@@ -32,7 +32,7 @@ export function useDonationFlow({
   needsDonationApproval = true,
   anonymous = false,
 }: {
-  userAddress: `0x${string}`;
+  userAddress: `0x${string}`|undefined;
   userToken: TokenSymbol;
   campaignToken: TokenSymbol;
   campaignId: string;

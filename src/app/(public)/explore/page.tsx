@@ -72,8 +72,7 @@ export default function ExplorePage() {
     }
   }, [availableCategories, activeCategory]);
 
-  const campaigns: Campaign[] = useMemo(() => {
-    return (
+  const campaigns: Campaign[] = 
       data?.data?.campaigns?.map((c: CampaignApi) => ({
         id: c.id,
         title: c.title,
@@ -87,10 +86,8 @@ export default function ExplorePage() {
         currency:c.goalToken,
         goal: c.goalAmount,
       })) || []
-    );
-  }, [data]);
 
-  if (isLoading) return <p>Loading campaigns...</p>;
+
   if (error) return <p>Failed to load campaigns</p>;
 
   console.log("actual",data?.data?.campaigns);
