@@ -54,7 +54,7 @@ export default function DonationCard({
   });
 
   const { step, execute } = useDonationFlow({
-    userAddress: address!,
+    userAddress: address,
     userToken,
     campaignToken,
     campaignId,
@@ -189,7 +189,7 @@ export default function DonationCard({
           <div className="flex justify-center items-center gap-2 mx-4 self-center bg-input rounded-2xl p-3">
             <Globe size={25} className="text-secondary-dark" />
             <p className="text-xs text-secondaryText font-semibold">
-              WALLET CONNECTED : {hideWalletAddress(address)}
+              WALLET CONNECTED : {hideWalletAddress(address!)}
             </p>
           </div>
         ) : (

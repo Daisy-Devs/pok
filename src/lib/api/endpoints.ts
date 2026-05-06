@@ -25,7 +25,7 @@ export const ENDPOINTS = {
   },
   campaign: {
     getAllCampaigns: "/campaign/",
-    getCampaignById: "/campaign/",
+    getCampaignById: "/campaign/:id",
     getAllOrganizations: "/campaign/organizations/:organizationId",
     createCampaign: "/campaign/create",
     getCampaignByOrg:"/campaign/org"

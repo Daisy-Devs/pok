@@ -4,10 +4,20 @@ export interface CampaignApi {
   title: string;
   missionStatement: string;
   cause: string;
-  imageUrl: string[];
+  imageUrl: Array<{ public_id: string; url: string }>;
   goalAmount: number;
   totalRaised?: number;
   goalToken: "ETH" | "USDC" | "USDT" | "DAI";
+  status: "active" | "completed" | "cancelled";
+  isGoalReached?: boolean;
+  organization: {
+    name: string;
+    email: string;
+    website: string;
+    logo: string;
+  };
+  totalDonors: number;
+  campaignIdBytes32: string;
 }
 
 // UI type (used by CampaignCard)
@@ -16,7 +26,7 @@ export interface Campaign {
   title: string;
   description: string;
   category: string;
-  image: string[];
+  image: Array<{ public_id: string; url: string }>;
   progress: number;
   raised: number;
   currency: string;

@@ -21,10 +21,10 @@ export function cn(...inputs: ClassValue[]) {
  * @returns {Object} An object containing the first and second halves of the title.
  */
 export function splitTitle(title: string) {
-  const words = title.split(" ");
-  const index = Math.floor(words.length/2);
-  const firstHalf = words.slice(0, index).join(" ");
-  const secondHalf = words.slice(index).join(" ");
+  const words = title?.split(" ");
+  const index = Math.floor(words?.length/2);
+  const firstHalf = words?.slice(0, index)?.join(" ");
+  const secondHalf = words?.slice(index)?.join(" ");
   return { firstHalf, secondHalf };
 }
 

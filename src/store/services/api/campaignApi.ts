@@ -11,17 +11,21 @@ export const campaignApi = apiSlice.injectEndpoints({
       }),
     }),
     getAllCampaigns: builder.query({
-      query: (params) => ({ url: ENDPOINTS.campaign.getAllCampaigns, method: "GET",params: {
+      query: (params) => ({
+        url: ENDPOINTS.campaign.getAllCampaigns,
+        method: "GET",
+        params: {
           page: params?.page || 1,
           limit: params?.limit || 6,
           cause: params?.category === "All" ? "" : params?.category,
           search: params?.searchTerm,
           sortBy: params?.sort,
-        }, }),
+        },
+      }),
     }),
-    getCampaignById: builder.query({
-      query: (id: string) => ({
-        url: ENDPOINTS.campaign.getCampaignById.replace(":id", id),
+    getCampaign: builder.query({
+      query: (params) => ({
+        url: ENDPOINTS.campaign.getCampaignById.replace(":id", params),
         method: "GET",
       }),
     }),
@@ -34,26 +38,26 @@ export const campaignApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-  createCampaign: builder.mutation({
-    query: (data) => ({
-      url: ENDPOINTS.campaign.createCampaign,
-      method: "POST",
-      body: data,
+    createCampaign: builder.mutation({
+      query: (data) => ({
+        url: ENDPOINTS.campaign.createCampaign,
+        method: "POST",
+        body: data,
+      }),
     }),
-  }),
-  getCampaignByOrg: builder.query({
-    query: () => ({
-      url: ENDPOINTS.campaign.getCampaignByOrg+"?status=active",
-      method: "GET",
+    getCampaignByOrg: builder.query({
+      query: () => ({
+        url: ENDPOINTS.campaign.getCampaignByOrg + "?status=active",
+        method: "GET",
+      }),
     }),
-  })
   }),
 });
 export const {
   useRegisterNgoMutation,
   useGetAllCampaignsQuery,
-  useGetCampaignByIdQuery,
+  useGetCampaignQuery,
   useGetAllOrganizationsQuery,
   useCreateCampaignMutation,
-  useGetCampaignByOrgQuery
+  useGetCampaignByOrgQuery,
 } = campaignApi;

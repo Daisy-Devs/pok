@@ -1,14 +1,15 @@
 'use client';
 import { Button } from "@/src/components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { useGetCampaignByIdQuery } from "@/src/store/services/api/campaignApi";
 import { useRouter } from "next/navigation";
+import { CampaignApi } from "../../explore/types";
 
-import React from "react";
-
-const SeeTheChange = ({ campaignId }: { campaignId: string }) => {
-  const { data } = useGetCampaignByIdQuery(campaignId);
-  const campaign = data?.data?.campaigns?.find((c: any) => c.id === campaignId);
+interface SeeTheChangeProps {
+  data:{data:CampaignApi}
+}
+const SeeTheChange = ({data}:SeeTheChangeProps) => {
+  
+  const campaign = data?.data
   const cause = campaign?.cause || "All";
   const router = useRouter();
 
