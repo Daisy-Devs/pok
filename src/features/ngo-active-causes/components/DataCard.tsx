@@ -1,62 +1,49 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { CampaignCard } from "./CampaignCard";
 import { Tabs, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { CampaignStatus } from "./types";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/src/components/ui/pagination";
+import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
 
 export default function DataCard() {
-  const [tab, setTab] = useState<"active" | "draft" | "completed" | "all">(
+  const [tab, setTab] = useState<"all" | "active" | "draft" | "completed">(
     "active",
   );
+  const [page, setPage] = useState(1);
 
-  const MOCK_CAMPAIGNS: Campaign[] = [
-    {
-      id: "1",
-      title: "Clean Water for Turkana Valley",
-      description: "Providing sustainable solar-powered filtration...",
-      raised: 42.5,
-      goal: 60,
-      progress: 75,
-      daysLeft: 45,
-      status: "active",
-    },
-    {
-      id: "2",
-      title: "Amazon Corridor Reforestation",
-      description: "Restoring biodiversity corridors...",
-      raised: 12.8,
-      goal: 50,
-      progress: 25,
-      daysLeft: 45,
-      image: "/forest.jpg",
-      status: "active",
-    },
-    {
-      id: "3",
-      title: "Digital Literacy for Refugee Camps",
-      description: "Setting up mobile computer labs...",
-      lastEdited: "2h ago",
-      status: "draft",
-    },
-    {
-      id: "4",
-      title: "Floating Clinic: Delta Region",
-      description: "Boat-clinic for remote areas...",
-      goal: 120,
-      status: "completed",
-    },
-  ];
+  const { data, isLoading, isFetching, error } = useGetCampaignByOrgQuery({
+    page,
+    status: tab,
+  });
 
-  const filtered = useMemo(() => {
-    if (tab === "all") return MOCK_CAMPAIGNS;
-    return MOCK_CAMPAIGNS.filter((c) => c.status === tab);
-  }, [tab]);
+  useEffect(() => {
+    if (isLoading) console.log("⏳ Campaigns: Fetching initial data...");
+    if (isFetching)
+      console.log("🔄 Campaigns: Refetching for tab/page change...");
+    if (data) console.log("✅ Campaigns Received:", data.data);
+    if (error) console.error("❌ Campaigns Error:", error);
+  }, [data, isLoading, isFetching, error]);
+
+  const responseData = data?.data;
+  const campaigns = responseData?.campaigns || [];
+  const totalPages = responseData?.totalPages || 0;
 
   return (
     <div className="space-y-6">
-      {/* Tabs */}
-      <Tabs value={tab} onValueChange={(v) => setTab(v as CampaignStatus)}>
+      <Tabs
+        value={tab}
+        onValueChange={(v: any) => {
+          setTab(v);
+          setPage(1);
+        }}
+      >
         <TabsList>
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="active">Active</TabsTrigger>
@@ -66,11 +53,52 @@ export default function DataCard() {
       </Tabs>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((campaign) => (
-          <CampaignCard key={campaign.id} campaign={campaign} />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {isLoading ? (
+          <p>Loading campaigns...</p>
+        ) : campaigns.length > 0 ? (
+          campaigns.map((campaign: any) => (
+            <CampaignCard
+              key={campaign._id}
+              campaign={{
+                id: campaign._id,
+                title: campaign.title,
+                description: campaign.description,
+                image: campaign.image,
+                raised: campaign.totalRaised, // From your backend aggregation
+                goal: campaign.goalAmount,
+                progress: campaign.progressPercent, // From your backend aggregation
+                status: campaign.status,
+                lastEdited: new Date(campaign.updatedAt).toLocaleDateString(),
+              }}
+            />
+          ))
+        ) : (
+          <p className="col-span-full text-center py-10 text-gray-500">
+            No campaigns found in this category.
+          </p>
+        )}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent className="flex-wrap justify-center gap-1">
+            <PaginationItem>
+              <PaginationPrevious
+                className="cursor-pointer"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              />
+            </PaginationItem>
+
+            <PaginationItem>
+              <PaginationNext
+                className="cursor-pointer"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }

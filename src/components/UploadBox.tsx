@@ -44,7 +44,7 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
   ] = useUploadSupportingNgoDocumentsMutation();
   const [uploadCampaignImages, { isLoading: uploadingCampaignImages }] =
     useUploadCampaignImagesMutation();
-  const handleFileChange = async(e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const formData = new FormData();
 
@@ -52,21 +52,21 @@ export const UploadBox: React.FC<UploadBoxProps> = ({
       toast.error(`You can only upload up to ${limit} files.`);
       return;
     }
-if (onlyImage && multifile) {
-  const resolutions = await Promise.all(files.map(checkResolution));
+    if (onlyImage && multifile) {
+      const resolutions = await Promise.all(files.map(checkResolution));
 
-  const allPassResolution = resolutions.every(
-    (res) => res.width > 800 && res.height > 600
-  );
+      const allPassResolution = resolutions.every(
+        (res) => res.width > 800 && res.height > 600,
+      );
 
-  console.log("resolutions", resolutions);
-  console.log("allPassResolution", allPassResolution);
+      console.log("resolutions", resolutions);
+      console.log("allPassResolution", allPassResolution);
 
-  if (!allPassResolution) {
-    toast.error("All images must be at least 800×600");
-    return;
-  }
-}
+      if (!allPassResolution) {
+        toast.error("All images must be at least 800×600");
+        return;
+      }
+    }
     if (!files.every((file) => file.type.startsWith("image/")) && onlyImage) {
       toast.error(
         "Invalid file type. Please upload a JPG, PNG, or WEBP image.",
@@ -170,10 +170,11 @@ if (onlyImage && multifile) {
   return (
     <div className="space-y-2">
       <div className="space-y-2">
-      {fieldName &&  <p className="text-sm font-semibold text-primaryText uppercase">
-          {fieldName} <span className="text-destructive">*</span>
-        </p>
-}
+        {fieldName && (
+          <p className="text-sm font-semibold text-primaryText uppercase">
+            {fieldName} <span className="text-destructive">*</span>
+          </p>
+        )}
         <div className="border-3 bg-background-secondary border-dashed rounded-xl p-6 text-center flex flex-col items-center space-y-3">
           {!onlyImage ? (
             <Upload size={45} color="#C6C6CD" className="self-center" />
@@ -181,8 +182,14 @@ if (onlyImage && multifile) {
             <ImageUp size={45} color="#C6C6CD" />
           )}
           <p className="text-sm font-semibold text-secondaryText">{title}</p>
-          <p className="text-sm text-primaryText">{subtitle}</p>
+          <label
+            htmlFor="file-upload" // Connects to input id
+            className="text-sm text-primaryText"
+          >
+            {subtitle}
+          </label>{" "}
           <input
+            id="file-upload"
             type="file"
             accept={
               onlyImage

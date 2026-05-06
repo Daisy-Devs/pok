@@ -21,6 +21,7 @@ const statsData = [
 ];
 
 const NGODashboard = () => {
+  if (!statsData) return <div>Loading...</div>;
   return (
     <div className="mx-1">
       <div className="flex gap-4 flex-row">

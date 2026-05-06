@@ -41,7 +41,8 @@ export const FilterBar = ({
           <SelectContent>
             <SelectItem value="eth">Asset: ETH</SelectItem>
             <SelectItem value="usdc">Asset: USDC</SelectItem>
-            <SelectItem value="btc">Asset: WBTC</SelectItem>
+            <SelectItem value="usdt">Asset: USDT</SelectItem>
+            <SelectItem value="dai">Asset: DAI</SelectItem>
           </SelectContent>
         </Select>
 

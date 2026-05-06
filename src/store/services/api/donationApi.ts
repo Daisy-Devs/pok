@@ -29,24 +29,55 @@ export const donationApi = apiSlice.injectEndpoints({
     }),
     getDonationsByCampaign: builder.query<Donation[], string>({
       query: (campaignId) => ({
-        url: ENDPOINTS.donation.getDonationsByCampaign.replace(":campaignId", campaignId),
+        url: ENDPOINTS.donation.getDonationsByCampaign.replace(
+          ":campaignId",
+          campaignId,
+        ),
         method: "GET",
       }),
       transformResponse: (response: any) => response.data.data,
     }),
+    getDonationByOrganisation: builder.query({
+      query: (params) => ({
+        url: ENDPOINTS.donation.getDonationsByOrg,
+        method: "GET",
+        params: {
+          page: params.page,
+          limit: params.limit,
+          days: params.days,
+          goalToken: params.goalToken,
+          cause: params.cause,
+        },
+      }),
+    }),
+    getDonationStatus: builder.mutation({
+      query: (failedDetails) => ({
+        url: ENDPOINTS.donation.getdonationStatus,
+        method: "POST",
+        body: failedDetails,
+      }),
+      invalidatesTags: ['Donations'],
+    }),
     getAllWithdrawals: builder.query({
       query: () => ({
-        url: ENDPOINTS.donation.getWithdrawal,
+        url: ENDPOINTS.withdrawal.getWithdrawal,
         method: "GET",
       }),
     }),
     getWithdrawalByCampaign: builder.query({
       query: (campaignId) => ({
-        url: ENDPOINTS.donation.getWithdrawal+"/"+campaignId,
+        url: ENDPOINTS.withdrawal.getWithdrawal + "/" + campaignId,
         method: "GET",
       }),
-    })
+    }),
   }),
 });
 
-export const { useGetDonationsByDonorQuery, useGetDonationsByCampaignQuery, useGetWithdrawalByCampaignQuery,useGetAllWithdrawalsQuery } = donationApi;
+export const {
+  useGetDonationsByDonorQuery,
+  useGetDonationsByCampaignQuery,
+  useGetWithdrawalByCampaignQuery,
+  useGetDonationByOrganisationQuery,
+  useGetDonationStatusMutation,
+  useGetAllWithdrawalsQuery,
+} = donationApi;

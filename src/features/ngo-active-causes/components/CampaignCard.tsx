@@ -1,5 +1,8 @@
 import { Clock } from "lucide-react";
 import { Campaign } from "./types";
+import { Card } from "@/src/components/ui/card";
+import Image from "next/image";
+import { ProgressWithLabel } from "@/src/components/ui/progress";
 
 export function CampaignCard({ campaign }: { campaign: Campaign }) {
   const {
@@ -13,37 +16,50 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
     status,
   } = campaign;
 
+  const displayRaised = campaign.raised || 0;
+  const displayGoal = campaign.goal || 0;
+  const displayProgress = campaign.progress || 0;
+
   return (
-    <div className="rounded-2xl bg-white shadow-sm overflow-hidden w-full">
+    <Card variant="campaign" className="hover:shadow-md transition border">
+      {" "}
       {/* Image / Header */}
-      <div className="relative h-40 bg-gray-200">
-        {image && (
-          <img src={image} alt="image" className="w-full h-full object-cover" />
-        )}
+      <div className="relative h-48 overflow-hidden">
+        <Image
+          src={image ? image : "/placeholder.jpg"}
+          alt="Campaign"
+          width={500}
+          height={500}
+          loading="eager"
+          className="w-full h-full object-cover hover:scale-105 transition"
+        />
 
         {/* Status Badge */}
-        <span
-          className="absolute top-3 left-3 px-3 py-1 text-xs rounded-full font-medium
-          bg-emerald-100 text-emerald-700"
-        >
+        <span className="absolute top-3 left-3 text-xs px-2 py-1 rounded-full ">
           {status.toUpperCase()}
         </span>
       </div>
-
       {/* Content */}
-      <div className="p-4 space-y-3">
-        <h3 className="font-semibold text-gray-800">{title}</h3>
-        <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+      <div className="p-5 flex flex-col gap-3">
+        <h3 className="font-bold text-lg">{title}</h3>
+        <p className="text-sm text-foreground line-clamp-2">{description}</p>
 
         {/* ACTIVE */}
         {status === "active" && (
           <>
             <div className="text-sm font-medium">{raised} ETH raised</div>
 
-            <div className="w-full h-2 bg-gray-200 rounded-full">
-              <div
-                className="h-2 bg-indigo-500 rounded-full"
-                style={{ width: `${progress}%` }}
+            <div>
+              <ProgressWithLabel
+                className="w-full h-3"
+                value={displayProgress}
+                label={
+                  <span>
+                    <span className="font-bold text-sm text-secondaryText">
+                      Progress
+                    </span>{" "}
+                  </span>
+                }
               />
             </div>
 
@@ -73,6 +89,6 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
