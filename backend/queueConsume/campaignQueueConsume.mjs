@@ -11,11 +11,18 @@ export const startWorker = async () => {
   const signer = new ethers.Wallet(privateKey, provider);
   const contractWithSigner = contract.connect(signer);
 
+  // ✅ ADD: Verify signer and contract are initialized
+  console.log("🔑 Signer address:", signer.address);
+  console.log("📄 Contract address:", contractWithSigner.target);
+
   while (true) {
     let data = null;
 
     try {
       const job = await campaignQueue.getJob();
+
+      // ✅ ADD: Always log what came out of Redis
+      //console.log("🔍 Raw job from queue:", job, "| type:", typeof job);
 
       if (!job) {
         await new Promise((r) => setTimeout(r, 3000));
