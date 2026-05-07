@@ -5,41 +5,30 @@ export const saveDonation = async (data) => {
   try {
     const { txHash, status } = data;
 
-    // 🔍 Check if already exists
-    const existing = await DonationRecord.findOne({
-      transactionHash: txHash
-    });
+    const existing = await DonationRecord.findOne({ transactionHash: txHash });
 
-    // 🔁 If exists → update status safely
-    if (existing) {
-      console.log("⚠️ Existing donation found:", txHash);
+    const result = await DonationRecord.findOneAndUpdate(
+      { transactionHash: txHash },
+      {
+        $setOnInsert: {        // only on NEW document
+          ...data,
+          transactionHash: txHash
+        },
+        $set: {                // always update status smartly
+          status: existing?.status === "success" ? "success" : status
+        }
+      },
+      { upsert: true, new: true }
+    );
 
-      // ✅ If success comes → always override
-      if (status === "success") {
-        existing.status = "success";
-      }
-      // ❌ Don't override success with failed
-      else if (existing.status !== "success") {
-        existing.status = status;
-      }
-
-      await existing.save();
-
-      console.log("✅ Donation updated:", existing.status);
-      return existing;
-    }
-
-    // 🆕 If new → create
-    const donation = await DonationRecord.create({
-      ...data,
-      transactionHash: txHash
-    });
-
-    console.log("✅ Donation saved:", txHash, status);
-
-    return donation;
+    console.log("✅ Donation saved/updated:", txHash, result.status);
+    return result;
 
   } catch (err) {
+    if (err.code === 11000) {
+      console.log("⚠️ Duplicate donation silently ignored:", txHash);
+      return;
+    }
     console.error("❌ Error saving donation:", err.message);
     throw err;
   }
