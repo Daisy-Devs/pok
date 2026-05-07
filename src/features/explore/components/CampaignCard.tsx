@@ -13,7 +13,7 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleDonate = (id: string) => {
     router.push(`/campaign/${id}`);
   };
-  const image= campaign.image[0];
+  const imageSource = campaign.image?.[0]?.url || DEFAULT_IMAGE_URL;
   console.log("campsss",campaign);
   
   return (

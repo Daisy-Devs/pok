@@ -20,17 +20,23 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
   const displayGoal = campaign.goal || 0;
   const displayProgress = campaign.progress || 0;
 
+  const imageSource = image || "/placeholder.jpg";
+
   return (
-    <Card variant="campaign" className="hover:shadow-md transition border">
+    <Card
+      variant="cause"
+      className="hover:shadow-md transition border max-w-sm w-full mx-auto"
+    >
+      
+
       {" "}
       {/* Image / Header */}
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={image ? image : "/placeholder.jpg"}
+          src={imageSource || "/placeholder.jpg"}
           alt="Campaign"
           width={500}
           height={500}
-          loading="eager"
           className="w-full h-full object-cover hover:scale-105 transition"
         />
 
@@ -64,9 +70,6 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
             </div>
 
             <div className="flex justify-between text-xs text-gray-500">
-              <span className="flex items-center gap-1">
-                <Clock size={12} /> days left
-              </span>
               <span>Goal: {goal} ETH</span>
             </div>
           </>

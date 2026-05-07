@@ -32,7 +32,10 @@ export default function DataCard() {
   }, [data, isLoading, isFetching, error]);
 
   const responseData = data?.data;
-  const campaigns = responseData?.campaigns || [];
+  const campaigns =
+    tab === "all"
+      ? responseData?.campaigns || []
+      : (responseData?.campaigns || []).filter((c: any) => c.status === tab);
   const totalPages = responseData?.totalPages || 0;
 
   return (
@@ -53,7 +56,7 @@ export default function DataCard() {
       </Tabs>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4">
         {isLoading ? (
           <p>Loading campaigns...</p>
         ) : campaigns.length > 0 ? (
@@ -64,7 +67,7 @@ export default function DataCard() {
                 id: campaign._id,
                 title: campaign.title,
                 description: campaign.description,
-                image: campaign.image,
+                image: campaign.imageUrl?.[0]?.url || "/placeholder.jpg",
                 raised: campaign.totalRaised, // From your backend aggregation
                 goal: campaign.goalAmount,
                 progress: campaign.progressPercent, // From your backend aggregation
