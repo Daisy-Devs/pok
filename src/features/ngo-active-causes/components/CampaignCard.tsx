@@ -29,6 +29,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
     completed: "bg-d-secondary-dark text-white",
   };
 
+console.log("Progress:", campaign.progress);
   return (
     <Card
       variant="cause"
