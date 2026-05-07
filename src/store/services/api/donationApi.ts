@@ -35,7 +35,7 @@ export const donationApi = apiSlice.injectEndpoints({
         ),
         method: "GET",
       }),
-      transformResponse: (response: any) => response.data.data,
+      transformResponse: (response: any) => response.data,
     }),
     getDonationByOrganisation: builder.query({
       query: (params) => ({

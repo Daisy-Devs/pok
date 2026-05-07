@@ -13,11 +13,13 @@ import { ChevronRight, EyeOff, UserIcon } from "lucide-react";
 import { timeAgo } from "@/src/lib/utils";
 import { useGetDonationsByCampaignQuery } from "@/src/store/services/api/donationApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { TOKENS } from "@/src/constants/tokens";
 
 const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
   const { data, isLoading, error } = useGetDonationsByCampaignQuery(campaignId);
-  const donations = data ?? [];
-
+  const donations = data?.donations ?? [];
+  console.log("fetched data",data);
+  
   return (
     <div className="md:px-6">
       <h2 className="text-3xl font-extrabold text-secondaryText mb-8">
@@ -38,12 +40,12 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
               <TableRow key={index}>
                 <TableCell className="font-medium">
                   <User
-                    name={activity.organization || "Anonymous"}
-                    isAnonymous={!activity.organization}
+                    name={activity.donorName}
+                    isAnonymous={activity.donorName=="Anomymous"}
                   />
                 </TableCell>
                 <TableCell className="font-semibold text-secondaryText text-base">
-                  {activity.amount}
+                  {activity.amount} {Object.values(TOKENS).find((token) => token.address===activity.token)?.symbol}
                 </TableCell>
                 <TableCell suppressHydrationWarning>
                   {(() => {
@@ -58,7 +60,7 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
                 </TableCell>
                 <TableCell>
                   <a
-                    href={activity.etherScanLink}
+                    href={`https://sepolia.etherscan.io/tx/${activity.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

@@ -42,7 +42,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
     name: campaign?.organization?.name || "Unknown Host",
     email: campaign?.organization?.email || "No email provided",
     website: campaign?.organization?.website || "",
-    logo: campaign?.organization?.logo || "",
+    logo: campaign?.organization?.profileImage?.url || "",
   };
   console.log("Mapped Organisation Props:", organisationData);
 

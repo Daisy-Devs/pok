@@ -66,7 +66,7 @@ const WithdrawFunds = () => {
         "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
     },
   ];
-  const { data, error } = useGetCampaignByOrgQuery({});
+  const { data, error } = useGetCampaignByOrgQuery({});  
   const { data: claimHistory, error: claimHistoryError } = useGetAllWithdrawalsQuery({});
   const claimableCampaigns = data?.data?.campaigns?.map((campaign: any) => ({
     campaignName: campaign.title,
