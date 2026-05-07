@@ -38,7 +38,7 @@ export const ENDPOINTS = {
     getdonationStatus:"/donation/txStatus",//transction status of a donation //in backend we can't get cancelled or failed transtion of donors so in frontend i want to call function and pass the details like {txHash,donor,campaignId,campaignBytes32,amount,token,ngowallet,isAnonymous=false,donorName="Anomymous",userId=null}
   },
   withdrawal: {
-    getWithdrawal: "/withdraw",
+    getWithdrawal: "/donation/withdraw",
   },
   documents: {
     uploadCompanyProfileImage: "/cloudinary/profile",

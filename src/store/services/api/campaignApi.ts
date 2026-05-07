@@ -50,7 +50,7 @@ export const campaignApi = apiSlice.injectEndpoints({
     }),
     getCampaignByOrg: builder.query({
       query: () => ({
-        url: ENDPOINTS.campaign.getCampaignByOrg + "?status=active",
+        url: ENDPOINTS.campaign.getCampaignByOrg,
         method: "GET",
       }),
     }),

@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/src/components/ui/dialog";
 import { CAUSE_CATEGORIES } from "@/src/constants/misc";
-import { hideWalletAddress } from "@/src/lib/utils";
+import { formatCryptoAmount, hideWalletAddress } from "@/src/lib/utils";
 import { BadgeCheck, Coins } from "lucide-react";
 import React, { FC } from "react";
 import { useConnection } from "wagmi";
@@ -34,6 +34,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
   )!.icon;
   const [amount, setAmount] = React.useState<string>();
   const token=balance.split(' ')[1] as TokenSymbol
+  const balanceAmount =Number(balance.split(" ")[0]);
   const{address}=useConnection();
   const donationAmount =
       amount && !isNaN(Number(amount)) && Number(amount) > 0
@@ -68,7 +69,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
               <div className="flex flex-col">
                 <span className="font-semibold text-xs uppercase">Current balance</span>
                 <span className="text-xl font-extrabold text-primary">
-                  {balance}
+                  {formatCryptoAmount(balanceAmount,token)}
                 </span>
               </div>
             </div>
@@ -81,7 +82,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
             <input
               type="number"
               min="0"
-              max={balance.split(" ")[0]}
+              max={balanceAmount}
               step="0.01"
               placeholder="0.00"
               value={amount}
@@ -107,7 +108,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
             <div className="font-extrabold p-4 text-primary">{token}</div>
           </div>
           <span className="text-xs text-primary font-semibold">
-          Maximum Withdrawal: {balance}
+          Maximum Withdrawal: {balanceAmount}
         </span>
         <div className="border border-border flex p-3 gap-3 rounded-lg">
           <BadgeCheck className="w-5 h-5 text-primary" />

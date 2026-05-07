@@ -74,8 +74,7 @@ const WithdrawFunds = () => {
     balance: campaign.totalRaised +" "+ campaign.goalToken,
     actions: campaign.cause,
     campaignId: campaign.campaignIdBytes32
-  })).filter((campaign: any) => campaign.balance > 0);
-    console.log(data);
+  })).filter((campaign: any) =>Number(campaign.balance.split(" ")[0]) > 0);
   /** TODO: After a withdrawal, check the response and add to table */
   // const claimHistoryData = claimHistory?.data?.withdrawals?.map((withdrawal: any) => ({
   //   payoutId: "",
