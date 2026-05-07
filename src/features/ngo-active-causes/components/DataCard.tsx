@@ -11,11 +11,10 @@ import {
   PaginationPrevious,
 } from "@/src/components/ui/pagination";
 import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
+import { CampaignStatus, TabStatus } from "./types";
 
 export default function DataCard() {
-  const [tab, setTab] = useState<"all" | "active" | "draft" | "completed">(
-    "active",
-  );
+  const [tab, setTab] = useState<TabStatus>("active");
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isFetching, error } = useGetCampaignByOrgQuery({
@@ -40,23 +39,17 @@ export default function DataCard() {
 
   return (
     <div className="space-y-6">
-      <Tabs
-        value={tab}
-        onValueChange={(v: any) => {
-          setTab(v);
-          setPage(1);
-        }}
-      >
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
+      <Tabs value={tab} onValueChange={(v: any) => setTab(v)} className="w-fit">
+        <TabsList className="bg-grey">
+          <TabsTrigger value="all">All Causes</TabsTrigger>
           <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="draft">Draft</TabsTrigger>
+          <TabsTrigger value="draft">Drafts</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
       </Tabs>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {isLoading ? (
           <p>Loading campaigns...</p>
         ) : campaigns.length > 0 ? (
@@ -66,12 +59,12 @@ export default function DataCard() {
               campaign={{
                 id: campaign._id,
                 title: campaign.title,
-                description: campaign.description,
+                description: campaign.missionStatement,
                 image: campaign.imageUrl?.[0]?.url || "/placeholder.jpg",
-                raised: campaign.totalRaised, // From your backend aggregation
+                raised: campaign.totalRaised,
                 goal: campaign.goalAmount,
-                progress: campaign.progressPercent, // From your backend aggregation
-                status: campaign.status,
+                progress: campaign.progressPercent,
+                status: campaign.status as CampaignStatus,
                 lastEdited: new Date(campaign.updatedAt).toLocaleDateString(),
               }}
             />

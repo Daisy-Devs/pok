@@ -1,4 +1,6 @@
-export type CampaignStatus = "active" | "draft" | "completed" | "all";
+export type CampaignStatus = "active" | "draft" | "completed";
+
+export type TabStatus = CampaignStatus | "all";
 
 export type Campaign = {
   id: string;
