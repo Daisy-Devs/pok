@@ -80,7 +80,13 @@ const CreateNewCause = () => {
           />
         </div>
       </div>
-      {/** Banner */}
+
+      {/** CTAs */}
+      <div className="flex gap-5 mt-7 justify-end p-4 border-t-2 border-border">
+      <Button text="Save Draft" variant="ghost" />
+      <Button onClick={()=>{createAndPublishCampaign()}} disabled={isLoading||!campaignData.cause||!campaignData.missionStatement||!campaignData.title||campaignData?.imageUrl?.length===0||!campaignData?.goalAmount||!campaignData?.goalToken} text="Publish Cause" rightIcon={isLoading?<Spinner/>:<SendHorizonalIcon className="text-white h-4"/>}/>
+      </div>
+            {/** Banner */}
       <div className="flex justify-between px-4 bg-gradient-to-tr from-[#131B2E] via-[#162036] to-[#324572] rounded-2xl">
         <div className="p-7">
           <h2 className="text-2xl font-bold text-white w-xs">
@@ -99,12 +105,6 @@ const CreateNewCause = () => {
           height={200}
           alt="banner"
         />
-      </div>
-
-      {/** CTAs */}
-      <div className="flex gap-5 mt-7 justify-end p-4 border-t-2 border-border">
-      <Button text="Save Draft" variant="ghost" />
-      <Button onClick={()=>{createAndPublishCampaign()}} disabled={isLoading||!campaignData.cause||!campaignData.missionStatement||!campaignData.title||campaignData?.imageUrl?.length===0||!campaignData?.goalAmount||!campaignData?.goalToken} text="Publish Cause" rightIcon={isLoading?<Spinner/>:<SendHorizonalIcon className="text-white h-4"/>}/>
       </div>
     </div>
   );
