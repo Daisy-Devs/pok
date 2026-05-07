@@ -84,10 +84,7 @@ export const startDonationListener = () => {
       ]);
 
       // ✅ Add current donation to handle race condition
-      const aggregatedTotal = stats[0]?.total || 0;
-      const currentDonation = parseFloat(formattedAmount);
-      const totalRaised = aggregatedTotal + currentDonation;
-
+      const totalRaised = stats[0]?.total || 0; // ✅ already includes current donation, don't add again
       const goal = Number(campaign.goalAmount);
 
       console.log(`📊 totalRaised: ${totalRaised}, goal: ${goal}`);
