@@ -32,7 +32,7 @@ export function useDonationFlow({
   needsDonationApproval = true,
   anonymous = false,
 }: {
-  userAddress: `0x${string}`|undefined;
+  userAddress: `0x${string}`;
   userToken: TokenSymbol;
   campaignToken: TokenSymbol;
   campaignId: string;
@@ -220,7 +220,7 @@ export function useDonationFlow({
             address: TOKENS[campaignToken].address!,
             abi: erc20Abi,
             functionName: "approve",
-            args: [DONATION_CONTRACT, maxUint256],
+            args: [DONATION_CONTRACT, amountIn],
           });
           await waitForTx(hash);
         }
@@ -238,7 +238,6 @@ export function useDonationFlow({
           functionName: "donate",
           args: [campaignId, anonymous],
           value: actualDonateAmount,
-          gas: 100000n,
         });
         await waitForTx(hash);
       } else {
@@ -252,7 +251,6 @@ export function useDonationFlow({
             TOKENS[campaignToken].address!,
             anonymous,
           ],
-          gas: 100000n,
         });
         await waitForTx(hash);
       }
