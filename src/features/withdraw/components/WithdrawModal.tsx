@@ -69,7 +69,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
               <div className="flex flex-col">
                 <span className="font-semibold text-xs uppercase">Current balance</span>
                 <span className="text-xl font-extrabold text-primary">
-                  {formatCryptoAmount(balanceAmount,token)}
+                  {formatCryptoAmount(balanceAmount,token)} {token}
                 </span>
               </div>
             </div>
@@ -108,7 +108,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
             <div className="font-extrabold p-4 text-primary">{token}</div>
           </div>
           <span className="text-xs text-primary font-semibold">
-          Maximum Withdrawal: {balanceAmount}
+          Maximum Withdrawal: {formatCryptoAmount(balanceAmount,token)} {token}
         </span>
         <div className="border border-border flex p-3 gap-3 rounded-lg">
           <BadgeCheck className="w-5 h-5 text-primary" />

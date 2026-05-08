@@ -3,7 +3,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import WithdrawModal from "./components/WithdrawModal";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { hideWalletAddress } from "@/src/lib/utils";
+import { formatCryptoAmount, hideWalletAddress } from "@/src/lib/utils";
 export type ClaimableCampaigns={
     campaignName: string,
     campaignId: string,
@@ -18,11 +18,12 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
   {
     accessorKey: "campaignId",
     header: "Campaign ID",
-    cell: ({row})=>(<div>{hideWalletAddress(row.original.campaignId)}</div>)
+    cell: ({row})=>(<div>{hideWalletAddress(row.original.campaignId as `0x${string}`)}</div>)
   },
   {
     accessorKey: "balance",
     header: "Current Balance",
+    cell: ({row})=>(<div>{formatCryptoAmount(Number(row.original.balance.split(" ")[0]),row.original.balance.split(" ")[1])} {row.original.balance.split(" ")[1]}</div>)
   },
   {
     accessorKey: "actions",

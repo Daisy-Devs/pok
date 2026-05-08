@@ -4,42 +4,12 @@ import {
   claimableCampaignsColumns,
   claimHistoryColumns,
 } from "@/src/features/withdraw/columns";
+import { formatCryptoAmount } from "@/src/lib/utils";
 import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
 import { useGetAllWithdrawalsQuery } from "@/src/store/services/api/donationApi";
 
 const WithdrawFunds = () => {
-  const campaignData = [
-    {
-      campaignName: "Campaign 1",
-      campaignId: "1",
-      balance: "42.95 ETH",
-      actions: "Environment",
-    },
-    {
-      campaignName: "Campaign 2",
-      campaignId: "2",
-      balance: "40.95 ETH",
-      actions: "Social Justice",
-    },
-    {
-      campaignName: "Campaign 3",
-      campaignId: "3",
-      balance: "22.95 ETH",
-      actions: "Disaster Relief",
-    },
-    {
-      campaignName: "Campaign 4",
-      campaignId: "4",
-      balance: "12.95 ETH",
-      actions: "Animal Welfare",
-    },
-    {
-      campaignName: "Campaign 5",
-      campaignId: "5",
-      balance: "32.95 ETH",
-      actions: "Disaster Relief",
-    },
-  ];
+
   const claimHistoryData = [
     {
       payoutId: "1",
@@ -67,6 +37,8 @@ const WithdrawFunds = () => {
     },
   ];
   const { data, error } = useGetCampaignByOrgQuery({});  
+  console.log("response",data);
+  
   const { data: claimHistory, error: claimHistoryError } = useGetAllWithdrawalsQuery({});
   const claimableCampaigns = data?.data?.campaigns?.map((campaign: any) => ({
     campaignName: campaign.title,
@@ -74,7 +46,7 @@ const WithdrawFunds = () => {
     balance: campaign.totalRaised +" "+ campaign.goalToken,
     actions: campaign.cause,
     campaignId: campaign.campaignIdBytes32
-  })).filter((campaign: any) =>Number(campaign.balance.split(" ")[0]) > 0);
+  })).filter((campaign: any) =>Number(formatCryptoAmount(Number(campaign.balance.split(" ")[0]),campaign.balance.split(" ")[1])) > 0);
   /** TODO: After a withdrawal, check the response and add to table */
   // const claimHistoryData = claimHistory?.data?.withdrawals?.map((withdrawal: any) => ({
   //   payoutId: "",
