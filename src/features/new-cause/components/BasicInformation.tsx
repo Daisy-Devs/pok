@@ -12,7 +12,7 @@ type BasicInformationProps = {
 }
 const BasicInformation:FC<BasicInformationProps> = ({ campaignData, setCampaignData }) => {
   return (
-    <div className="bg-white rounded-lg py-8 px-5 w-lg">
+    <div className="bg-white rounded-lg py-8 px-5">
       <div className="flex items-center gap-2">
         <div className="aspect-square flex justify-center items-center bg-primary-light w-9 rounded-lg">
           <NotebookPen className="text-primary" size={17} />

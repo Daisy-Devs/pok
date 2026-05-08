@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/src/components/ui/button";
-import { Spinner } from "@/src/components/ui/spinner";
 import BasicInformation from "@/src/features/new-cause/components/BasicInformation";
 import CampaignVisuals from "@/src/features/new-cause/components/CampaignVisuals";
 import Financials from "@/src/features/new-cause/components/Financials";
@@ -52,10 +51,40 @@ const CreateNewCause = () => {
   }
 
   }
+  const saveAsDraft=async()=>{
+    try{
+    const res=await createCampaign({
+      ...campaignData,
+      status:"draft"
+    }).unwrap();
+    console.log(res);
+    console.log("created new cause",{
+      ...campaignData,
+      status:"draft"
+    });
+    if(!(Object.values(campaignData).every((value) => value === ""))){
+      setCampaignData({
+      title: "",
+      cause: "",
+      missionStatement: "",
+      imageUrl: [],
+      goalAmount: 0,
+      goalToken: "ETH",
+    })
+    toast.success("Campaign saved as draft");
+    router.push('/ngo/causes')
+    }
+  
+  }
+  catch(err){
+    console.log(err);
+    toast.error("Failed to store campaign as draft");
+  }
+  }
   return (
-    <div>
-      <div className="flex gap-2 p-2">
-        <div className="flex flex-col gap-6">
+    <div className="flex flex-col">
+      <div className="flex flex-col md:flex-row gap-2 p-2">
+        <div className="flex flex-col w-full gap-6">
           {/** Basic info */}
           <BasicInformation
             campaignData={campaignData}
@@ -82,17 +111,17 @@ const CreateNewCause = () => {
       </div>
 
       {/** CTAs */}
-      <div className="flex gap-5 mt-7 justify-end p-4 border-t-2 border-border">
-      <Button text="Save Draft" variant="ghost" />
-      <Button onClick={()=>{createAndPublishCampaign()}} disabled={isLoading||!campaignData.cause||!campaignData.missionStatement||!campaignData.title||campaignData?.imageUrl?.length===0||!campaignData?.goalAmount||!campaignData?.goalToken} text="Publish Cause" rightIcon={isLoading?<Spinner/>:<SendHorizonalIcon className="text-white h-4"/>}/>
+      <div className="flex w-full gap-5 mt-7 justify-end p-4 border-t-2 border-border">
+      <Button text="Save Draft" variant="ghost" onClick={()=>{saveAsDraft()}} />
+      <Button onClick={()=>{createAndPublishCampaign()}} disabled={isLoading||!campaignData.cause||!campaignData.missionStatement||!campaignData.title||campaignData?.imageUrl?.length===0||!campaignData?.goalAmount||!campaignData?.goalToken} text="Publish Cause" rightIcon={<SendHorizonalIcon className="text-white h-4"/>}/>
       </div>
             {/** Banner */}
-      <div className="flex justify-between px-4 bg-gradient-to-tr from-[#131B2E] via-[#162036] to-[#324572] rounded-2xl">
+      <div className="flex flex-col md:flex-row md:justify-between px-4 bg-gradient-to-tr from-[#131B2E] via-[#162036] to-[#324572] rounded-2xl">
         <div className="p-7">
-          <h2 className="text-2xl font-bold text-white w-xs">
+          <h2 className="text-2xl font-bold text-white md:w-xs">
             Your cause will be showcased to over 50,000 verified crypto donors.
           </h2>
-          <p className="text-primary-light mt-3 w-md">
+          <p className="text-primary-light mt-3 md:w-md">
             Digital Custodian ensures that every dollar is tracked. Your donors
             can see the real-time impact of their contributions.
           </p>
