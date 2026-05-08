@@ -87,7 +87,7 @@ const NGOSignIn = () => {
           size={"lg"}
           disabled={isLoading}
           leftIcon={
-            <Image src="/metamask.svg" width={25} height={25} alt="metamask" />
+            <Image src="/svg/metamask.svg" width={25} height={25} alt="metamask" />
           }
           className="mt-6"
         />

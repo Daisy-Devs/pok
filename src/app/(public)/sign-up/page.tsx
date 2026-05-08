@@ -11,6 +11,7 @@ import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { GoogleLogin } from "@react-oauth/google";
 import { Eye, EyeOff } from "lucide-react";
 import { validators } from "@/src/constants/validation";
+import Image from "next/image";
 
 
 
@@ -64,8 +65,8 @@ export default function SignUp() {
     <div className="grid min-h-screen  overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
       <div className="relative hidden lg:block">
-        <img
-          src="/Auth/InspiringVisual.jpg"
+        <Image
+          src="/inspiringVisual.jpg"
           alt="visual"
           className="absolute inset-0 h-full w-full object-cover"
         />

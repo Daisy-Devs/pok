@@ -79,7 +79,7 @@ export default function Philanthropy() {
             <div className="bg-white border border-gray-100 rounded-2xl p-7 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]">
               <div className="w-11 h-11 bg-primary-light rounded-xl flex items-center justify-center mb-5">
                 <Image
-                  src={"/home/shieldcheck.svg"}
+                  src={"/svg/shieldcheck.svg"}
                   width={20}
                   height={20}
                   alt="gridIcon"
@@ -103,7 +103,7 @@ export default function Philanthropy() {
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 opacity-10 rounded-full blur-3xl" />
               <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 relative z-10 bg-secondary-mute">
                 <Image
-                  src={"/home/bolt.svg"}
+                  src={"/svg/bolt.svg"}
                   width={20}
                   height={20}
                   alt="gridIcon"

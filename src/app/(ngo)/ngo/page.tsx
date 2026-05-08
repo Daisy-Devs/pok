@@ -9,14 +9,14 @@ const statsData = [
     value: "142.85 ETH",
     change: "+12.5%",
     changeLabel: "vs last month",
-    image: "/ngo/walletIcon.svg",
+    image: "/svg/walletIcon.svg",
   },
   {
     title: "Unique Donors",
     value: "4,821",
     change: "+241",
     changeLabel: "new this week",
-    image: "/ngo/profileIcon.svg",
+    image: "/svg/profileIcon.svg",
   },
 ];
 

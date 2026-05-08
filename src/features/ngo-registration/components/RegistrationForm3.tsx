@@ -119,7 +119,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
         onClick={handleWalletConnect}
         disabled={isConnected}
         leftIcon={
-          <Image src="/metamask.svg" width={25} height={25} alt="metamask" />
+          <Image src="/svg/metamask.svg" width={25} height={25} alt="metamask" />
         }
         rightIcon={<ChevronRight size={16} color="#45464D" />}
       />
