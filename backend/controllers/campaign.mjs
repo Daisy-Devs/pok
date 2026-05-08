@@ -120,11 +120,6 @@ export const createCampaign = async (req, res) => {
 
     const normalizedToken = goalToken.toUpperCase();
 
-    // ✅ Basic validation
-    if (!title ||!missionStatement || !cause || !imageUrl || !goalAmount || !goalToken) {
-      return sendResponse(res, 400, "Missing required fields");
-    }
-
     const organization = await Organization.findById(ngoId);
 
     if (!organization) {
