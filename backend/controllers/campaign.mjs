@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { sendResponse } from "../utils/response.mjs";
 import { campaignQueue } from "../queues/campaignQueue.mjs";
 import { ethers } from "ethers";
-
+import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Types;
 export const createOrgAndCampaign = async (req, res) => {
   try {
     const walletAddress = req.walletAddress;
@@ -166,14 +167,19 @@ export const updateCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
     const { id } = req.params;
-    const { title, missionStatement, cause, imageUrl, goalAmount, status } =
-      req.body;
-
+    const {
+      title,
+      missionStatement,
+      cause,
+      imageUrl,
+      goalAmount,
+      status
+    } = req.body;
+    
     const campaign = await Campaign.findOne({
-      id,
-      organization: ngoId,
+      _id:new ObjectId(id),
+      organization: ngoId
     });
-
     if (!campaign) {
       return sendResponse(res, 404, "Campaign not found");
     }
