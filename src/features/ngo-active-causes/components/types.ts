@@ -6,9 +6,11 @@ export type Campaign = {
   id: string;
   title: string;
   description: string;
-  image?: string;
+  category?: string;
+  image?: any[];
   raised?: number;
   goal?: number;
+  token?: 'ETH' | 'DAI' | 'USDC' | 'USDT';
   progress?: number;
   lastEdited?: string;
   status: CampaignStatus;

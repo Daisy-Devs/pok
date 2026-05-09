@@ -1,9 +1,9 @@
-import { Clock } from "lucide-react";
 import { Campaign, CampaignStatus } from "./types";
 import { Card } from "@/src/components/ui/card";
 import Image from "next/image";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { Button } from "@/src/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export function CampaignCard({ campaign }: { campaign: Campaign }) {
   const {
@@ -20,8 +20,8 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
   const displayRaised = campaign.raised || 0;
   const displayGoal = campaign.goal || 0;
   const displayProgress = campaign.progress || 0;
-
-  const imageSource = image || "/placeholder.jpg";
+  const router=useRouter();
+  const imageSource = image?.[0]?.url || "/svg/placeholder.svg";
 
   const statusStyles: Record<CampaignStatus, string> = {
     active: "bg-secondary text-black ",
@@ -90,7 +90,7 @@ console.log("Progress:", campaign.progress);
         {status === "draft" && (
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400">Last edited {lastEdited}</span>
-            <Button variant={"grey"} text="Edit Draft" />
+            <Button onClick={()=>{router.push(`/ngo/new-cause?editCampaign=${encodeURIComponent(JSON.stringify(campaign))}`)}} variant={"grey"} text="Edit Draft" />
           </div>
         )}
 
