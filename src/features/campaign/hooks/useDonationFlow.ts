@@ -51,6 +51,9 @@ export function useDonationFlow({
 
   async function execute() {
     try {
+      // ─────────────────────────────────────────────
+      // ✅ SINGLE SOURCE OF TRUTH
+      // ─────────────────────────────────────────────
       const donateAmount = needsSwap ? amountOut : amountIn;
       let actualDonateAmount = donateAmount;
 
@@ -66,10 +69,12 @@ export function useDonationFlow({
       });
 
       // ─────────────────────────────────────────────
-      // 1. APPROVE ROUTER (skip for CASE 1 — contract handles internally)
+      // 1. APPROVE ROUTER (for normal swaps)
       // ─────────────────────────────────────────────
+      // 1. APPROVE ROUTER (skip for CASE 1)
       if (needsSwap && needsRouterApproval && userToken !== "ETH") {
-        if (campaignToken !== "ETH") {  // ✅ skip for ERC20 → ETH
+        // ✅ Skip if campaign is ETH — contract handles swap internally
+        if (campaignToken !== "ETH") {
           setStep("approving_router");
 
           const tokenInAddress = TOKENS[userToken].address;
@@ -90,14 +95,13 @@ export function useDonationFlow({
       // 2. SWAP
       // ─────────────────────────────────────────────
       if (needsSwap) {
-
-        // 🔥 CASE 1: ERC20 → ETH campaign (swapAndDonate)
+        // 🔥 CASE 1: USDC (or any ERC20) → ETH (OPTIMIZED)
         if (campaignToken === "ETH" && userToken !== "ETH") {
           setStep("approving_donation");
 
           const tokenInAddress = TOKENS[userToken].address!;
 
-          // Approve donation contract to spend user's token
+          // Approve donation contract
           const existingAllowance = await publicClient.readContract({
             address: tokenInAddress,
             abi: erc20Abi,
@@ -110,12 +114,13 @@ export function useDonationFlow({
               address: tokenInAddress,
               abi: erc20Abi,
               functionName: "approve",
-              args: [DONATION_CONTRACT, amountIn],
+              args: [DONATION_CONTRACT, maxUint256],
             });
+
             await waitForTx(approveHash);
           }
 
-          // Call swapAndDonate — contract handles swap + unwrap + donate
+          // Call swapAndDonate (1 tx)
           setStep("swapping");
 
           const hash = await writeContractAsync({
@@ -126,22 +131,19 @@ export function useDonationFlow({
               campaignId,
               tokenInAddress,
               amountIn,
-              1n,
+              (amountOut * 85n) / 100n,
               anonymous,
             ],
-            gas: 500000n,
+            gas: 500000n, // 🔥 ADD THIS
           });
 
           await waitForTx(hash);
-          console.log("✅ RETURNING AFTER swapAndDonate"); // ← add this
+
           setStep("done");
-          return;
+          return; // ✅ STOP (important)
         }
 
-        console.log("🔴 REACHED DONATE STEP — should not be here for ETH campaign");
-        setStep("donating");
-
-        // 🟡 CASE 2: ALL OTHER SWAPS (ETH → ERC20, ERC20 → ERC20)
+        // 🟡 CASE 2: ALL OTHER SWAPS (UNCHANGED LOGIC)
         setStep("swapping");
 
         const tokenIn =
@@ -174,8 +176,11 @@ export function useDonationFlow({
 
         const receipt = await waitForTx(hash);
 
-        // Parse actual received tokens from logs
-        const tokenOutAddress = TOKENS[campaignToken].address!.toLowerCase();
+        // 🔍 Parse actual received tokens
+        const tokenOutAddress =
+          campaignToken === "ETH"
+            ? TOKENS.ETH.wrappedAddress!.toLowerCase()
+            : TOKENS[campaignToken].address!.toLowerCase();
 
         for (const log of receipt.logs) {
           if (log.address.toLowerCase() !== tokenOutAddress) continue;
@@ -185,6 +190,7 @@ export function useDonationFlow({
               data: log.data,
               topics: log.topics,
             });
+
             if (
               decoded.eventName === "Transfer" &&
               decoded.args.to.toLowerCase() === userAddress.toLowerCase()
@@ -203,7 +209,7 @@ export function useDonationFlow({
       }
 
       // ─────────────────────────────────────────────
-      // 3. APPROVE DONATION CONTRACT (ERC20 only)
+      // 3. APPROVE DONATION CONTRACT (ERC20)
       // ─────────────────────────────────────────────
       if (needsDonationApproval && campaignToken !== "ETH") {
         setStep("approving_donation");
