@@ -42,7 +42,7 @@ console.log("Progress:", campaign.progress);
           alt="Campaign"
           width={600}
           height={700}
-          className="w-full h-full object-cover hover:scale-105 transition"
+          className={`${!image?.[0]?`w-30 h-30 ml-20 mt-10` :`w-full h-full`} object-cover hover:scale-105 transition`}
         />
 
         {/* Status Badge */}
