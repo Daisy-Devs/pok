@@ -3,22 +3,22 @@ import { WithdrawRecord } from "../models/withdrawRecord.mjs";
 
 export const saveDonation = async (data) => {
   try {
-    const { txHash, status } = data;
+    const { txHash, status, ...rest } = data;  // destructure status out
 
     const existing = await DonationRecord.findOne({ transactionHash: txHash });
 
     const result = await DonationRecord.findOneAndUpdate(
       { transactionHash: txHash },
       {
-        $setOnInsert: {        // only on NEW document
-          ...data,
-          transactionHash: txHash
+        $setOnInsert: {              // only on NEW document — no 'status' or 'txHash' here
+          ...rest,
+          transactionHash: txHash,
         },
-        $set: {                // always update status smartly
-          status: existing?.status === "success" ? "success" : status
-        }
+        $set: {                      // always runs — owns 'status' exclusively
+          status: existing?.status === "success" ? "success" : status,
+        },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }  // also fixes the mongoose deprecation warning
     );
 
     console.log("✅ Donation saved/updated:", txHash, result.status);
