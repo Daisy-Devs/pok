@@ -8,12 +8,23 @@ export const getAllWithdrawals = async (req, res) => {
 
     // Fetch all withdrawals for this NGO
     const withdrawals = await WithdrawRecord.find({
-      ngoWallet: walletAddress
+      ngoWallet: walletAddress,
     }).sort({ createdAt: -1 });
+    const withdrawalWithCampaignDetails = await Promise.all(
+      withdrawals.map(async (withdrawal) => {
+        const campaign = await Campaign.findOne({
+          campaignIdBytes32: withdrawal.campaignIdBytes32,
+        });        
+        return {
+          ...withdrawal._doc,
+          campaignTitle: campaign.title,
+        };
+      }),
+    );
 
     // Fetch all campaigns for this NGO
-    const campaigns = await Campaign.find({ 
-      ngoWallet: walletAddress 
+    const campaigns = await Campaign.find({
+      ngoWallet: walletAddress,
     });
 
     // Build balance summary per campaign
@@ -25,22 +36,21 @@ export const getAllWithdrawals = async (req, res) => {
         campaignId: c.id,
         campaignTitle: c.title,
         token: c.goalToken,
-        remainingBalance: remaining
+        remainingBalance: remaining,
       };
     });
 
     // Format withdrawal amounts for display
-    const formattedWithdrawals = withdrawals.map((w) => ({
-      ...w.toObject(),
-      amount: parseFloat(w.amount) // already formatted in listener
+    const formattedWithdrawals = withdrawalWithCampaignDetails.map((w) => ({
+      ...w,
+      amount: parseFloat(w.amount), // already formatted in listener
     }));
 
-    return sendResponse(res, 200, 'Withdrawals fetched successfully', {
+    return sendResponse(res, 200, "Withdrawals fetched successfully", {
       count: withdrawals.length,
       withdrawals: formattedWithdrawals,
-      balances
+      balances,
     });
-
   } catch (err) {
     return sendResponse(res, 500, err.message);
   }
@@ -51,14 +61,15 @@ export const getWithdrawalsByCampaign = async (req, res) => {
     const walletAddress = req.walletAddress.toLowerCase();
     const { campaignId } = req.params;
 
-    const withdrawals = await WithdrawRecord.find({ campaignId, ngoWallet: walletAddress })
-      .sort({ createdAt: -1 });
+    const withdrawals = await WithdrawRecord.find({
+      campaignId,
+      ngoWallet: walletAddress,
+    }).sort({ createdAt: -1 });
 
-    return sendResponse(res, 200, 'Campaign Withdrawals fetched successfully', {
+    return sendResponse(res, 200, "Campaign Withdrawals fetched successfully", {
       count: withdrawals.length,
-      data: withdrawals
+      data: withdrawals,
     });
-
   } catch (err) {
     return sendResponse(res, 500, err.message);
   }
