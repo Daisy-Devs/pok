@@ -10,34 +10,33 @@ import { useGetAllWithdrawalsQuery } from "@/src/store/services/api/donationApi"
 import Image from "next/image";
 
 const WithdrawFunds = () => {
-  const claimHistoryData = [
-    {
-      payoutId: "1",
-      amount: "42.95 ETH",
-      campaignName: "Campaign 1",
-      date: "2023-01-01",
-      txHash:
-        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-    },
-    {
-      payoutId: "2",
-      amount: "40.95 ETH",
-      campaignName: "Campaign 2",
-      date: "2023-01-01",
-      txHash:
-        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-    },
-    {
-      payoutId: "3",
-      amount: "22.95 ETH",
-      campaignName: "Campaign 3",
-      date: "2023-01-01",
-      txHash:
-        "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-    },
-  ];
+  // const claimHistoryData = [
+  //   {
+  //     payoutId: "1",
+  //     amount: "42.95 ETH",
+  //     campaignName: "Campaign 1",
+  //     date: "2023-01-01",
+  //     txHash:
+  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+  //   },
+  //   {
+  //     payoutId: "2",
+  //     amount: "40.95 ETH",
+  //     campaignName: "Campaign 2",
+  //     date: "2023-01-01",
+  //     txHash:
+  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+  //   },
+  //   {
+  //     payoutId: "3",
+  //     amount: "22.95 ETH",
+  //     campaignName: "Campaign 3",
+  //     date: "2023-01-01",
+  //     txHash:
+  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
+  //   },
+  // ];
   const { data, error } = useGetCampaignByOrgQuery({});
-  console.log("response", data);
 
   const { data: claimHistory, error: claimHistoryError } =
     useGetAllWithdrawalsQuery({});
@@ -61,13 +60,14 @@ const WithdrawFunds = () => {
         ) > 0,
     );
   /** TODO: After a withdrawal, check the response and add to table */
-  // const claimHistoryData = claimHistory?.data?.withdrawals?.map((withdrawal: any) => ({
-  //   payoutId: "",
-  //     amount: withdrawal.amount,
-  //     campaignName: "",
-  //     date: "",
-  //     txHash:withdrawal.transactionHash
-  // }))
+  const claimHistoryData = claimHistory?.data?.withdrawals?.map(
+    (withdrawal: any) => ({
+      campaignName: withdrawal?.campaignTitle,
+      amount: withdrawal?.amount,
+      date: withdrawal?.createdAt,
+      txHash: withdrawal?.transactionHash,
+    }),
+  ) || [];
   return (
     <div className="px-4 space-y-7">
       <div className="grid grid-cols-4 gap-x-5">
@@ -86,9 +86,7 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">
-            {42.95}
-          </h1>
+          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
         </div>
         <div className="flex flex-col bg-tertiary rounded-3xl p-8">
           <div className="flex gap-2 items-center">
@@ -118,9 +116,7 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">
-            {42.95}
-          </h1>
+          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
         </div>
         <div className="flex flex-col bg-tertiary rounded-3xl p-8">
           <div className="flex gap-2 items-center">
@@ -135,10 +131,10 @@ const WithdrawFunds = () => {
             </div>
             <p className="text-secondary text-sm font-semibold">{"DAI"}</p>
           </div>
-          <p className="text-white text-sm font-semibold uppercase mt-2">available</p>
-          <h1 className="text-white font-extrabold text-3xl">
-            {42.95}
-          </h1>
+          <p className="text-white text-sm font-semibold uppercase mt-2">
+            available
+          </p>
+          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
         </div>
       </div>
       <div className="space-y-6">
