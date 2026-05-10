@@ -1,5 +1,6 @@
 import { DonationRecord } from "../models/donationRecord.mjs";
 import { Organization } from "../models/organization.mjs";
+import {Campaign} from "../models/campaign.mjs";
 import { sendResponse } from "../utils/response.mjs";
 
 export const getAllDonations = async (req, res) => {

@@ -1,6 +1,6 @@
-import { Campaign, DonationRecord, Organization } from '../models/index.mjs';
-import { v4 as uuidv4 } from 'uuid';
-import { sendResponse } from '../utils/response.mjs';
+import { Campaign, DonationRecord, Organization } from "../models/index.mjs";
+import { v4 as uuidv4 } from "uuid";
+import { sendResponse } from "../utils/response.mjs";
 import { campaignQueue } from "../queues/campaignQueue.mjs";
 import { ethers } from "ethers";
 
@@ -41,7 +41,7 @@ export const createOrgAndCampaign = async (req, res) => {
       imageUrl,
       goalAmount,
       goalToken,
-      status
+      status,
     } = body;
 
     const normalizedToken = goalToken.toUpperCase();
@@ -84,19 +84,18 @@ export const createOrgAndCampaign = async (req, res) => {
       goalAmount,
       goalToken: normalizedToken,
       status: status || "active",
-      onChainStatus: "pending"
+      onChainStatus: "pending",
     });
 
     await campaignQueue.addJob({
       campaignIdBytes32,
-      ngoWallet: walletAddress
+      ngoWallet: walletAddress,
     });
 
     return sendResponse(res, 201, "Campaign created successfully", {
       organization,
-      campaign
+      campaign,
     });
-
   } catch (error) {
     console.error("❌ FINAL ERROR:", error);
     return sendResponse(res, 500, error.message);
@@ -115,7 +114,7 @@ export const createCampaign = async (req, res) => {
       imageUrl,
       goalAmount,
       goalToken,
-      status
+      status,
     } = req.body;
 
     const normalizedToken = goalToken.toUpperCase();
@@ -145,7 +144,7 @@ export const createCampaign = async (req, res) => {
       goalAmount,
       goalToken: normalizedToken,
       status: status || "active",
-      onChainStatus: "pending"
+      onChainStatus: "pending",
     });
 
     await campaign.save();
@@ -153,11 +152,10 @@ export const createCampaign = async (req, res) => {
     // ✅ Queue job
     await campaignQueue.addJob({
       campaignIdBytes32,
-      ngoWallet: walletAddress
+      ngoWallet: walletAddress,
     });
 
     return sendResponse(res, 201, "Campaign created successfully", campaign);
-
   } catch (error) {
     console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
@@ -168,27 +166,21 @@ export const updateCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
     const { id } = req.params;
-    const {
-      title,
-      missionStatement,
-      cause,
-      imageUrl,
-      goalAmount,
-      status
-    } = req.body;
+    const { title, missionStatement, cause, imageUrl, goalAmount, status } =
+      req.body;
 
     const campaign = await Campaign.findOne({
       id,
-      organization: ngoId
+      organization: ngoId,
     });
 
     if (!campaign) {
-      return sendResponse(res, 404, 'Campaign not found');
+      return sendResponse(res, 404, "Campaign not found");
     }
 
     // ❌ Restriction: Only draft can be updated
-    if (campaign.status !== 'draft') {
-      return sendResponse(res, 400, 'Only draft campaigns can be updated');
+    if (campaign.status !== "draft") {
+      return sendResponse(res, 400, "Only draft campaigns can be updated");
     }
 
     // ✅ Update allowed fields
@@ -203,8 +195,7 @@ export const updateCampaign = async (req, res) => {
 
     await campaign.save();
 
-    return sendResponse(res, 200, 'campaigns updated successfully', campaign)
-
+    return sendResponse(res, 200, "campaigns updated successfully", campaign);
   } catch (error) {
     return sendResponse(res, 500, error.message);
   }
@@ -223,7 +214,7 @@ export const getAllCampaigns = async (req, res) => {
       goalToken,
       sortBy = "latest",
       view = "list",
-      limitPerCause = 6
+      limitPerCause = 6,
     } = req.query;
 
     page = parseInt(page);
@@ -235,11 +226,13 @@ export const getAllCampaigns = async (req, res) => {
     // =========================================================
     // ✅ Common Filter
     // =========================================================
-    const filter = {
-      status: { $in: ["active", "draft", "completed"] }
-    };
+    const filter = {};
 
-    if (status) filter.status = status;
+    if (status) {
+      filter.status = status;
+    } else {
+      filter.status = "active";
+    }
     if (cause) filter.cause = cause;
     if (goalToken) filter.goalToken = goalToken.toUpperCase();
 
@@ -256,7 +249,7 @@ export const getAllCampaigns = async (req, res) => {
         { title: { $regex: search, $options: "i" } },
         { cause: { $regex: search, $options: "i" } },
         { location: { $regex: search, $options: "i" } },
-        { tags: { $elemMatch: { $regex: search, $options: "i" } } }
+        { tags: { $elemMatch: { $regex: search, $options: "i" } } },
       ];
     }
 
@@ -276,35 +269,35 @@ export const getAllCampaigns = async (req, res) => {
       if (!campaigns.length) return campaigns;
 
       // ✅ ALWAYS use custom campaignId string
-      const campaignIds = campaigns.map(c => c.id);
+      const campaignIds = campaigns.map((c) => c.id);
 
       const stats = await DonationRecord.aggregate([
         {
           $match: {
-            campaignId: { $in: campaignIds }
-          }
+            campaignId: { $in: campaignIds },
+          },
         },
         {
           $group: {
             _id: "$campaignId",
-            totalAmount: { $sum: { $toDouble: "$amount" } }
-          }
-        }
+            totalAmount: { $sum: { $toDouble: "$amount" } },
+          },
+        },
       ]);
 
       const statsMap = {};
-      stats.forEach(item => {
+      stats.forEach((item) => {
         statsMap[item._id] = item.totalAmount;
       });
 
-      return campaigns.map(campaign => {
+      return campaigns.map((campaign) => {
         const totalRaised = statsMap[campaign.id] || 0;
         const goal = Number(campaign.goalAmount);
 
         return {
           ...campaign.toObject(),
           totalRaised,
-          isGoalReached: totalRaised >= goal
+          isGoalReached: totalRaised >= goal,
         };
       });
     };
@@ -318,17 +311,17 @@ export const getAllCampaigns = async (req, res) => {
         {
           $group: {
             _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
-            campaigns: { $push: "$$ROOT" }
-          }
+            campaigns: { $push: "$$ROOT" },
+          },
         },
         {
           $project: {
             cause: "$_id",
-            campaigns: { $slice: ["$campaigns", limitPerCause] }
-          }
+            campaigns: { $slice: ["$campaigns", limitPerCause] },
+          },
         },
         { $skip: (page - 1) * limit },
-        { $limit: limit }
+        { $limit: limit },
       ];
 
       const groupedData = await Campaign.aggregate(pipeline);
@@ -336,7 +329,7 @@ export const getAllCampaigns = async (req, res) => {
       // populate organization
       const populated = await Campaign.populate(groupedData, {
         path: "campaigns.organization",
-        select: "name email walletAddress profileImage"
+        select: "name email walletAddress profileImage",
       });
 
       // 👉 attach funding stats per group
@@ -349,10 +342,10 @@ export const getAllCampaigns = async (req, res) => {
         { $match: filter },
         {
           $group: {
-            _id: { $toLower: { $ifNull: ["$cause", "Others"] } }
-          }
+            _id: { $toLower: { $ifNull: ["$cause", "Others"] } },
+          },
         },
-        { $count: "total" }
+        { $count: "total" },
       ]);
 
       const totalCauses = totalCausesAgg[0]?.total || 0;
@@ -362,7 +355,7 @@ export const getAllCampaigns = async (req, res) => {
         totalPages: Math.ceil(totalCauses / limit),
         totalCauses,
         count: populated.length,
-        causes: populated
+        causes: populated,
       });
     }
 
@@ -385,9 +378,8 @@ export const getAllCampaigns = async (req, res) => {
       totalPages: Math.ceil(total / limit),
       totalCampaigns: total,
       count: updatedCampaigns.length,
-      campaigns: updatedCampaigns
+      campaigns: updatedCampaigns,
     });
-
   } catch (error) {
     console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
@@ -407,7 +399,7 @@ export const getCampaignsByOrganization = async (req, res) => {
     const {
       page = 1,
       limit = 6,
-      status // all | active | completed | draft
+      status, // all | active | completed | draft
     } = req.query;
 
     const pageNumber = Number(page);
@@ -441,12 +433,12 @@ export const getCampaignsByOrganization = async (req, res) => {
         activeDonors: 0,
         successRate: 0,
 
-        campaigns: []
+        campaigns: [],
       });
     }
 
     // 🆔 Campaign IDs
-    const campaignIds = campaigns.map(c => c.id);
+    const campaignIds = campaigns.map((c) => c.id);
 
     const normalizedWallet = org.walletAddress.toLowerCase();
 
@@ -455,8 +447,8 @@ export const getCampaignsByOrganization = async (req, res) => {
       {
         $match: {
           ngoWallet: normalizedWallet,
-          campaignId: { $in: campaignIds }
-        }
+          campaignId: { $in: campaignIds },
+        },
       },
       {
         $addFields: {
@@ -465,23 +457,23 @@ export const getCampaignsByOrganization = async (req, res) => {
               input: "$amount",
               to: "double",
               onError: 0,
-              onNull: 0
-            }
-          }
-        }
+              onNull: 0,
+            },
+          },
+        },
       },
       {
         $group: {
           _id: "$campaignId",
           totalRaised: { $sum: "$amountNumber" },
-          donors: { $addToSet: "$donor" }
-        }
-      }
+          donors: { $addToSet: "$donor" },
+        },
+      },
     ]);
 
     // 🔁 Map stats
     const statsMap = {};
-    donationStats.forEach(item => {
+    donationStats.forEach((item) => {
       statsMap[item._id] = item;
     });
 
@@ -495,17 +487,17 @@ export const getCampaignsByOrganization = async (req, res) => {
               input: "$amount",
               to: "double",
               onError: 0,
-              onNull: 0
-            }
-          }
-        }
+              onNull: 0,
+            },
+          },
+        },
       },
       {
         $group: {
           _id: null,
-          total: { $sum: "$amountNumber" }
-        }
-      }
+          total: { $sum: "$amountNumber" },
+        },
+      },
     ]);
 
     const totalRaised = totalRaisedAgg[0]?.total || 0;
@@ -514,19 +506,19 @@ export const getCampaignsByOrganization = async (req, res) => {
     const donorsAgg = await DonationRecord.aggregate([
       { $match: { ngoWallet: normalizedWallet } },
       { $group: { _id: "$donor" } },
-      { $count: "count" }
+      { $count: "count" },
     ]);
 
     const activeDonors = donorsAgg[0]?.count || 0;
 
     // 📈 Success rate
     const allCampaignsCount = await Campaign.countDocuments({
-      organization: ngoId
+      organization: ngoId,
     });
 
     const completedCampaigns = await Campaign.countDocuments({
       organization: ngoId,
-      status: "completed"
+      status: "completed",
     });
 
     const successRate =
@@ -535,25 +527,23 @@ export const getCampaignsByOrganization = async (req, res) => {
         : 0;
 
     // 🔄 Attach progress
-    const updatedCampaigns = campaigns.map(campaign => {
+    const updatedCampaigns = campaigns.map((campaign) => {
       const stat = statsMap[campaign.id] || {
         totalRaised: 0,
-        donors: []
+        donors: [],
       };
 
       const goal = Number(campaign.goalAmount);
 
       const progressPercent =
-        goal > 0
-          ? Number(((stat.totalRaised / goal) * 100).toFixed(2))
-          : 0;
+        goal > 0 ? Number(((stat.totalRaised / goal) * 100).toFixed(2)) : 0;
 
       return {
         ...campaign,
         totalRaised: stat.totalRaised,
         totalDonors: stat.donors.length,
         progressPercent,
-        isGoalReached: stat.totalRaised >= goal
+        isGoalReached: stat.totalRaised >= goal,
       };
     });
 
@@ -567,9 +557,8 @@ export const getCampaignsByOrganization = async (req, res) => {
       activeDonors,
       successRate,
 
-      campaigns: updatedCampaigns
+      campaigns: updatedCampaigns,
     });
-
   } catch (err) {
     console.error("❌ Error:", err);
     return sendResponse(res, 500, err.message);
@@ -582,53 +571,51 @@ export const getCampaignById = async (req, res) => {
 
     // 1️⃣ Fetch campaign
     const campaign = await Campaign.findOne({ id: campaignId })
-      .select('-__v')
+      .select("-__v")
       .populate(
-        'organization',
-        'name email walletAddress website profileImage documents'
+        "organization",
+        "name email walletAddress website profileImage documents",
       );
 
     if (!campaign) {
-      return sendResponse(res, 404, 'Campaign not found');
+      return sendResponse(res, 404, "Campaign not found");
     }
 
     // 2️⃣ Aggregate stats for THIS campaign
     const stats = await DonationRecord.aggregate([
       {
         $match: {
-          campaignId: campaignId
-        }
+          campaignId: campaignId,
+        },
       },
       {
         $group: {
           _id: "$campaignId",
           uniqueDonors: { $addToSet: "$donor" },
           totalAmount: {
-            $sum: { $toDouble: "$amount" }
-          }
-        }
+            $sum: { $toDouble: "$amount" },
+          },
+        },
       },
       {
         $project: {
           _id: 0,
           totalDonors: { $size: "$uniqueDonors" },
-          totalRaised: "$totalAmount"
-        }
-      }
+          totalRaised: "$totalAmount",
+        },
+      },
     ]);
 
     const stat = stats[0] || {
       totalDonors: 0,
-      totalRaised: 0
+      totalRaised: 0,
     };
 
     // 3️⃣ Progress calculation
     const goal = Number(campaign.goalAmount);
 
     const progressPercent =
-      goal > 0
-        ? Number(((stat.totalRaised / goal) * 100).toFixed(2))
-        : 0;
+      goal > 0 ? Number(((stat.totalRaised / goal) * 100).toFixed(2)) : 0;
 
     // 4️⃣ Final response
     const result = {
@@ -636,11 +623,10 @@ export const getCampaignById = async (req, res) => {
       totalDonors: stat.totalDonors,
       totalRaised: stat.totalRaised,
       progressPercent,
-      isGoalReached: stat.totalRaised >= goal
+      isGoalReached: stat.totalRaised >= goal,
     };
 
-    return sendResponse(res, 200, 'Campaign fetched successfully', result);
-
+    return sendResponse(res, 200, "Campaign fetched successfully", result);
   } catch (error) {
     console.error("❌ Error:", error);
     return sendResponse(res, 500, error.message);
@@ -662,15 +648,13 @@ const validateCampaignInput = (body) => {
     imageUrl,
     documents,
     profileImage,
-    status
+    status,
   } = body;
 
-  const isValidEmail = (email) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isValidUrl = (url) =>
-    typeof url === "string" &&
-    url.startsWith("https://res.cloudinary.com/");
+    typeof url === "string" && url.startsWith("https://res.cloudinary.com/");
 
   const isValidWebsite = (url) =>
     typeof url === "string" && url.startsWith("https://");
@@ -682,7 +666,12 @@ const validateCampaignInput = (body) => {
     isValidUrl(obj.url);
 
   // 🔹 Required
-  if (!organizationName?.trim() || !taxId?.trim() || !email?.trim() || !country) {
+  if (
+    !organizationName?.trim() ||
+    !taxId?.trim() ||
+    !email?.trim() ||
+    !country
+  ) {
     return "Name, Tax Id, email, and country are required";
   }
 
@@ -709,7 +698,7 @@ const validateCampaignInput = (body) => {
     ETH: { min: 0.001, max: 1000, decimals: 6 },
     USDC: { min: 1, max: 1000000, decimals: 2 },
     USDT: { min: 1, max: 1000000, decimals: 2 },
-    DAI: { min: 1, max: 1000000, decimals: 2 }
+    DAI: { min: 1, max: 1000000, decimals: 2 },
   };
 
   const config = limits[token];
@@ -751,7 +740,7 @@ const validateCampaignInput = (body) => {
         !doc ||
         typeof doc.name !== "string" ||
         typeof doc.url !== "string" ||
-        !isValidUrl(doc.url)
+        !isValidUrl(doc.url),
     )
   ) {
     return "Invalid documents";
@@ -759,4 +748,3 @@ const validateCampaignInput = (body) => {
 
   return null;
 };
-
