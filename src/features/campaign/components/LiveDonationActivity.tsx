@@ -60,7 +60,7 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
                 </TableCell>
                 <TableCell>
                   <a
-                    href={`https://sepolia.etherscan.io/tx/${activity.transactionHash}`}
+                    href={`${process.env.NEXT_PUBLIC_ETHER_SCAN}${activity.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

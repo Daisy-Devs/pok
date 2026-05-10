@@ -16,26 +16,23 @@ import { useGetDonationsByDonorQuery } from "@/src/store/services/api/donationAp
 import {
   ChevronRight,
   HandHeart,
-  User,
   UserCheck2,
   VectorSquare,
 } from "lucide-react";
 import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { CAUSE_CATEGORIES } from "@/src/constants/misc";
+
 
 const Profile = () => {
   const { data: profileData, isLoading: isProfileLoading } =
     useDonorProfileQuery({});
-  const { data, isLoading, isError } = useGetDonationsByDonorQuery();
-  const donations = data ?? [];
+  const { data, isLoading, isError } = useGetDonationsByDonorQuery({});  
+  const donations = data?.data?.donations ?? [];
 
   const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
   const causeCount = new Set(donations.map((d) => d.campaignId)).size;
   const memberSinceDate = profileData?.profile?.memberSince;
-  const Icon = CAUSE_CATEGORIES.find(
-    (category) => category.name === profileData?.profile?.cause,
-  );
+
 
   const memberSince = memberSinceDate
     ? new Date(memberSinceDate).toLocaleDateString("en-US", {
@@ -58,7 +55,7 @@ const Profile = () => {
               Total Donated
             </p>
             <p className="text-xl font-extrabold text-secondaryText leading-tight">
-              {totalDonated.toFixed(4)} ETH
+              {totalDonated} ETH
             </p>
             <p className="text-sm font-semibold text-emerald-600 mt-0.5">
               ≈ $34,210.50 USD
@@ -116,19 +113,19 @@ const Profile = () => {
                 <TableRow key={`${donation.campaignId}-${idx}`}>
                   <TableCell className="font-medium">
                     <Cause
-                      cause={donation.cause}
-                      organization={donation.organization}
+                      cause={donation.campaignCause}
+                      organization={donation.campaignTitle}
+                      individual
                     />
                   </TableCell>
                   <TableCell className="font-semibold text-secondaryText text-base">
                     {donation.amount} ETH
                   </TableCell>
-                  <TableCell>{timeAgo(donation.date)}</TableCell>
+                  <TableCell>{timeAgo(donation.createdAt)}</TableCell>
                   <TableCell>
                     <a
-                      href={donation.etherScanLink}
+                      href={process.env.NEXT_PUBLIC_ETHER_SCAN+donation.transactionHash}
                       target="_blank"
-                      rel="noopener noreferrer"
                     >
                       <ChevronRight size={12} />
                     </a>

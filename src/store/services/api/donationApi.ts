@@ -20,12 +20,11 @@ export const donationApi = apiSlice.injectEndpoints({
       transformResponse: (response: any) => response.data.data,
     }),
 
-    getDonationsByDonor: builder.query<Donation[], void>({
+    getDonationsByDonor: builder.query({
       query: () => ({
         url: ENDPOINTS.donation.getDonationsByDonor,
         method: "GET",
       }),
-      transformResponse: (response: any) => response.data.data,
     }),
     getDonationsByCampaign: builder.query<Donation[], string>({
       query: (campaignId) => ({

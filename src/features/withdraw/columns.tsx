@@ -68,7 +68,7 @@ export const claimHistoryColumns: ColumnDef<ClaimHistory>[] = [
     accessorKey: "actions",
     header: "",
     cell: ({ row }) => {
-      return <Link href={`https://sepolia.etherscan.io/tx/${row.original.txHash}`} target="_blank" className="text-primary"><ChevronRight size={20} /></Link>
+      return <Link href={`${process.env.NEXT_PUBLIC_ETHER_SCAN}${row.original.txHash}`} target="_blank" className="text-primary"><ChevronRight size={20} /></Link>
     },
   },
 ];
