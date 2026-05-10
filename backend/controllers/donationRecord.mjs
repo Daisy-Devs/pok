@@ -1,3 +1,4 @@
+import { Campaign } from "../models/campaign.mjs";
 import { DonationRecord } from "../models/donationRecord.mjs";
 import { Organization } from "../models/organization.mjs";
 import { sendResponse } from "../utils/response.mjs";
@@ -37,13 +38,22 @@ export const getDonationsByCampaign = async (req, res) => {
 
 export const getDonationsByDonor = async (req, res) => {
   try {
-    const userId = req.userId;
-
+    const userId = req.userId;    
     const donations = await DonationRecord.find({ userId }).sort({ createdAt: -1 });
 
+    const donationWithCampaignDetails= await Promise.all(donations.map(async(donation) => {
+      const campaign = await Campaign.findOne({
+            campaignIdBytes32: donation.campaignIdBytes32
+          });
+      return {
+        ...donation._doc,
+       campaignTitle: campaign.title,
+       campaignCause: campaign.cause
+      };
+    }))
     return sendResponse(res, 200, 'Donor Donations fetched successfully', {
       count: donations.length,
-      donations
+      donations: donationWithCampaignDetails
     });
 
   } catch (err) {

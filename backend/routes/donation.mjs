@@ -9,12 +9,12 @@ const router = express.Router();
 router.post("/txStatus", markDonationFailed);
 
 router.get("/", getAllDonations);
-router.get("/:campaignId", getDonationsByCampaign);
 router.get("/user", donorAuth, getDonationsByDonor);
 router.get("/org/history", ngoAuth, getDonationsByOrg);
 
 router.get("/withdraw", ngoAuth, getAllWithdrawals);
 router.get("/withdraw/:campaignId", ngoAuth, getWithdrawalsByCampaign);
 
+router.get("/:campaignId", getDonationsByCampaign);
 
 export default router;
