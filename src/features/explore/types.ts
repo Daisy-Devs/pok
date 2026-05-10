@@ -19,6 +19,7 @@ export interface CampaignApi {
   totalDonors: number;
   campaignIdBytes32: string;
   campaignId: string;
+  
 }
 
 // UI type (used by CampaignCard)
@@ -32,4 +33,5 @@ export interface Campaign {
   raised: number;
   currency: string;
   goal: number;
+  status: "active" | "completed" | "draft";
 }

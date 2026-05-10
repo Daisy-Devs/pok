@@ -23,18 +23,23 @@ const statsData = [
 const NGODashboard = () => {
   if (!statsData) return <div>Loading...</div>;
   return (
-    <div className="mx-1">
-      <div className="flex gap-4 flex-row">
+    <div className="px-2 sm:px-4 lg:px-6 py-4 space-y-6">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {statsData.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-3 mt-5">
-        <div className="col-span-2 ">
+
+      {/* Main Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Donations Table */}
+        <div className="xl:col-span-2">
           <IncomingDonations />
         </div>
 
-        <div className="mt-7">
+        {/* Activity */}
+        <div>
           <RecentActivity />
         </div>
       </div>

@@ -34,9 +34,9 @@ export default function ExplorePage() {
   const { data, isLoading, error } = useGetAllCampaignsQuery({
     page,
     limit: 6,
-    category: activeCategory === "All" ? "" : activeCategory,
-    searchTerm: debouncedSearch,
-    sort: sortBy,
+    cause: activeCategory === "All" ? "" : activeCategory,
+    search: debouncedSearch,
+    sortBy: sortBy,
   });
 
   //SECOND QUERY (for categories only)
@@ -84,6 +84,7 @@ export default function ExplorePage() {
         raised: c.totalRaised? formatCryptoAmount(Number(c.totalRaised),c.goalToken): 0,
         currency:c.goalToken,
         goal: c.goalAmount,
+        status: c.status,
       })) || []
 
 

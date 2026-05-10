@@ -23,7 +23,7 @@ export default function NGOLayout({ children }: { children: React.ReactNode }) {
           <NGOHeader
             walletAddress={hideWalletAddress(address)}
           />
-          <main className="bg-background w-full overflow-y-auto p-4">
+          <main className="bg-background w-full overflow-y-auto p-4 min-h-screen">
             {children}
           </main>
           <Footer />

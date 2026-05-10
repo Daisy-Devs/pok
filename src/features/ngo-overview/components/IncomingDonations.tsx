@@ -52,13 +52,13 @@ const data: Donation[] = [
 export default function IncomingDonations() {
   const router=useRouter();
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm">
+    <div className="bg-white rounded-2xl p-4 shadow-sm overflow-x-auto">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Incoming Donations</h2>
         <Button variant="ghost" text="View All" onClick={()=>{router.push("/ngo/donation-history")}} />
       </div>
 
-      <Table>
+      <Table className="min-w-175">
         <TableHeader>
           <TableRow>
             <TableHead>Donor</TableHead>
