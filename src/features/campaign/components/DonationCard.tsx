@@ -28,10 +28,12 @@ export default function DonationCard({
   campaignIdentifier,
   campaignId,
   campaignToken,
+  ngoWallet
 }: {
   campaignIdentifier: string;
   campaignId: string;
   campaignToken: TokenSymbol;
+  ngoWallet: `0x${string}`
 }) {
   const [anonymous, setAnonymous] = useState(false);
   const [amount, setAmount] = useState("");
@@ -61,10 +63,12 @@ export default function DonationCard({
     userToken,
     campaignToken,
     campaignId,
+    basicCampaignId: campaignIdentifier,
     amountIn: donationAmount, // what user spends
     amountOut: amountOut ?? 0n, // what contract receives
     needsSwap,
     anonymous,
+    ngoWallet
   });
   const isProcessing = !["idle", "done", "error"].includes(step);
   const user = useAppSelector(selectUser);

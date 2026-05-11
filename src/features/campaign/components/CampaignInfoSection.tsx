@@ -26,7 +26,7 @@ interface CampaignInfoSectionProps {
 }
 
 const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
-  const campaign = data?.data
+  const campaign = data?.data  
   const title = splitTitle(campaign?.title);
   const progress = campaign?.goalAmount
     ? Math.ceil(((campaign?.totalRaised || 0) / campaign?.goalAmount) * 100)
@@ -163,6 +163,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
           campaignIdentifier={campaign?.campaignId}
           campaignId={campaign?.campaignIdBytes32}
           campaignToken={campaign?.goalToken}
+          ngoWallet={campaign?.organization?.walletAddress}
         />}
         <OrganisationDetails organisation={organisationData} />
       </div>

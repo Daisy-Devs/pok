@@ -29,13 +29,14 @@ export const ENDPOINTS = {
     getAllOrganizations: "/campaign/organizations/:organizationId",
     createCampaign: "/campaign/create",
     getCampaignByOrg: "/campaign/org",//campaigns inside organisation
+    updateCampaign: "/campaign/:id",
   },
   donation: {
     getAllDonations: "/donation/",
     getDonationsByCampaign: "/donation/:campaignId",
     getDonationsByDonor: "/donation/user",
     getDonationsByOrg: "/donation/org/history",//to get all donations for campaigns under an org
-    getdonationStatus:"/donation/txStatus",//transction status of a donation //in backend we can't get cancelled or failed transtion of donors so in frontend i want to call function and pass the details like {txHash,donor,campaignId,campaignBytes32,amount,token,ngowallet,isAnonymous=false,donorName="Anomymous",userId=null}
+    markDonationFailure:"/donation/txStatus",//transction status of a donation //in backend we can't get cancelled or failed transtion of donors so in frontend i want to call function and pass the details like {txHash,donor,campaignId,campaignBytes32,amount,token,ngowallet,isAnonymous=false,donorName="Anomymous",userId=null}
   },
   withdrawal: {
     getWithdrawal: "/donation/withdraw",
