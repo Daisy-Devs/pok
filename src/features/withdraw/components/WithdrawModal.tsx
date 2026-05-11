@@ -10,8 +10,8 @@ import {
 } from "@/src/components/ui/dialog";
 import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 import { formatCryptoAmount, hideWalletAddress } from "@/src/lib/utils";
-import { BadgeCheck, Coins } from "lucide-react";
-import React, { FC } from "react";
+import { BadgeCheck } from "lucide-react";
+import React, { FC, useRef } from "react";
 import { useConnection } from "wagmi";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { TOKENS, TokenSymbol } from "@/src/constants/tokens";
@@ -22,17 +22,20 @@ type WithdrawModalProps = {
   campaignName: string;
   balance: string;
   category: string;
+  disabled: boolean;
 };
 const WithdrawModal: FC<WithdrawModalProps> = ({
   campaignId,
   campaignName,
   balance,
   category,
+  disabled,
 }) => {
   const Icon = CAUSE_CATEGORIES.find(
     (currentCategory) => currentCategory.name === category,
   )!.icon;
   const [amount, setAmount] = React.useState<string>();
+  const ref=useRef<HTMLButtonElement>(null)
   const token=balance.split(' ')[1] as TokenSymbol
   const balanceAmount =Number(balance.split(" ")[0]);
   const{address}=useConnection();
@@ -44,7 +47,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Withdraw</Button>
+        <Button disabled={disabled}>Withdraw</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -117,8 +120,8 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
           </span>
         </div>
         <div className="w-full flex flex-col gap-2">
-        <Button onClick={()=>{withdraw()}} size={'lg'} className="w-full font-extrabold rounded-lg" text="Confirm Withdrawal"/>
-        <DialogClose asChild>
+        <Button onClick={()=>{withdraw().then(() => {ref.current?.click()})}} size={'lg'} className="w-full font-extrabold rounded-lg" text="Confirm Withdrawal"/>
+        <DialogClose ref={ref} asChild>
             <Button variant={'ghost'} type="button" className="w-full" text="Cancel"/>
           </DialogClose>
           </div>

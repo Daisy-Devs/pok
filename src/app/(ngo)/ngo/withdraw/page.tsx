@@ -4,66 +4,27 @@ import {
   claimableCampaignsColumns,
   claimHistoryColumns,
 } from "@/src/features/withdraw/columns";
-import { formatCryptoAmount } from "@/src/lib/utils";
-import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
 import { useGetAllWithdrawalsQuery } from "@/src/store/services/api/donationApi";
 import Image from "next/image";
 
 const WithdrawFunds = () => {
-  // const claimHistoryData = [
-  //   {
-  //     payoutId: "1",
-  //     amount: "42.95 ETH",
-  //     campaignName: "Campaign 1",
-  //     date: "2023-01-01",
-  //     txHash:
-  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-  //   },
-  //   {
-  //     payoutId: "2",
-  //     amount: "40.95 ETH",
-  //     campaignName: "Campaign 2",
-  //     date: "2023-01-01",
-  //     txHash:
-  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-  //   },
-  //   {
-  //     payoutId: "3",
-  //     amount: "22.95 ETH",
-  //     campaignName: "Campaign 3",
-  //     date: "2023-01-01",
-  //     txHash:
-  //       "0xf72da640dc2009798d9848fe5796f34188892abe6dfd0d31910730add57dfe3e",
-  //   },
-  // ];
-  const { data, error } = useGetCampaignByOrgQuery({});
-
   const { data: claimHistory, error: claimHistoryError } =
     useGetAllWithdrawalsQuery({});
-  console.log("cl", claimHistory);
+  console.log("cl", claimHistory,claimHistoryError);
 
-  const claimableCampaigns = data?.data?.campaigns
+  const claimableCampaigns = claimHistory?.data?.balances
     ?.map((campaign: any) => ({
-      campaignName: campaign.title,
+      campaignName: campaign.campaignTitle,
       // campaignId: campaign._id,
-      balance: campaign.totalRaised + " " + campaign.goalToken,
+      balance: `${campaign.remainingBalance}` + " " + campaign.token,
       actions: campaign.cause,
       campaignId: campaign.campaignIdBytes32,
     }))
-    .filter(
-      (campaign: any) =>
-        Number(
-          formatCryptoAmount(
-            Number(campaign.balance.split(" ")[0]),
-            campaign.balance.split(" ")[1],
-          ),
-        ) > 0,
-    );
   /** TODO: After a withdrawal, check the response and add to table */
   const claimHistoryData = claimHistory?.data?.withdrawals?.map(
     (withdrawal: any) => ({
       campaignName: withdrawal?.campaignTitle,
-      amount: withdrawal?.amount,
+      amount: withdrawal?.amount+" "+withdrawal?.campaignToken,
       date: withdrawal?.createdAt,
       txHash: withdrawal?.transactionHash,
     }),

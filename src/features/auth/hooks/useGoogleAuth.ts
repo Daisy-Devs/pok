@@ -29,7 +29,7 @@ export const useGoogleAuth = () => {
     try {
       const res = await donorGoogleAuth({ token });
       if(res.error){
-        toast.error("Google authentication failed: [Contact Administrator]");
+        toast.error("Google authentication failed: "+res.error.data.message);        
       return;
       }
       toast.success("Google authentication successful");

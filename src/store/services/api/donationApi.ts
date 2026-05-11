@@ -56,9 +56,9 @@ export const donationApi = apiSlice.injectEndpoints({
         },
       }),
     }),
-    getDonationStatus: builder.mutation({
+    markDonationFailure: builder.mutation({
       query: (failedDetails) => ({
-        url: ENDPOINTS.donation.getdonationStatus,
+        url: ENDPOINTS.donation.markDonationFailure,
         method: "POST",
         body: failedDetails,
       }),
@@ -84,6 +84,6 @@ export const {
   useGetDonationsByCampaignQuery,
   useGetWithdrawalByCampaignQuery,
   useGetDonationByOrganisationQuery,
-  useGetDonationStatusMutation,
+  useMarkDonationFailureMutation,
   useGetAllWithdrawalsQuery,
 } = donationApi;

@@ -23,6 +23,7 @@ const BasicInformation:FC<BasicInformationProps> = ({ campaignData, setCampaignD
       </div>
       <div className="mt-3 space-y-3">
         <Input
+        value={campaignData.title}
           label={"Cause Title"}
           required={false}
           onChange={(e)=>{

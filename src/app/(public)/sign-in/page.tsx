@@ -54,6 +54,7 @@ export default function SignIn() {
             name: res.data.userObj.name,
             email: res.data.userObj.email,
             role: "Donor",
+            id: res.data.userObj._id,
           }),
         );
         router.replace("/");

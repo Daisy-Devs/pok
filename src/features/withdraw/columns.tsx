@@ -43,7 +43,7 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
       const campainName = row.original.campaignName;
       const balance = row.original.balance;
       const category = row.original.actions;
-      console.log("hafsgsg", row.original);
+      const withdrawable = formatCryptoAmount(Number(row.original.balance.split(" ")[0]), row.original.balance.split(" ")[1])
 
       return (
         <WithdrawModal
@@ -51,6 +51,7 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
           campaignName={campainName}
           balance={balance}
           category={category}
+          disabled={Number(withdrawable) <= 0}
         />
       );
     },
