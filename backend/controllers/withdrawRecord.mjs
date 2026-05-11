@@ -1,4 +1,5 @@
 import { Campaign } from "../models/campaign.mjs";
+import { DonationRecord } from "../models/donationRecord.mjs";
 import { WithdrawRecord } from "../models/withdrawRecord.mjs";
 import { sendResponse } from "../utils/response.mjs";
 
@@ -18,25 +19,58 @@ export const getAllWithdrawals = async (req, res) => {
         return {
           ...withdrawal._doc,
           campaignTitle: campaign.title,
+          campaignToken: campaign.goalToken,
         };
       }),
     );
+    // Get organization id
+    const orgId = req.ngoId;
 
     // Fetch all campaigns for this NGO
-    const campaigns = await Campaign.find({
-      ngoWallet: walletAddress,
-    });
+ const campaigns = await Campaign.find({ organization: orgId });
+
+    // Extract campaign IDs for aggregation
+    const campaignIds = campaigns.map((c) => c.id);
+
+    // Aggregate total donations per campaign
+    const stats = await DonationRecord.aggregate([
+      {
+        $match: {
+          campaignId: { $in: campaignIds },
+        },
+      },
+      {
+        $group: {
+          _id: "$campaignId",
+          totalAmount: { $sum: { $toDouble: "$amount" } },
+        },
+      },
+    ]);
+
+    // Build a lookup map for quick access: campaignId -> totalDonations
+    const donationMap = stats.reduce((acc, stat) => {
+      acc[stat._id] = stat.totalAmount;
+      return acc;
+    }, {});
 
     // Build balance summary per campaign
     const balances = campaigns.map((c) => {
-      const remainingWei = BigInt(c.raisedAmount || "0");
-      const remaining = parseFloat(ethers.formatEther(remainingWei));
+       const totalDonations = donationMap[c.id] ?? 0;
+      const totalWithdrawalAmount = withdrawalWithCampaignDetails
+        .filter((w) => w.campaignIdBytes32 === c.campaignIdBytes32)
+        .reduce((acc, w) => acc + parseFloat(w.amount), 0);
+
+      const remainingBalance = totalDonations - totalWithdrawalAmount;
 
       return {
         campaignId: c.id,
         campaignTitle: c.title,
+        cause: c.cause,
         token: c.goalToken,
-        remainingBalance: remaining,
+        totalDonations,
+        totalWithdrawalAmount,
+        remainingBalance,
+        campaignIdBytes32: c.campaignIdBytes32,
       };
     });
 
