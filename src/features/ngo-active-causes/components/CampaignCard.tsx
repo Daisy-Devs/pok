@@ -90,7 +90,7 @@ console.log("Progress:", campaign.progress);
         {status === "draft" && (
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400">Last edited {lastEdited}</span>
-            <Button onClick={()=>{router.push(`/ngo/new-cause?editCampaign=${encodeURIComponent(JSON.stringify(campaign))}`)}} variant={"grey"} text="Edit Draft" />
+            <Button onClick={()=>{router.push(`/ngo/new-cause?editCampaign=${encodeURIComponent(JSON.stringify(campaign))}`)}} variant={"ghost"} text="Edit Draft" />
           </div>
         )}
 

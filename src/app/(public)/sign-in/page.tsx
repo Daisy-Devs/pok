@@ -71,6 +71,8 @@ export default function SignIn() {
         <Image
           src="/inspiringVisual.jpg"
           alt="visual"
+          width={'20'}
+          height={'20'}
           className="absolute inset-0 h-full w-full object-cover"
         />
 

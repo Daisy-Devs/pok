@@ -3,11 +3,17 @@ import { apiSlice } from "../slice/apiSlice";
 
 export interface Donation {
   campaignId: string;
-  cause: string;
-  organization: string;
+  campaignCause: string;
+  campaignTitle: string;
   amount: number;
-  date: string;
-  etherScanLink: string;
+  createdAt: string;
+  transactionHash: string;
+}
+
+export interface DonationsByDonorResponse {
+  data: {
+    donations: Donation[];
+  };
 }
 
 export const donationApi = apiSlice.injectEndpoints({
@@ -20,12 +26,13 @@ export const donationApi = apiSlice.injectEndpoints({
       transformResponse: (response: any) => response.data.data,
     }),
 
-    getDonationsByDonor: builder.query({
+    getDonationsByDonor: builder.query<DonationsByDonorResponse, void>({
       query: () => ({
         url: ENDPOINTS.donation.getDonationsByDonor,
         method: "GET",
       }),
     }),
+    
     getDonationsByCampaign: builder.query<Donation[], string>({
       query: (campaignId) => ({
         url: ENDPOINTS.donation.getDonationsByCampaign.replace(
@@ -55,7 +62,7 @@ export const donationApi = apiSlice.injectEndpoints({
         method: "POST",
         body: failedDetails,
       }),
-      invalidatesTags: ['Donations'],
+      invalidatesTags: ["Donations"],
     }),
     getAllWithdrawals: builder.query({
       query: () => ({

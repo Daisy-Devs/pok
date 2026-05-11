@@ -8,33 +8,27 @@ const StatsCard: React.FC<StatsCardProps> = ({
   value,
   change,
   changeLabel,
-  image,
+  icon: Icon,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-white   rounded-2xl p-10 w-full shadow-sm relative">
+    <div className="flex items-center justify-between bg-white   rounded-xl p-5 w-full shadow-sm relative">
       {/* Left Content */}
       <div className="flex flex-col gap-2 text-foreground font-semibold">
         <p>{title}</p>
 
         <h2 className="text-2xl font-bold text-tertiary">{value}</h2>
 
-        <div className="flex items-center gap-2 text-sm">
-          <Button variant={"green"} size={"short"} text={change} />
-
-          <span className="text-primary-color">{changeLabel}</span>
-        </div>
+        {change && changeLabel && (
+          <div className="flex items-center gap-2 text-sm">
+            {/* <Button variant={"green"} size={"short"} text={change} /> */}
+          </div>
+        )}
       </div>
 
       {/* Image */}
 
       <div className="opacity-30 absolute top-4 right-4">
-        <Image
-          src={image}
-          alt="stat icon"
-          width={50}
-          height={50}
-          className="object-contain"
-        />
+        <Icon className="w-12 h-12 text-primary" />
       </div>
     </div>
   );

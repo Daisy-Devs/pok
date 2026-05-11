@@ -1,10 +1,8 @@
-"use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "lucide-react";
 import Image from "next/image";
-import React from "react";
 
-export type DonationHistory = {
+export type DonateHistory = {
   donor: string;
   donorName: string;
   donorProfileImage?: {
@@ -12,13 +10,11 @@ export type DonationHistory = {
   };
   amount: number;
   goalToken: string;
-  campaignTitle: string;
   cause: string;
-  createdAt: string;
-  txHash: string;
   status: string;
 };
-export const donationHistoryColumns: ColumnDef<DonationHistory>[] = [
+
+export const donateHistoryColumns: ColumnDef<DonateHistory>[] = [
   {
     accessorKey: "donorName",
     header: "Donor",
@@ -63,7 +59,6 @@ export const donationHistoryColumns: ColumnDef<DonationHistory>[] = [
       );
     },
   },
-
   {
     accessorKey: "amount",
     header: "Amount",
@@ -78,39 +73,15 @@ export const donationHistoryColumns: ColumnDef<DonationHistory>[] = [
     },
   },
   {
-    accessorKey: "campaignTitle",
-    header: "Cause / Campaign",
+    accessorKey: "cause",
+    header: "Causes",
     cell: ({ row }) => {
-      const { campaignTitle, cause } = row.original;
+      const { cause } = row.original;
 
       return (
         <div className="flex flex-col">
-          <span className="font-semibold">{campaignTitle}</span>
-
           <span className="text-xs text-gray-500">{cause}</span>
         </div>
-      );
-    },
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Timestamp",
-    cell: ({ row }) => {
-      const { createdAt } = row.original;
-
-      return (
-        <div className="text-sm">{new Date(createdAt).toLocaleString()}</div>
-      );
-    },
-  },
-  {
-    accessorKey: "txHash",
-    header: "Tx Hash",
-    cell: ({ row }) => {
-      const { txHash } = row.original;
-
-      return (
-        <span className="text-primary text-sm">{txHash.slice(0, 10)}...</span>
       );
     },
   },

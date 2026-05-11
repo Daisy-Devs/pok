@@ -11,15 +11,18 @@ import {
 } from "@/src/components/ui/table";
 import { ChevronRight, EyeOff, UserIcon } from "lucide-react";
 import { timeAgo } from "@/src/lib/utils";
-import { useGetDonationsByCampaignQuery } from "@/src/store/services/api/donationApi";
+import {
+  useGetDonationsByCampaignQuery,
+  Donation,
+} from "@/src/store/services/api/donationApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { TOKENS } from "@/src/constants/tokens";
 
 const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
   const { data, isLoading, error } = useGetDonationsByCampaignQuery(campaignId);
-  const donations = data?.donations ?? [];
-  console.log("fetched data",data);
-  
+  const donations: Donation[] = data ?? [];
+  console.log("fetched data", data);
+
   return (
     <div className="md:px-6">
       <h2 className="text-3xl font-extrabold text-secondaryText mb-8">
@@ -36,16 +39,21 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
         </TableHeader>
         <TableBody>
           {donations.length > 0 ? (
-            donations.map((activity: any, index: number) => (
+            donations.slice(0, 8).map((activity: any, index: number) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">
                   <User
                     name={activity.donorName}
-                    isAnonymous={activity.donorName=="Anomymous"}
+                    isAnonymous={activity.donorName == "Anomymous"}
                   />
                 </TableCell>
                 <TableCell className="font-semibold text-secondaryText text-base">
-                  {activity.amount} {Object.values(TOKENS).find((token) => token.address===activity.token)?.symbol}
+                  {activity.amount}{" "}
+                  {
+                    Object.values(TOKENS).find(
+                      (token) => token.address === activity.token,
+                    )?.symbol
+                  }
                 </TableCell>
                 <TableCell suppressHydrationWarning>
                   {(() => {

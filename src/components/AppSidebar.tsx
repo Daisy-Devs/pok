@@ -19,11 +19,11 @@ import Image from "next/image";
 const AppSidebar = () => {
   const pathname = usePathname();
   const { firstHalf, secondHalf } = splitTitle(nomenclature.PRODUCT_NAME);
-  const user=useAppSelector(selectUser)
+  const user = useAppSelector(selectUser);
   const isNGO = user?.role == "NGO";
-  
+
   return (
-    <Sidebar className={isNGO?"":"md:hidden"}>
+    <Sidebar className={isNGO ? "" : "md:hidden"}>
       <SidebarHeader>
         <div className="flex justify-center mt-5">
           <h2 className="text-xl font-extrabold text-tertiary">{firstHalf}</h2>
@@ -51,7 +51,8 @@ const AppSidebar = () => {
               <Link
                 href="/ngo/causes"
                 className={`text-sm px-4 py-3 text-primaryText font-semibold rounded-lg hover:bg-primary hover:text-white ${
-                  pathname === "/ngo/causes" && "bg-primary/95 text-white font-bold"
+                  pathname === "/ngo/causes" &&
+                  "bg-primary/95 text-white font-bold"
                 }`}
               >
                 <div className="flex items-center space-x-2">
@@ -86,17 +87,29 @@ const AppSidebar = () => {
               </Link>
             </div>
             <div className="flex flex-col space-x-3 items-center">
-            <Link
-              href="/ngo/new-cause">
-                <Button text={nomenclature.POST_A_CAUSE}
-                leftIcon={<Plus size={20}/>}
+              <Link href="/ngo/new-cause">
+                <Button
+                  text={nomenclature.POST_A_CAUSE}
+                  leftIcon={<Plus size={20} />}
                 />
               </Link>
               <div className="bg-white flex items-center px-5 py-3 rounded-lg my-5">
-                <Image className="w-10 h-10 rounded-full" quality={90} loading="eager" src={user?.profileImage} alt="NGO profile image" width={500} height={500}/>
+                <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0">
+                  <Image
+                    src={user?.profileImage}
+                    alt="NGO profile image"
+                    fill
+                    quality={90}
+                    loading="eager"
+                    className="object-cover"
+                    sizes="(max-width: 640px) 40px, 48px"
+                  />
+                </div>{" "}
                 <div className="flex flex-col ml-3">
-                  <span className="font-semibold text-secondaryText text-sm">{user.name}</span>
-                  <span className="text-xs">{'Verified Partner'}</span>
+                  <span className="font-semibold text-secondaryText text-sm">
+                    {user.name}
+                  </span>
+                  <span className="text-xs">{"Verified Partner"}</span>
                 </div>
               </div>
             </div>
