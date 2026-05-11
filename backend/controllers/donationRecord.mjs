@@ -1,19 +1,16 @@
 import { Campaign } from "../models/campaign.mjs";
 import { DonationRecord } from "../models/donationRecord.mjs";
 import { Organization } from "../models/organization.mjs";
-import {Campaign} from "../models/campaign.mjs";
 import { sendResponse } from "../utils/response.mjs";
 
 export const getAllDonations = async (req, res) => {
   try {
-    const donations = await DonationRecord.find()
-      .sort({ createdAt: -1 });
+    const donations = await DonationRecord.find().sort({ createdAt: -1 });
 
-    return sendResponse(res, 200, 'Donations fetched successfully', {
+    return sendResponse(res, 200, "Donations fetched successfully", {
       count: donations.length,
-      data: donations
+      data: donations,
     });
-
   } catch (err) {
     return sendResponse(res, 500, err.message);
   }
@@ -29,9 +26,8 @@ export const getDonationsByCampaign = async (req, res) => {
 
     return sendResponse(res, 200, "Campaign Donations fetched successfully", {
       count: donations.length,
-      donations
+      donations,
     });
-
   } catch (err) {
     return sendResponse(res, 500, err.message);
   }
@@ -39,24 +35,27 @@ export const getDonationsByCampaign = async (req, res) => {
 
 export const getDonationsByDonor = async (req, res) => {
   try {
-    const userId = req.userId;    
-    const donations = await DonationRecord.find({ userId }).sort({ createdAt: -1 });
-
-    const donationWithCampaignDetails= await Promise.all(donations.map(async(donation) => {
-      const campaign = await Campaign.findOne({
-            campaignIdBytes32: donation.campaignIdBytes32
-          });
-      return {
-        ...donation._doc,
-       campaignTitle: campaign.title,
-       campaignCause: campaign.cause
-      };
-    }))
-    return sendResponse(res, 200, 'Donor Donations fetched successfully', {
-      count: donations.length,
-      donations: donationWithCampaignDetails
+    const userId = req.userId;
+    const donations = await DonationRecord.find({ userId }).sort({
+      createdAt: -1,
     });
 
+    const donationWithCampaignDetails = await Promise.all(
+      donations.map(async (donation) => {
+        const campaign = await Campaign.findOne({
+          campaignIdBytes32: donation.campaignIdBytes32,
+        });
+        return {
+          ...donation._doc,
+          campaignTitle: campaign.title,
+          campaignCause: campaign.cause,
+        };
+      }),
+    );
+    return sendResponse(res, 200, "Donor Donations fetched successfully", {
+      count: donations.length,
+      donations: donationWithCampaignDetails,
+    });
   } catch (err) {
     return sendResponse(res, 500, err.message);
   }
@@ -72,13 +71,7 @@ export const getDonationsByOrg = async (req, res) => {
       return sendResponse(res, 404, "Organization not found");
     }
 
-    const {
-      page = 1,
-      limit = 5,
-      days,
-      goalToken,
-      cause
-    } = req.query;
+    const { page = 1, limit = 5, days, goalToken, cause } = req.query;
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -98,7 +91,7 @@ export const getDonationsByOrg = async (req, res) => {
     // ✅ Base match (reusable)
     const baseMatch = {
       ngoWallet: normalizedWallet,
-      ...dateFilter
+      ...dateFilter,
     };
 
     // 🔥 MAIN PIPELINE
@@ -111,8 +104,8 @@ export const getDonationsByOrg = async (req, res) => {
           from: "campaigns",
           localField: "campaignId",
           foreignField: "id",
-          as: "campaign"
-        }
+          as: "campaign",
+        },
       },
       { $unwind: "$campaign" },
 
@@ -120,8 +113,8 @@ export const getDonationsByOrg = async (req, res) => {
       {
         $match: {
           ...(goalToken && { "campaign.goalToken": goalToken }),
-          ...(cause && { "campaign.cause": cause })
-        }
+          ...(cause && { "campaign.cause": cause }),
+        },
       },
 
       // 🔗 Join User
@@ -130,8 +123,8 @@ export const getDonationsByOrg = async (req, res) => {
           from: "users",
           localField: "userId",
           foreignField: "_id",
-          as: "user"
-        }
+          as: "user",
+        },
       },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
 
@@ -143,10 +136,10 @@ export const getDonationsByOrg = async (req, res) => {
               input: "$amount",
               to: "double",
               onError: 0,
-              onNull: 0
-            }
-          }
-        }
+              onNull: 0,
+            },
+          },
+        },
       },
 
       // 📦 Shape response
@@ -167,8 +160,8 @@ export const getDonationsByOrg = async (req, res) => {
           cause: "$campaign.cause",
           goalToken: "$campaign.goalToken",
 
-          donorProfileImage: "$user.profileImage"
-        }
+          donorProfileImage: "$user.profileImage",
+        },
       },
 
       // 📊 Sort
@@ -176,7 +169,7 @@ export const getDonationsByOrg = async (req, res) => {
 
       // 📄 Pagination
       { $skip: skip },
-      { $limit: limitNumber }
+      { $limit: limitNumber },
     ];
 
     const donations = await DonationRecord.aggregate(pipeline);
@@ -190,19 +183,19 @@ export const getDonationsByOrg = async (req, res) => {
           from: "campaigns",
           localField: "campaignId",
           foreignField: "id",
-          as: "campaign"
-        }
+          as: "campaign",
+        },
       },
       { $unwind: "$campaign" },
 
       {
         $match: {
           ...(goalToken && { "campaign.goalToken": goalToken }),
-          ...(cause && { "campaign.cause": cause })
-        }
+          ...(cause && { "campaign.cause": cause }),
+        },
       },
 
-      { $count: "count" }
+      { $count: "count" },
     ]);
 
     const totalRecords = totalRecordsAgg[0]?.count || 0;
@@ -211,7 +204,7 @@ export const getDonationsByOrg = async (req, res) => {
     const uniqueDonorsAgg = await DonationRecord.aggregate([
       { $match: baseMatch },
       { $group: { _id: "$donor" } },
-      { $count: "total" }
+      { $count: "total" },
     ]);
 
     const totalUniqueDonors = uniqueDonorsAgg[0]?.total || 0;
@@ -227,23 +220,23 @@ export const getDonationsByOrg = async (req, res) => {
               input: "$amount",
               to: "double",
               onError: 0,
-              onNull: 0
-            }
-          }
-        }
+              onNull: 0,
+            },
+          },
+        },
       },
 
       {
         $group: {
           _id: {
             year: { $year: "$createdAt" },
-            month: { $month: "$createdAt" }
+            month: { $month: "$createdAt" },
           },
-          total: { $sum: "$amountNumber" }
-        }
+          total: { $sum: "$amountNumber" },
+        },
       },
 
-      { $sort: { "_id.year": -1, "_id.month": -1 } }
+      { $sort: { "_id.year": -1, "_id.month": -1 } },
     ]);
 
     return sendResponse(res, 200, "Donations fetched successfully", {
@@ -255,9 +248,8 @@ export const getDonationsByOrg = async (req, res) => {
       totalUniqueDonors,
       monthlyRevenue,
 
-      donations
+      donations,
     });
-
   } catch (err) {
     console.error("❌ Error:", err);
     return sendResponse(res, 500, err.message);
@@ -276,7 +268,7 @@ export const markDonationFailed = async (req, res) => {
       ngoWallet,
       isAnonymous = false,
       donorName = "Anonymous",
-      userId = null
+      userId = null,
     } = req.body;
 
     if (!txHash) {
@@ -285,14 +277,19 @@ export const markDonationFailed = async (req, res) => {
 
     // 🔍 Check if already exists
     const existing = await DonationRecord.findOne({
-      transactionHash: txHash
+      transactionHash: txHash,
     });
 
     // 🔁 If exists → update safely
     if (existing) {
       // ✅ Don't override success
       if (existing.status === "success") {
-        return sendResponse(res, 200, "Already successful, not updating", existing);
+        return sendResponse(
+          res,
+          200,
+          "Already successful, not updating",
+          existing,
+        );
       }
 
       existing.status = "failed";
@@ -313,11 +310,10 @@ export const markDonationFailed = async (req, res) => {
       donorName,
       userId,
       transactionHash: txHash,
-      status: "failed"
+      status: "failed",
     });
 
     return sendResponse(res, 200, "Failed donation saved", donation);
-
   } catch (err) {
     console.error("❌ Error:", err.message);
     return sendResponse(res, 500, err.message);
