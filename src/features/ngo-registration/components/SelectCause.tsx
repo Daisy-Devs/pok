@@ -47,7 +47,7 @@ const SelectCause: React.FC<SelectCauseProps> = ({ setCause, cause }) => {
     >
       {causes.map((cause) => (
         <ToggleGroupItem
-          className="flex flex-col items-center justify-center rounded-xl py-9 bg-background-secondary border-0.5"
+          className="flex flex-col items-center justify-center rounded-xl shrink-0 py-9 bg-background-secondary border-0.5"
           key={cause.name}
           value={cause.name}
         >
