@@ -54,6 +54,13 @@ export const campaignApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateCampaign: builder.mutation({
+      query: ({id,data}) => ({
+        url: ENDPOINTS.campaign.updateCampaign.replace(":id",id),
+        method: "POST",
+        body: data,
+      }),
+    })
   }),
 });
 export const {
@@ -63,4 +70,5 @@ export const {
   useGetAllOrganizationsQuery,
   useCreateCampaignMutation,
   useGetCampaignByOrgQuery,
+  useUpdateCampaignMutation
 } = campaignApi;
