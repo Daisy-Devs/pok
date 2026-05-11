@@ -68,6 +68,7 @@ export default function SignUp() {
         <Image
           src="/inspiringVisual.jpg"
           alt="visual"
+          fill
           className="absolute inset-0 h-full w-full object-cover"
         />
 

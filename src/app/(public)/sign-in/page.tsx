@@ -54,6 +54,7 @@ export default function SignIn() {
             name: res.data.userObj.name,
             email: res.data.userObj.email,
             role: "Donor",
+            id: res.data.userObj._id,
           }),
         );
         router.replace("/");
@@ -71,6 +72,7 @@ export default function SignIn() {
         <Image
           src="/inspiringVisual.jpg"
           alt="visual"
+          fill
           className="absolute inset-0 h-full w-full object-cover"
         />
 
