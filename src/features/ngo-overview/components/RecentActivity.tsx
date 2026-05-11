@@ -33,7 +33,7 @@ export function RecentActivity() {
   return (
     <div className="flex flex-col gap-4">
       
-      <h2 className="text-xl font-bold">Recent Activity</h2>
+      <h2 className="text-lg sm:text-xl font-bold">Recent Activity</h2>
 
       {activities.map((item, index) => (
         <div
@@ -42,7 +42,7 @@ export function RecentActivity() {
         >
           {/* Dot */}
           <span
-            className={`mt-2 h-3 w-3 rounded-full ${
+            className={`mt-2 h-3 w-3 shrink-0 rounded-full ${
               item.color === "green"
                 ? "bg-secondary"
                 : "bg-primary"
@@ -50,7 +50,7 @@ export function RecentActivity() {
           />
 
           {/* Content */}
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <p className="font-medium">{item.title}</p>
             <p className="text-sm text-foreground">
               {item.description}
