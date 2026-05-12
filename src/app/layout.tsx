@@ -34,8 +34,10 @@ export default function RootLayout({
       <head></head>
       <body className="min-h-full">
         <Providers>
-          {children}
-          <GlobalLoader />
+          <div className="relative min-h-screen">
+            {children}
+            <GlobalLoader />
+          </div>
         </Providers>
         <Toaster richColors={true} position="top-center" theme="light" />
       </body>
