@@ -56,6 +56,12 @@ export const donationApi = apiSlice.injectEndpoints({
         },
       }),
     }),
+    getWithdrawableBalance: builder.query({
+      query: () => ({
+        url: ENDPOINTS.withdrawal.getWithdrawableBalance,
+        method: "GET",
+      }),
+    }),
     getAllWithdrawals: builder.query({
       query: () => ({
         url: ENDPOINTS.withdrawal.getWithdrawal,
@@ -78,4 +84,5 @@ export const {
   useGetWithdrawalByCampaignQuery,
   useGetDonationByOrganisationQuery,
   useGetAllWithdrawalsQuery,
+  useGetWithdrawableBalanceQuery
 } = donationApi;

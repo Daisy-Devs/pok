@@ -4,13 +4,16 @@ import {
   claimableCampaignsColumns,
   claimHistoryColumns,
 } from "@/src/features/withdraw/columns";
-import { useGetAllWithdrawalsQuery } from "@/src/store/services/api/donationApi";
+import { formatCryptoAmount } from "@/src/lib/utils";
+import { useGetAllWithdrawalsQuery, useGetWithdrawableBalanceQuery } from "@/src/store/services/api/donationApi";
 import Image from "next/image";
 
 const WithdrawFunds = () => {
   const { data: claimHistory, error: claimHistoryError } =
     useGetAllWithdrawalsQuery({});
-  console.log("cl", claimHistory,claimHistoryError);
+  const { data: balance, error: balanceFetchError } =
+    useGetWithdrawableBalanceQuery({});
+
 
   const claimableCampaigns = claimHistory?.data?.balances
     ?.map((campaign: any) => ({
@@ -31,7 +34,7 @@ const WithdrawFunds = () => {
   ) || [];
   return (
     <div className="px-4 space-y-7">
-      <div className="grid grid-cols-4 gap-x-5">
+      <div className="grid grid-cols-4 gap-x-3">
         <div className="flex flex-col bg-tertiary rounded-3xl p-8">
           <div className="flex gap-2 items-center">
             <div className="rounded-full flex justify-center items-center aspect-square h-6 bg-white">
@@ -47,7 +50,7 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
+          <h1 className="text-white font-extrabold line-clamp-1 text-3xl">{formatCryptoAmount(balance?.data.ETH,"ETH")}</h1>
         </div>
         <div className="flex flex-col bg-tertiary rounded-3xl p-8">
           <div className="flex gap-2 items-center">
@@ -59,7 +62,7 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
+          <h1 className="text-white font-extrabold text-3xl">{formatCryptoAmount(balance?.data.USDC,"USDC")}</h1>
         </div>
         <div className="flex flex-col bg-tertiary rounded-3xl p-8">
           <div className="flex gap-2 items-center">
@@ -77,9 +80,9 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
+          <h1 className="text-white font-extrabold text-3xl">{formatCryptoAmount(balance?.data.USDT,"USDT")}</h1>
         </div>
-        <div className="flex flex-col bg-tertiary rounded-3xl p-8">
+        <div className="flex flex-col bg-tertiary rounded-3xl text-ellipsis p-8">
           <div className="flex gap-2 items-center">
             <div className="rounded-full flex justify-center items-center aspect-square h-6 bg-white">
               <Image
@@ -95,7 +98,7 @@ const WithdrawFunds = () => {
           <p className="text-white text-sm font-semibold uppercase mt-2">
             available
           </p>
-          <h1 className="text-white font-extrabold text-3xl">{42.95}</h1>
+          <h1 className="text-white font-extrabold text-3xl">{formatCryptoAmount(balance?.data.DAI,"DAI")}</h1>
         </div>
       </div>
       <div className="space-y-6">

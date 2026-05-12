@@ -28,16 +28,17 @@ export const ENDPOINTS = {
     getCampaignById: "/campaign/:id",
     getAllOrganizations: "/campaign/organizations/:organizationId",
     createCampaign: "/campaign/create",
-    getCampaignByOrg: "/campaign/org",//campaigns inside organisation
+    getCampaignByOrg: "/campaign/org", //campaigns inside organisation
     updateCampaign: "/campaign/:id",
   },
   donation: {
     getAllDonations: "/donation/",
     getDonationsByCampaign: "/donation/:campaignId",
     getDonationsByDonor: "/donation/user",
-    getDonationsByOrg: "/donation/org/history",//to get all donations for campaigns under an org
+    getDonationsByOrg: "/donation/org/history", //to get all donations for campaigns under an org
   },
   withdrawal: {
+    getWithdrawableBalance: "/donation/getWithdrawBalance",
     getWithdrawal: "/donation/withdraw",
   },
   documents: {
