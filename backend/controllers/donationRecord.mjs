@@ -64,41 +64,37 @@ export const getDonationsByDonor = async (req, res) => {
 export const getDonationsByOrg = async (req, res) => {
   try {
     const ngoId = req.ngoId;
-
     const org = await Organization.findById(ngoId);
 
     if (!org) {
       return sendResponse(res, 404, "Organization not found");
     }
 
-    const { page = 1, limit = 5, days, goalToken, cause } = req.query;
+    const {
+      page = 1,
+      limit = 5,
+      days,
+      goalToken,
+      cause,
+      export: isExport,
+    } = req.query;
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
     const skip = (pageNumber - 1) * limitNumber;
-
-    // ✅ FIX: use wallet from DB/auth
     const normalizedWallet = org.walletAddress.toLowerCase();
 
-    // 📅 Date filter
-    let dateFilter = {};
-    if (days) {
+    
+    let baseMatch = { ngoWallet: normalizedWallet };
+    if (days && days !== "all") {
       const pastDate = new Date();
       pastDate.setDate(pastDate.getDate() - Number(days));
-      dateFilter.createdAt = { $gte: pastDate };
+      baseMatch.createdAt = { $gte: pastDate };
     }
 
-    // ✅ Base match (reusable)
-    const baseMatch = {
-      ngoWallet: normalizedWallet,
-      ...dateFilter,
-    };
-
-    // 🔥 MAIN PIPELINE
-    const pipeline = [
+   
+    const sharedPipeline = [
       { $match: baseMatch },
-
-      // 🔗 Join Campaign
       {
         $lookup: {
           from: "campaigns",
@@ -108,16 +104,77 @@ export const getDonationsByOrg = async (req, res) => {
         },
       },
       { $unwind: "$campaign" },
-
-      // 🎯 Filters
       {
         $match: {
-          ...(goalToken && { "campaign.goalToken": goalToken }),
-          ...(cause && { "campaign.cause": cause }),
+          ...(goalToken &&
+            goalToken !== "all" && { "campaign.goalToken": goalToken }),
+          ...(cause && { "campaign.cause": { $regex: cause, $options: "i" } }),
         },
       },
+    ];
 
-      // 🔗 Join User
+    // 3. HANDLE CSV EXPORT CASE
+    if (isExport === "true") {
+      const exportData = await DonationRecord.aggregate([
+        ...sharedPipeline,
+        { $sort: { createdAt: -1 } },
+        {
+          $project: {
+            donorName: { $ifNull: ["$donorName", "Anonymous"] },
+            donor: 1,
+            amount: 1,
+            asset: "$campaign.goalToken",
+            campaignTitle: "$campaign.title",
+            cause: "$campaign.cause",
+            createdAt: 1,
+            txHash: "$transactionHash",
+            status: 1,
+          },
+        },
+      ]);
+
+      const headers = [
+        "Donor Name",
+        "Wallet Address",
+        "Amount",
+        "Asset",
+        "Campaign",
+        "Cause",
+        "Date",
+        "Transaction Hash",
+        "Status",
+      ];
+      const rows = exportData.map((d) => {
+        return [
+          d.donorName,
+          d.donor,
+          d.amount,
+          d.asset,
+          d.campaignTitle,
+          d.cause,
+          new Date(d.createdAt).toLocaleString(),
+          d.txHash || "N/A",
+          d.status === "success" ? "CONFIRMED" : "FAILED",
+        ]
+          .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+          .join(",");
+      });
+
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=donation-history-${Date.now()}.csv`,
+      );
+
+      res.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
+
+      // Send the actual CSV string
+      return res.status(200).send([headers.join(","), ...rows].join("\n"));
+    }
+
+    
+    const donations = await DonationRecord.aggregate([
+      ...sharedPipeline,
       {
         $lookup: {
           from: "users",
@@ -127,8 +184,6 @@ export const getDonationsByOrg = async (req, res) => {
         },
       },
       { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
-
-      // 💰 Safe amount conversion
       {
         $addFields: {
           amountNumber: {
@@ -141,8 +196,6 @@ export const getDonationsByOrg = async (req, res) => {
           },
         },
       },
-
-      // 📦 Shape response
       {
         $project: {
           donor: 1,
@@ -152,80 +205,43 @@ export const getDonationsByOrg = async (req, res) => {
           token: 1,
           txHash: "$transactionHash",
           createdAt: 1,
-
-          // ✅ Use DB status (correct)
           status: 1,
-
           campaignTitle: "$campaign.title",
           cause: "$campaign.cause",
           goalToken: "$campaign.goalToken",
-
           donorProfileImage: "$user.profileImage",
         },
       },
-
-      // 📊 Sort
       { $sort: { createdAt: -1 } },
-
-      // 📄 Pagination
       { $skip: skip },
       { $limit: limitNumber },
-    ];
-
-    const donations = await DonationRecord.aggregate(pipeline);
-
-    // 📊 TOTAL COUNT (WITH SAME FILTERS)
-    const totalRecordsAgg = await DonationRecord.aggregate([
-      { $match: baseMatch },
-
-      {
-        $lookup: {
-          from: "campaigns",
-          localField: "campaignId",
-          foreignField: "id",
-          as: "campaign",
-        },
-      },
-      { $unwind: "$campaign" },
-
-      {
-        $match: {
-          ...(goalToken && { "campaign.goalToken": goalToken }),
-          ...(cause && { "campaign.cause": cause }),
-        },
-      },
-
-      { $count: "count" },
     ]);
 
+    
+    const totalRecordsAgg = await DonationRecord.aggregate([
+      ...sharedPipeline,
+      { $count: "count" },
+    ]);
     const totalRecords = totalRecordsAgg[0]?.count || 0;
 
-    // 👥 Unique donors
+    
     const uniqueDonorsAgg = await DonationRecord.aggregate([
       { $match: baseMatch },
       { $group: { _id: "$donor" } },
       { $count: "total" },
     ]);
-
     const totalUniqueDonors = uniqueDonorsAgg[0]?.total || 0;
 
-    // 📅 Monthly revenue
+    
     const monthlyRevenue = await DonationRecord.aggregate([
       { $match: baseMatch },
-
       {
         $addFields: {
           amountNumber: {
-            $convert: {
-              input: "$amount",
-              to: "double",
-              onError: 0,
-              onNull: 0,
-            },
+            $convert: { input: "$amount", to: "double", onError: 0, onNull: 0 },
           },
         },
       },
-
       {
         $group: {
           _id: {
@@ -235,19 +251,17 @@ export const getDonationsByOrg = async (req, res) => {
           total: { $sum: "$amountNumber" },
         },
       },
-
       { $sort: { "_id.year": -1, "_id.month": -1 } },
     ]);
 
+    // 8. FINAL RESPONSE
     return sendResponse(res, 200, "Donations fetched successfully", {
       page: pageNumber,
       limit: limitNumber,
       totalRecords,
       totalPages: Math.ceil(totalRecords / limitNumber),
-
       totalUniqueDonors,
       monthlyRevenue,
-
       donations,
     });
   } catch (err) {
@@ -255,4 +269,3 @@ export const getDonationsByOrg = async (req, res) => {
     return sendResponse(res, 500, err.message);
   }
 };
-
