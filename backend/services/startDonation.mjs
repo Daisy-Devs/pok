@@ -17,12 +17,20 @@ export const startDonationListener = () => {
         campaignOwner,
         amount,
         isAnonymous,
-        token
+        token,
       } = event.args;
 
       console.log("🔥 Event received");
       console.log("DB campaignIdBytes32:", campaignId);
+        // Get the transaction receipt
+  const receipt = await event.getTransactionReceipt();
 
+  if (receipt.status === 0) {
+    console.error("Transaction failed!", receipt.transactionHash);
+    return;
+  }
+  console.log("receipt stats",receipt.status);
+  
       const txHash = event.log.transactionHash;
 
       const normalizedDonor = donor.toLowerCase();
@@ -72,7 +80,7 @@ export const startDonationListener = () => {
         donorName,
         userId,
         txHash,
-        status: "success"
+        status: receipt.status === 1 ? "success" : "failed"
       });
 
       console.log("✅ Donation saved:", readableCampaignId);
@@ -89,8 +97,8 @@ export const startDonationListener = () => {
 
       console.log(`📊 totalRaised: ${totalRaised}, goal: ${goal}`);
 
-      // ✅ Mark completed only when goal is truly reached
-      if (campaign.status !== "completed" && totalRaised >= goal) {
+       // ✅ Mark completed only when goal is truly reached
+      if (campaign.status !== "completed" && totalRaised >= goal && receipt.status === 1) {
         campaign.status = "completed";
         campaign.completedAt = new Date();
         await campaign.save();
