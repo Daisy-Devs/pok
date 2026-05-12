@@ -71,19 +71,18 @@ export const donationApi = apiSlice.injectEndpoints({
         cache: "no-cache",
       }),
     }),
-    markDonationFailure: builder.mutation({
-      query: (failedDetails) => ({
-        url: ENDPOINTS.donation.markDonationFailure,
-        method: "POST",
-        body: failedDetails,
+    getWithdrawableBalance: builder.query({
+      query: () => ({
+        url: ENDPOINTS.withdrawal.getWithdrawableBalance,
+        method: "GET",
       }),
-      invalidatesTags: ["Donations"],
     }),
     getAllWithdrawals: builder.query({
       query: () => ({
         url: ENDPOINTS.withdrawal.getWithdrawal,
-        method: "GET",
+        method: "GET",    
       }),
+      providesTags: ['Donations'],
     }),
     getWithdrawalByCampaign: builder.query({
       query: (campaignId) => ({
@@ -100,6 +99,6 @@ export const {
   useGetWithdrawalByCampaignQuery,
   useGetDonationByOrganisationQuery,
   useDownloadDonationHistoryMutation,
-  useMarkDonationFailureMutation,
   useGetAllWithdrawalsQuery,
+  useGetWithdrawableBalanceQuery
 } = donationApi;
