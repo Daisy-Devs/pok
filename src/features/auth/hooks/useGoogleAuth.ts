@@ -41,6 +41,7 @@ export const useGoogleAuth = () => {
           name: res.data.data.name,
           email: res.data.data.email,
           role: "Donor",
+          id: res.data.data._id,
         }),
       );
     } catch (err) {

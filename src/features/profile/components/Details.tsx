@@ -20,9 +20,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
-import { loggedIn } from "@/src/store/services/slice/authSlice";
 import { toast } from "sonner";
-import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 
 const Details = () => {
   const { data: profileData, isLoading: isProfileLoading } =
@@ -140,13 +138,7 @@ const profileImage =
           connectWallet({ walletAddress: address })
             .unwrap()
             .then(() => {
-              dispatch(
-                loggedIn({
-                  name: user?.data?.name || "Donor",
-                  email: user?.data?.email || "",
-                  role: "Donor",
-                }),
-              );
+              toast.success("Wallet connected successfully");
             })
             .catch((err) => {
               console.log("Wallet connect API failed:", err);
