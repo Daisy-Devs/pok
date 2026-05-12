@@ -126,6 +126,9 @@ export const createCampaign = async (req, res) => {
       return sendResponse(res, 404, "Organization not found");
     }
 
+    if (missionStatement== "" && status!=="draft") {
+      return sendResponse(res, 400, "Mission Statement is required");
+    }
     if (organization.walletAddress.toLowerCase() !== walletAddress) {
       return sendResponse(res, 403, "Unauthorized NGO");
     }
