@@ -19,7 +19,7 @@ export const campaignApi = apiSlice.injectEndpoints({
           limit: params?.limit || 6,
           cause: params?.category === "All" ? "" : params?.category,
           search: params?.search,
-          sortBy: params?.sort,
+          sortBy: params?.sortBy,
         },
       }),
       providesTags: ['Campaigns'],

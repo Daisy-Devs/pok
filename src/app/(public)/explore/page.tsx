@@ -42,7 +42,7 @@ export default function ExplorePage() {
   //SECOND QUERY (for categories only)
   const { data: allData } = useGetAllCampaignsQuery({
     page: 1,
-    limit: 100, // enough to extract categories
+    limit: 100, 
   });
 
   useEffect(() => {

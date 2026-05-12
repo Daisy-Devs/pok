@@ -20,7 +20,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
   const displayRaised = campaign.raised || 0;
   const displayGoal = campaign.goal || 0;
   const displayProgress = campaign.progress || 0;
-  const router=useRouter();
+  const router = useRouter();
   const imageSource = image?.[0]?.url || "/svg/placeholder.svg";
 
   const statusStyles: Record<CampaignStatus, string> = {
@@ -29,7 +29,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
     completed: "bg-d-secondary-dark text-white",
   };
 
-console.log("Progress:", campaign.progress);
+  console.log("Progress:", campaign.progress);
   return (
     <Card
       variant="cause"
@@ -42,7 +42,7 @@ console.log("Progress:", campaign.progress);
           alt="Campaign"
           width={600}
           height={700}
-          className={`${!image?.[0]?`w-30 h-30 ml-20 mt-10` :`w-full h-full`} object-cover hover:scale-105 transition`}
+          className={`${!image?.[0] ? `w-30 h-30 ml-20 mt-10` : `w-full h-full`} object-cover hover:scale-105 transition`}
         />
 
         {/* Status Badge */}
@@ -57,15 +57,21 @@ console.log("Progress:", campaign.progress);
         <h3 className="font-bold text-lg">{title}</h3>
         <p
           className="text-sm text-foreground line-clamp-2"
-          dangerouslySetInnerHTML={
-            description ? { __html: description } : undefined
-          }
+          dangerouslySetInnerHTML={{
+            __html: description?.trim()
+              ? description
+              : status === "draft"
+                ? "<p>This draft campaign does not have a mission statement yet.</p>"
+                : "<p>No description available.</p>",
+          }}
         />
         {/* ACTIVE */}
-        {status === "active" && (
+        {(status === "active" || status === "draft") && (
           <>
-            <div className="text-lg font-bold">{raised} ETH raised</div>
-
+            {/* ONLY ACTIVE */}
+            {status === "active" && (
+              <div className="text-lg font-bold">{raised} ETH raised</div>
+            )}
             <div>
               <ProgressWithLabel
                 className="w-full h-3"
@@ -90,7 +96,15 @@ console.log("Progress:", campaign.progress);
         {status === "draft" && (
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-400">Last edited {lastEdited}</span>
-            <Button onClick={()=>{router.push(`/ngo/new-cause?editCampaign=${encodeURIComponent(JSON.stringify(campaign))}`)}} variant={"ghost"} text="Edit Draft" />
+            <Button
+              onClick={() => {
+                router.push(
+                  `/ngo/new-cause?editCampaign=${encodeURIComponent(JSON.stringify(campaign))}`,
+                );
+              }}
+              variant={"ghost"}
+              text="Edit Draft"
+            />
           </div>
         )}
 

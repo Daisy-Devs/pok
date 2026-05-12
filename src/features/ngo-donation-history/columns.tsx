@@ -98,8 +98,28 @@ export const donationHistoryColumns: ColumnDef<DonationHistory>[] = [
     cell: ({ row }) => {
       const { createdAt } = row.original;
 
+      const date = new Date(createdAt);
+
+      const formattedDate = date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+
+      const formattedTime = date
+        .toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace("AM", "am")
+        .replace("PM", "pm");
+
       return (
-        <div className="text-sm">{new Date(createdAt).toLocaleString()}</div>
+        <div className="text-sm flex flex-col leading-tight">
+          <span className="text-foreground font-bold">{formattedDate}</span>
+          <span className="text-foreground">{formattedTime}</span>
+        </div>
       );
     },
   },

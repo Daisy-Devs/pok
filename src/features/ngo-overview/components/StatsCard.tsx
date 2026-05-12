@@ -11,7 +11,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
   icon: Icon,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-white   rounded-xl p-5 w-full shadow-sm relative">
+    <div className="flex items-center justify-between bg-white   rounded-xl px-5 py-2 w-full shadow-sm relative">
       {/* Left Content */}
       <div className="flex flex-col gap-2 text-foreground font-semibold">
         <p>{title}</p>

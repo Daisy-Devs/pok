@@ -62,9 +62,9 @@ const NGODashboard = () => {
   ];
 
   return (
-    <div className="px-2 sm:px-4 lg:px-6 py-4 space-y-6">
+    <div className="w-full px-3 sm:px-4 lg:px-6 py-4 space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-4 gap-4">
         {statsData.map((stat, index) => (
           <StatsCard key={index} {...stat} />
         ))}
