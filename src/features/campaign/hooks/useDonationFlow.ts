@@ -1,7 +1,6 @@
 import { CONTRACT_ABI, swapRouterAbi } from "@/src/constants/contract";
 import { TOKENS, TokenSymbol, UNISWAP_ROUTER } from "@/src/constants/tokens";
 import { walletConfig } from "@/src/lib/walletConfig";
-import { useMarkDonationFailureMutation } from "@/src/store/services/api/donationApi";
 import { selectUser } from "@/src/store/services/selectors/authSelectors";
 import { useAppSelector } from "@/src/store/store";
 import { useState } from "react";
@@ -57,7 +56,6 @@ export function useDonationFlow({
   const user = useAppSelector(selectUser);
   const DONATION_CONTRACT = process.env
     .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
-  const [markDonationFailure, { error }] = useMarkDonationFailureMutation();
   let receipt: TransactionReceipt;
   async function execute() {
     try {
@@ -275,22 +273,6 @@ export function useDonationFlow({
     } catch (e) {
       console.error(e);
       setStep("error");
-      if (receipt) {
-        markDonationFailure({
-          txHash: receipt?.transactionHash,
-          donor: userAddress,
-          campaignId: basicCampaignId,
-          campaignIdBytes32: campaignId,
-          amount: amountIn.toString(),
-          token: TOKENS[campaignToken].address!,
-          ngoWallet: ngoWallet,
-          isAnonymous: anonymous,
-          donorName: user?.name,
-          userId: user?.id,
-        })
-          .unwrap()
-          .catch((e) => console.log(e));
-      }
       throw e;
     }
   }
