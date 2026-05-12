@@ -18,7 +18,7 @@ const CampaignSchema = new mongoose.Schema(
       required: true
     },
     title: { type: String, required: true },
-    missionStatement: { type: String, required: true },
+    missionStatement: { type: String },
     cause: { type: String, required: true },
     imageUrl: {
       type: [DocumentSchema],
