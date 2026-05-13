@@ -1,7 +1,7 @@
 "use client";
 
 import { nomenclature } from "@/src/constants/nomenclature";
-import { Bell, UserCircle2 } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { usePathname, useRouter } from "next/navigation";
@@ -112,8 +112,6 @@ const handleLogout = async () => {
       <div className="hidden md:flex items-center gap-4">
         {isLoggedIn ? (
           <>
-            <Bell size={20} className="cursor-pointer" />
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <UserCircle2 size={20} className="cursor-pointer" />
