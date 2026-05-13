@@ -5,10 +5,12 @@ import { Button } from "@/src/components/ui/button";
 import { ShieldCheck } from "lucide-react";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useRouter } from "next/dist/client/components/navigation";
+import { useAppSelector } from "@/src/store/store";
+import { selectIsAuthenticated } from "@/src/store/services/selectors/authSelectors";
 
 export default function HeroSection() {
   const router = useRouter();
-
+  const loggedIn=useAppSelector(selectIsAuthenticated);
   return (
     <div>
       <section className="pt-16 pb-16 relative overflow-hidden bg-[linear-gradient(160deg,#f0f0ff_0%,#f8f8ff_40%,#e8f4f8_100%)]">
@@ -50,7 +52,7 @@ export default function HeroSection() {
                   onClick={() => router.push("/explore")}
                 />
 
-                <Button text={nomenclature.REGISTER} variant={"white"} />
+               {!loggedIn && <Button onClick={()=>{router.push("/ngo/register")}} text={nomenclature.REGISTER} variant={"white"} />}
               </div>
             </div>
 
