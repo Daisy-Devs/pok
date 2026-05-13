@@ -287,12 +287,8 @@ export const updateUserProfileImage = async (req, res) => {
 
     await user.save();
 
-    return sendResponse(res, 200, 'Profile Image updated successfully', {
-      profileImage: {
-        name: file.originalname,
-        url: result.secure_url,
-        type: "image"
-      }
+    return sendResponse(res, 200, "Profile image updated successfully", {
+      profileImage: user.profileImage
     });
 
   } catch (err) {
