@@ -11,10 +11,10 @@ import {
   useDisconnect,
   useSignMessage,
 } from "wagmi";
-import { useWalletLoginMutation } from "@/src/store/services/api/walletApi";
+import { useWalletLoginMutation, useWalletLogoutMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { loggedIn, loggedOut } from "@/src/store/services/slice/authSlice";
 import { useRegisterNgoMutation } from "@/src/store/services/api/campaignApi";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
   const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
   const [walletLogin, { isLoading, error: walletLoginError }] =
     useWalletLoginMutation();
+    const [walletLogout]=useWalletLogoutMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [registerNgo, { isLoading: registerNgoLoading }] =
@@ -94,6 +95,8 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
             })
             .catch((err) => {
               toast.error("Failed to register NGO");
+              walletLogout({});
+              dispatch(loggedOut());
               console.log("ngo registration error:", err, walletLoginError);
             });
         })

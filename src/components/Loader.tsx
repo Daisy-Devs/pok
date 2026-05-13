@@ -2,7 +2,7 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Loader = () => {
   return (
-    <div className="absolute inset-0 z-99 flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
+    <div className="absolute h-full inset-0 z-99 flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
       {" "}
       <DotLottieReact
         src="/gif/Loading.lottie"
