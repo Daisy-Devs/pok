@@ -28,14 +28,12 @@ export function useDonationFlow({
   userToken,
   campaignToken,
   campaignId,
-  basicCampaignId,
   amountIn,
   amountOut,
   needsSwap,
   needsRouterApproval = true,
   needsDonationApproval = true,
   anonymous = false,
-  ngoWallet,
 }: {
   userAddress: `0x${string}`;
   userToken: TokenSymbol;

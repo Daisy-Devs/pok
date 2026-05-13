@@ -10,10 +10,11 @@ import Image from "next/image";
 
 const WithdrawFunds = () => {
   const { data: claimHistory, error: claimHistoryError } =
-    useGetAllWithdrawalsQuery({});
+    useGetAllWithdrawalsQuery();
   const { data: balance, error: balanceFetchError } =
     useGetWithdrawableBalanceQuery({});
-
+  console.log("cl",claimHistory);
+  
 
   const claimableCampaigns = claimHistory?.data?.balances
     ?.map((campaign: any) => ({

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { TokenSymbol } from "../constants/tokens";
 
 /**
  * A utility function to merge multiple class names into a single class
@@ -59,14 +60,21 @@ export function hideWalletAddress(address: `0x${string}` | undefined) {
 }
 
 
-export function formatCryptoAmount(amount: number, currency: string): string {
-  const decimalsMap: Record<string, number> = {
-    ETH: 6,
-    DAI: 2,
-    USDC: 2,
-    USDT: 2,
-  };
+const DISPLAY_DECIMALS: Record<TokenSymbol, number> = {
+  ETH:  4,
+  DAI:  2,
+  USDC: 2,
+  USDT: 2,
+};
 
-  const decimals = decimalsMap[currency?.toUpperCase()] ?? 2;
-  return parseFloat(amount?.toFixed(decimals))?.toString();
+export function formatCryptoAmount(amount: number, currency: TokenSymbol): string {
+  if (amount == null || !isFinite(amount) || isNaN(amount)) return "0.00";
+
+  const decimals = DISPLAY_DECIMALS[currency] ?? 2;
+
+  // Floor instead of round to never overstate balance
+  const factor = Math.pow(10, decimals);
+  const floored = Math.floor(amount * factor) / factor;
+
+  return floored.toFixed(decimals);
 }

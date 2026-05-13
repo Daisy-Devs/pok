@@ -11,7 +11,7 @@ import {
 import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 import { formatCryptoAmount, hideWalletAddress } from "@/src/lib/utils";
 import { BadgeCheck } from "lucide-react";
-import React, { FC, useRef } from "react";
+import React, { FC, useRef, useState } from "react";
 import { useConnection } from "wagmi";
 import { useWithdraw } from "../hooks/useWithdraw";
 import { TOKENS, TokenSymbol } from "@/src/constants/tokens";
@@ -19,6 +19,7 @@ import { parseUnits } from "viem";
 import { apiSlice } from "@/src/store/services/slice/apiSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type WithdrawModalProps = {
   campaignId: `0x${string}`;
@@ -34,12 +35,13 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
   category,
   disabled,
 }) => {
-  const Icon = CAUSE_CATEGORIES.find(
-    (currentCategory) => currentCategory.name === category,
-  )!.icon;
-  const [amount, setAmount] = React.useState<string>();
+  const categoryEntry = CAUSE_CATEGORIES.find((c) => c.name === category);
+  const Icon = categoryEntry?.icon ?? null;
+  const [amount, setAmount] = useState<string>("0");
+  const router = useRouter();
   const ref = useRef<HTMLButtonElement>(null);
   const token = balance.split(" ")[1] as TokenSymbol;
+  const [loading, setLoading] = useState(false);
   const balanceAmount = Number(balance.split(" ")[0]);
   const { address } = useConnection();
   const donationAmount =
@@ -68,7 +70,7 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
             <div className="flex justify-between">
               <div className="flex gap-4 items-center">
                 <div className="aspect-square flex justify-center items-center bg-primary-light w-14 rounded-xl">
-                {Icon &&  <Icon className="text-primary" size={30} />}
+                  {Icon && <Icon className="text-primary" size={30} />}
                 </div>
                 <div className="flex flex-col">
                   <span className="font-semibold text-secondaryText">
@@ -118,21 +120,33 @@ const WithdrawModal: FC<WithdrawModalProps> = ({
         </div>
         <div className="w-full flex flex-col gap-2">
           <Button
+            disabled={loading}
             onClick={async () => {
               try {
+                setLoading(true);
+                if (!amount || Number(amount) <= 0) {
+                  toast.error("Please enter a valid amount");
+                  return;
+                }
+                if (Number(amount) > balanceAmount) {
+                  toast.error("Amount exceeds available balance");                  
+                  return;
+                }
                 await withdraw();
-                setTimeout(() => {
-                  dispatch(apiSlice.util.invalidateTags(["Donations"]));
-                  ref.current?.click();
-                }, 2000);
+                setAmount("0");
+                dispatch(apiSlice.util.invalidateTags(["Donations"]));
+                ref.current?.click();
+                router.refresh();
               } catch (e) {
                 console.error(e);
                 toast.error("Failed to withdraw funds");
+              } finally {
+                setLoading(false);
               }
             }}
             size={"lg"}
             className="w-full font-extrabold rounded-lg"
-            text="Confirm Withdrawal"
+            text={loading ? "Withdrawing..." : "Confirm Withdrawal"}
           />
           <DialogClose ref={ref} asChild>
             <Button

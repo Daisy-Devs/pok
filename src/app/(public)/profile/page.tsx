@@ -2,7 +2,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -14,17 +13,14 @@ import { ProfileActivity } from "@/src/features/profile/types";
 import { timeAgo } from "@/src/lib/utils";
 import {
   Donation,
-  useGetDonationsByDonorQuery,useGetDonationsByCampaignQuery
-} from "@/src/store/services/api/donationApi";
+  useGetDonationsByDonorQuery} from "@/src/store/services/api/donationApi";
 import {
   ChevronRight,
-  HandHeart,
   UserCheck2,
   VectorSquare,
 } from "lucide-react";
 import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { useEffect } from "react";
 
 const Profile = () => {
   const { data: profileData, isLoading: isProfileLoading } =
