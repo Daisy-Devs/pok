@@ -12,6 +12,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
     image,
     raised,
     goal,
+    token,
     progress,
     lastEdited,
     status,
@@ -70,7 +71,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
           <>
             {/* ONLY ACTIVE */}
             {status === "active" && (
-              <div className="text-lg font-bold">{raised} ETH raised</div>
+              <div className="text-lg font-bold">{raised} {token} raised</div>
             )}
             <div>
               <ProgressWithLabel
@@ -87,7 +88,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
             </div>
 
             <div className="flex justify-between text-md font-bold text-foreground">
-              <span>Goal: {goal} ETH</span>
+              <span>Goal: {goal} {token}</span>
             </div>
           </>
         )}
@@ -111,7 +112,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
         {/* COMPLETED */}
         {status === "completed" && (
           <div className="text-secondary-dark font-semibold text-sm">
-            100% FUNDED ({goal} ETH)
+            100% FUNDED ({goal} {token})
           </div>
         )}
       </div>

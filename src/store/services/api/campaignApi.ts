@@ -22,7 +22,7 @@ export const campaignApi = apiSlice.injectEndpoints({
           sortBy: params?.sortBy,
         },
       }),
-      providesTags: ['Campaigns'],
+      providesTags: ['Campaigns','Campaign'],
     }),
     getCampaign: builder.query({
       query: (params) => ({
@@ -45,20 +45,23 @@ export const campaignApi = apiSlice.injectEndpoints({
         url: ENDPOINTS.campaign.createCampaign,
         method: "POST",
         body: data,
-        invalidatesTags:['Campaign','Campaigns']
       }),
+      invalidatesTags:['Campaign','Campaigns']
     }),
     getCampaignByOrg: builder.query({
       query: () => ({
         url: ENDPOINTS.campaign.getCampaignByOrg,
         method: "GET",
+        tags: ["Campaign",'Campaigns'],
       }),
+      providesTags: ['Campaigns','Campaign'],
     }),
     updateCampaign: builder.mutation({
       query: ({id,data}) => ({
         url: ENDPOINTS.campaign.updateCampaign.replace(":id",id),
         method: "POST",
         body: data,
+        invalidatesTags:['Campaign','Campaigns']
       }),
     })
   }),

@@ -80,13 +80,14 @@ const CreateNewCause = () => {
   const saveAsDraft = async () => {
     try {
       if (data) {
+        console.log("upp",campaignData);
         const res = await updateCampaign({
           id: data.id,
           data: { ...campaignData, status: "draft" },
         }).unwrap();
         console.log("updated cause", res);
         toast.success("Campaign updated and saved as draft");
-        router.push("/ngo/causes");
+        // router.push("/ngo/causes");
         setCampaignData({
         title: "",
         cause: "",
