@@ -18,6 +18,7 @@ import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated, selectUser } from "../store/services/selectors/authSelectors";
 import { splitTitle } from "../lib/utils";
 import { apiSlice } from "../store/services/slice/apiSlice";
+import Link from "next/link";
 
 interface NGOHeaderProps {
   walletAddress: string;
@@ -71,10 +72,10 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
     <div className="flex justify-between p-5">
       {isLoggedIn?<h4 className="text-2xl font-extrabold">{pageTitle}</h4>:
      (
-      <div className="flex">
+      <Link href="/" className="flex">
       <h3 className="text-2xl font-extrabold">{firstHalf}</h3>
       <h3 className="text-2xl font-extrabold text-primary">{secondHalf.replace(" ","")}</h3>
-      </div>
+      </Link>
       )
   }
     {isLoggedIn && (
