@@ -76,6 +76,23 @@ export const claimHistoryColumns: ColumnDef<ClaimHistory>[] = [
   {
     accessorKey: "date",
     header: "Date",
+    cell:({row})=>{ 
+      const date = new Date(row.original.date);
+          const formattedDate = date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric",
+      });
+
+      const formattedTime = date
+        .toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace("AM", "am")
+        .replace("PM", "pm");
+    return<div>{formattedDate}, {formattedTime}</div>}
   },
   {
     accessorKey: "actions",
