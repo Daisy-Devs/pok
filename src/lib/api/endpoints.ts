@@ -35,7 +35,7 @@ export const ENDPOINTS = {
     getAllDonations: "/donation/",
     getDonationsByCampaign: "/donation/:campaignId",
     getDonationsByDonor: "/donation/user",
-    getDonationsByOrg: "/donation/org/history", //to get all donations for campaigns under an org
+    getDonationsByOrg: "/donation/org/history",
   },
   withdrawal: {
     getWithdrawableBalance: "/donation/getWithdrawBalance",

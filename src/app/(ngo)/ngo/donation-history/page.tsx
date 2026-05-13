@@ -44,6 +44,8 @@ export default function DonationHistory() {
           onDateChange={setDateRange}
           totalRecords={totalRecords}
           isLoading={isLoading || isFetching}
+          donations={donations}
+          currentFilters={{ days: dateRange, goalToken: assetFilter, cause: searchQuery }}
         />
 
         <div>

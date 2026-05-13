@@ -32,7 +32,7 @@ export const donationApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-    
+
     getDonationsByCampaign: builder.query<Donation[], string>({
       query: (campaignId) => ({
         url: ENDPOINTS.donation.getDonationsByCampaign.replace(
@@ -41,9 +41,12 @@ export const donationApi = apiSlice.injectEndpoints({
         ),
         method: "GET",
       }),
-      transformResponse: (response: any) => response.data,
+
+      transformResponse: (response: any) => {
+        return response.data?.donations ?? response.data ?? [];
+      },
     }),
-    getDonationByOrganisation: builder.query({
+    getDonationByOrganisation: builder.query<any, any>({
       query: (params) => ({
         url: ENDPOINTS.donation.getDonationsByOrg,
         method: "GET",
@@ -54,6 +57,18 @@ export const donationApi = apiSlice.injectEndpoints({
           goalToken: params.goalToken,
           cause: params.cause,
         },
+      }),
+    }),
+    downloadDonationHistory: builder.mutation({
+      query: (params) => ({
+        url: ENDPOINTS.donation.getDonationsByOrg,
+        method: "GET",
+        params: { ...params, export: "true" },
+        responseHandler: async (response: Response) => {
+          const text = await response.text();
+          return new Blob([text], { type: "text/csv" });
+        },
+        cache: "no-cache",
       }),
     }),
     getWithdrawableBalance: builder.query({
@@ -83,6 +98,7 @@ export const {
   useGetDonationsByCampaignQuery,
   useGetWithdrawalByCampaignQuery,
   useGetDonationByOrganisationQuery,
+  useDownloadDonationHistoryMutation,
   useGetAllWithdrawalsQuery,
   useGetWithdrawableBalanceQuery
 } = donationApi;
