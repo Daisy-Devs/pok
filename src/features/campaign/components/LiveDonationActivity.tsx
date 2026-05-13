@@ -71,6 +71,7 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
                     href={`${process.env.NEXT_PUBLIC_ETHER_SCAN}${activity.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="View transaction on Etherscan"
                   >
                     <ChevronRight size={12} />
                   </a>

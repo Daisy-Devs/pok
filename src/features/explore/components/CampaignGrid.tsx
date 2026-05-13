@@ -39,8 +39,11 @@ export default function CampaignGrid({
                   if (currentPage > 1) onPageChange(currentPage - 1);
                 }}
                 // Added !flex-row and items-center to prevent the stacking seen in your screenshot
-                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                  
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
 
@@ -67,8 +70,11 @@ export default function CampaignGrid({
                   e.preventDefault();
                   if (currentPage < totalPages) onPageChange(currentPage + 1);
                 }}
-                // Added !flex-row and items-center here as well
-                className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
           </PaginationContent>

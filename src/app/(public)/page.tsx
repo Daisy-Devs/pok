@@ -7,13 +7,10 @@ import Philanthropy from "@/src/features/home/components/Philanthropy";
 export default function Home() {
   return (
     <div className="bg-white overflow-x-hidden">
-      {/* ── HERO ── */}
       <HeroSection />
 
-      {/* ──  PHILANTHROPY ── */}
       <Philanthropy />
 
-      {/* ── URGENT CAUSES ── */}
       <CampaignCauses />
     </div>
   );

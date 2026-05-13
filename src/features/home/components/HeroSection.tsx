@@ -6,28 +6,14 @@ import { ShieldCheck } from "lucide-react";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useRouter } from "next/dist/client/components/navigation";
 
-
 export default function HeroSection() {
   const router = useRouter();
 
   return (
     <div>
-      <section
-        className="pt-16 pb-16 relative overflow-hidden"
-        style={{
-          background:
-            "linear-gradient(160deg,#f0f0ff 0%,#f8f8ff 40%,#e8f4f8 100%)",
-        }}
-      >
+      <section className="pt-16 pb-16 relative overflow-hidden bg-[linear-gradient(160deg,#f0f0ff_0%,#f8f8ff_40%,#e8f4f8_100%)]">
         {/* Dot grid */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle,#d1d5db 1px,transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
+        <div className="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(circle,#d1d5db_1px,transparent_1px)] bg-size-[24px_24px]" />
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">
           <div className="flex flex-col lg:flex-row items-start gap-16">

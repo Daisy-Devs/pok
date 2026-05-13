@@ -4,21 +4,12 @@ import Image from "next/image";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { Button } from "@/src/components/ui/button";
 import { useRouter } from "next/navigation";
+import { MoveRight } from "lucide-react";
 
 export function CampaignCard({ campaign }: { campaign: Campaign }) {
-  const {
-    title,
-    description,
-    image,
-    raised,
-    goal,
-    progress,
-    lastEdited,
-    status,
-  } = campaign;
+  const { title, description, image, raised, goal, lastEdited, status } =
+    campaign;
 
-  const displayRaised = campaign.raised || 0;
-  const displayGoal = campaign.goal || 0;
   const displayProgress = campaign.progress || 0;
   const router = useRouter();
   const imageSource = image?.[0]?.url || "/svg/placeholder.svg";
@@ -104,6 +95,7 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
               }}
               variant={"ghost"}
               text="Edit Draft"
+              leftIcon={<MoveRight className="w-4 h-4" />}
             />
           </div>
         )}

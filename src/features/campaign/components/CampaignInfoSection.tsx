@@ -11,7 +11,7 @@ import {
 } from "@/src/components/ui/carousel";
 import { ProgressWithLabel } from "@/src/components/ui/progress";
 import { formatCryptoAmount, splitTitle } from "@/src/lib/utils";
-import { CheckCircle2, ShieldCheck, Users2, Globe2, Mail } from "lucide-react";
+import { CheckCircle2, ShieldCheck, Users2 } from "lucide-react";
 import Image from "next/image";
 import DonationCard from "./DonationCard";
 import Autoplay from "embla-carousel-autoplay";
@@ -22,11 +22,11 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { CampaignApi } from "../../explore/types";
 
 interface CampaignInfoSectionProps {
-  data:{data:CampaignApi}
+  data: { data: CampaignApi };
 }
 
-const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
-  const campaign = data?.data  
+const CampaignInfoSection = ({ data }: CampaignInfoSectionProps) => {
+  const campaign = data?.data;
   const title = splitTitle(campaign?.title);
   const progress = campaign?.goalAmount
     ? Math.ceil(((campaign?.totalRaised || 0) / campaign?.goalAmount) * 100)
@@ -53,7 +53,7 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
       <div className="flex flex-col items-center md:items-start gap-6 xl:gap-16 xl:w-1/2">
         <div className="flex flex-col justify-center">
           <div className="flex gap-3">
-            {isActive  && <Pill text="Active Campaign" variant="primary" />}
+            {isActive && <Pill text="Active Campaign" variant="primary" />}
             {nearGoal && (
               <Pill
                 text="Goal Near"
@@ -74,26 +74,28 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
           ]}
         >
           <CarouselContent className="-ml-2">
-            {campaign?.imageUrl?.map((image:{ public_id: string; url: string }, index: number) => {
-              return (
-                <CarouselItem key={index} className="pl-2 basis-full">
-                  <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
-                    <Image
-                      src={
-                        image?.url?.includes("cloudinary")
-                          ? image?.url
-                          : DEFAULT_IMAGE_URL
-                      }
-                      alt={"image" + index}
-                      fill
-                      sizes="320px"
-                      className="object-cover"
-                      priority={index === 0}
-                    />
-                  </div>
-                </CarouselItem>
-              );
-            })}
+            {campaign?.imageUrl?.map(
+              (image: { public_id: string; url: string }, index: number) => {
+                return (
+                  <CarouselItem key={index} className="pl-2 basis-full">
+                    <div className="relative w-full h-50 md:h-80 xl:h-100 overflow-hidden rounded-xl">
+                      <Image
+                        src={
+                          image?.url?.includes("cloudinary")
+                            ? image?.url
+                            : DEFAULT_IMAGE_URL
+                        }
+                        alt={"image" + index}
+                        fill
+                        sizes="320px"
+                        className="object-cover"
+                        priority={index === 0}
+                      />
+                    </div>
+                  </CarouselItem>
+                );
+              },
+            )}
           </CarouselContent>
 
           <CarouselPrevious className="left-5" />
@@ -113,7 +115,11 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
             label={
               <span className="text-primaryText text-lg">
                 <span className="font-extrabold text-2xl text-secondaryText">
-                  {formatCryptoAmount(campaign?.totalRaised,campaign?.goalToken) || 0} {campaign?.goalToken}
+                  {formatCryptoAmount(
+                    campaign?.totalRaised,
+                    campaign?.goalToken,
+                  ) || 0}{" "}
+                  {campaign?.goalToken}
                 </span>{" "}
                 of {campaign?.goalAmount} {campaign?.goalToken} raised
               </span>
@@ -126,7 +132,9 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
             intent={"subtle"}
             label="Cause"
             value={campaign?.cause}
-            icon={Icon && <Icon className="w-5 h-5 color-primary" color="#4648D4" />}
+            icon={
+              Icon && <Icon className="w-5 h-5 color-primary" color="#4648D4" />
+            }
           />
           <StatCard
             variant="sm"
@@ -147,24 +155,26 @@ const CampaignInfoSection = ({ data }:CampaignInfoSectionProps) => {
         </div>
       </div>
       <div>
-        {campaign?.isGoalReached?
-        <div className="flex flex-col justify-center items-center space-y-3 p-7 rounded-3xl border-2 border-primary-light">
-          <DotLottieReact
-                      src="/gif/GoalAchieved.lottie"
-                      loop
-                      autoplay
-                      style={{ width: 200, height: 200 }}
-                    />
-                    <p className="text-xl font-extrabold text-center text-primary mt-2">
-                      Goal Achieved🎉. Kindness Reached Its Target!
-                    </p>
-                  </div>:
-        <DonationCard
-          campaignIdentifier={campaign?.id}
-          campaignId={campaign?.campaignIdBytes32}
-          campaignToken={campaign?.goalToken}
-          ngoWallet={campaign?.organization?.walletAddress}
-        />}
+        {campaign?.isGoalReached ? (
+          <div className="flex flex-col justify-center items-center space-y-3 p-7 rounded-3xl border-2 border-primary-light">
+            <DotLottieReact
+              src="/gif/GoalAchieved.lottie"
+              loop
+              autoplay
+              style={{ width: 200, height: 200 }}
+            />
+            <p className="text-xl font-extrabold text-center text-primary mt-2">
+              Goal Achieved🎉. Kindness Reached Its Target!
+            </p>
+          </div>
+        ) : (
+          <DonationCard
+            campaignIdentifier={campaign?.id}
+            campaignId={campaign?.campaignIdBytes32}
+            campaignToken={campaign?.goalToken}
+            ngoWallet={campaign?.organization?.walletAddress}
+          />
+        )}
         <OrganisationDetails organisation={organisationData} />
       </div>
     </div>

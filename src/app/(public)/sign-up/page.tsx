@@ -13,8 +13,6 @@ import { Eye, EyeOff } from "lucide-react";
 import { validators } from "@/src/constants/validation";
 import Image from "next/image";
 
-
-
 export default function SignUp() {
   const [signUpData, setSignUpData] = useState({
     name: "",
@@ -58,20 +56,21 @@ export default function SignUp() {
       })
       .catch((err) => {
         console.log("Error during sign up:", err, error, signUpData);
-        toast.error(`Sign up failed.${err?.data ? ` Reason: ${err.data}. ` : ""}`);
+        toast.error(
+          `Sign up failed.${err?.data ? ` Reason: ${err.data}. ` : ""}`,
+        );
       });
   };
   return (
     <div className="grid min-h-screen  overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
-      <div className="relative hidden lg:block">
+      <div className="relative hidden lg:block h-235 w-full">
         <Image
           src="/inspiringVisual.jpg"
           alt="visual"
           fill
-          className="absolute inset-0 h-full w-full object-cover"
+          className="object-cover"
         />
-
         <div className="absolute inset-0 bg-linear-to-br from-indigo-900/70 via-blue-800/60 to-indigo-600/60" />
 
         <div className="relative z-10 flex h-full flex-col justify-center px-6 lg:px-12 text-white space-y-4">

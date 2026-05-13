@@ -179,7 +179,7 @@ const CreateNewCause = () => {
         />
       </div>
       {/** Banner */}
-      <div className="flex flex-col md:flex-row md:justify-between px-4 bg-gradient-to-tr from-[#131B2E] via-[#162036] to-[#324572] rounded-2xl">
+      <div className="flex flex-col md:flex-row md:justify-between px-4 bg-linear-to-tr from-[#131B2E] via-[#162036] to-[#324572] rounded-2xl">
         <div className="p-7">
           <h2 className="text-2xl font-bold text-white md:w-xs">
             Your cause will be showcased to over 50,000 verified crypto donors.
