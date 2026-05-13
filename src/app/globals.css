@@ -6,11 +6,14 @@
   --color-background: var(--background);
   --color-background-secondary: var(--background-secondary);
   --color-foreground: var(--foreground);
+  --color-primaryText: var(--text-primary-color);
+  --color-secondaryText: var(--text-secondary-color);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-progress: var(--primary-progress);
   --color-primary-light: var(--primary-light);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -47,7 +50,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
- 
+
 :root {
   --radius: 12px;
 
@@ -66,6 +69,7 @@
 
   /* Primary */
   --primary: #4648D4;
+  --primary-progress: rgba(192, 193, 240, 0.82);
   --primary-light: #E1E0FF;
   --primary-foreground: oklch(0.985 0 0);
 
@@ -73,12 +77,13 @@
   --secondary: #6FFBBE;
   --secondary-dark: #009668;
   --secondary-foreground: var(--text-color);
+  --secondary-mute: ##7C839B;
 
   /* Tertiary */
   --tertiary: #131B2E;
 
   /* Muted / Accent */
-  --muted: oklch(0.97 0 0);
+  --muted: #E6E8EA;
   --muted-foreground: oklch(0.556 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -87,9 +92,9 @@
   --destructive: oklch(0.577 0.245 27.325);
 
   /* UI elements */
-  --border: oklch(0.922 0 0);
+  --border: #C6C6CD;
   --input: #E0E3E5;
-  --ring: oklch(0.708 0 0);
+  --ring: rgba(192, 193, 240, 0.82);
 
   /* Charts */
   --chart-1: oklch(0.646 0.222 41.116);
@@ -109,16 +114,33 @@
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Text */
-  --text-color: #45464D;
+  --text-primary-color: #45464D;
+  --text-secondary-color: #191C1E;
 
 }
- 
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-primaryText font-normal;
+    font-family: var(--font-manrope), sans-serif;
   }
+
 }
 
+  .ProseMirror h1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  .ProseMirror ul {
+  list-style: disc !important;
+  padding-left: 1.5rem !important;
+}
+
+.ProseMirror ol {
+  list-style: decimal !important;
+  padding-left: 1.5rem !important;
+}
