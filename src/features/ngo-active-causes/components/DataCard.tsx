@@ -26,8 +26,8 @@ export default function DataCard() {
     if (isLoading) console.log("⏳ Campaigns: Fetching initial data...");
     if (isFetching)
       console.log("🔄 Campaigns: Refetching for tab/page change...");
-    if (data) console.log("✅ Campaigns Received:", data.data);
-    if (error) console.error("❌ Campaigns Error:", error);
+    if (data) console.log("Campaigns Received:", data.data);
+    if (error) console.error("Campaigns Error:", error);
   }, [data, isLoading, isFetching, error]);
 
   const responseData = data?.data;

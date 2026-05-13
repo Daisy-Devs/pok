@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterBar } from "@/src/features/ngo-donation-history/components/FilterBar";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DataTable } from "@/src/components/ui/data-table";
 import { donationHistoryColumns } from "@/src/features/ngo-donation-history/columns";
 import { useGetDonationByOrganisationQuery } from "@/src/store/services/api/donationApi";
@@ -29,7 +29,7 @@ export default function DonationHistory() {
         filters: { searchQuery, assetFilter, dateRange },
       });
     }
-    if (error) console.error("❌ Donation API Error:", error);
+    if (error) console.error(" Donation API Error:", error);
   }, [data, error, searchQuery, assetFilter, dateRange]);
 
   const donations = data?.data?.donations || [];

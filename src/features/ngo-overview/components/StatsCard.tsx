@@ -1,7 +1,5 @@
 import React from "react";
-import Image from "next/image";
 import { StatsCardProps } from "../types";
-import { Button } from "@/src/components/ui/button";
 
 const StatsCard: React.FC<StatsCardProps> = ({
   title,

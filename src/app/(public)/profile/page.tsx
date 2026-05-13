@@ -126,6 +126,8 @@ const Profile = () => {
                         donation.transactionHash
                       }
                       target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View transaction on Etherscan"
                     >
                       <ChevronRight size={12} />
                     </a>

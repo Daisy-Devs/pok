@@ -4,7 +4,7 @@ import IncomingDonations from "@/src/features/ngo-overview/components/IncomingDo
 import { RecentActivity } from "@/src/features/ngo-overview/components/RecentActivity";
 import StatsCard from "@/src/features/ngo-overview/components/StatsCard";
 import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
-import { Rocket, FileEdit, CheckCircle2, Users, Wallet } from "lucide-react";
+import { FileEdit, CheckCircle2, Users, Wallet } from "lucide-react";
 import React from "react";
 
 const NGODashboard = () => {

@@ -29,7 +29,11 @@ const Details = () => {
   useEffect(() => {
     if (profileData) {
       console.log("📥 [Profile Data Sync]:", profileData.profile);
-      console.log("📸 [Current Image URL]:", profileData.profile?.profileImage?.url || profileData.profile?.profileImage);
+      console.log(
+        "📸 [Current Image URL]:",
+        profileData.profile?.profileImage?.url ||
+          profileData.profile?.profileImage,
+      );
     }
   }, [profileData]);
 
@@ -41,19 +45,15 @@ const Details = () => {
 
   const profile = profileData?.profile || profileData?.data?.profile;
 
-const profileImage =
-  preview ||
-  (profile?.profileImage?.url) || // If it's an object
-  (typeof profile?.profileImage === "string" ? profile.profileImage : null);
+  const profileImage =
+    preview ||
+    profile?.profileImage?.url || // If it's an object
+    (typeof profile?.profileImage === "string" ? profile.profileImage : null);
 
   const [updateProfileImage, { isLoading: isUpdating }] =
     useUpdateProfileImageMutation();
   const [deleteProfileImage, { isLoading: isDeleting }] =
     useDeleteProfileImageMutation();
-
-  
-
-  
 
   const { isConnected, address } = useConnection();
   const { mutate } = useConnect();
@@ -76,13 +76,13 @@ const profileImage =
     try {
       console.log("📤 [Uploading Image]...");
       const response = await updateProfileImage(formData).unwrap();
-      
+
       // 2. LOG: Check exactly what the server sent back after upload
-      console.log("✅ [Upload Success - Server Response]:", response);
-      
+      console.log("[Upload Success - Server Response]:", response);
+
       toast.success("Profile picture updated!");
     } catch (err) {
-      console.error("❌ [Upload Error]:", err);
+      console.error("[Upload Error]:", err);
       toast.error("Failed to upload image");
       setPreview(null);
     } finally {
@@ -92,13 +92,13 @@ const profileImage =
 
   const handleDeleteImage = async (e: React.MouseEvent) => {
     e.stopPropagation();
-   try {
+    try {
       console.log("🗑️ [Attempting to Delete Image]...");
       const response = await deleteProfileImage(undefined).unwrap();
-      
+
       // 3. LOG: Check response after deletion
       console.log("✅ [Delete Success - Server Response]:", response);
-      
+
       toast.success("Profile picture removed");
       setPreview(null);
       if (inputRef.current) inputRef.current.value = "";

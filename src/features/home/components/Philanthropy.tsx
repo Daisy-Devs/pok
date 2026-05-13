@@ -8,14 +8,17 @@ import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/dist/client/components/navigation";
 import { useAppSelector } from "@/src/store/store";
-import { selectIsAuthenticated, selectUser } from "@/src/store/services/selectors/authSelectors";
+import {
+  selectIsAuthenticated,
+  selectUser,
+} from "@/src/store/services/selectors/authSelectors";
 import { toast } from "sonner";
 
 export default function Philanthropy() {
   const { isConnected } = useConnection();
   const user = useAppSelector(selectUser);
   const roleDonor = user?.role === "Donor";
-  const isAuthenticated= useAppSelector(selectIsAuthenticated);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const { mutate } = useConnect();
   const connectors = useConnectors();
   const { mutate: disconnect } = useDisconnect();
@@ -23,7 +26,7 @@ export default function Philanthropy() {
   const dispatch = useDispatch();
   const router = useRouter();
   const handleWalletConnect = async () => {
-    if(!isAuthenticated || !roleDonor){
+    if (!isAuthenticated || !roleDonor) {
       router.push("/sign-in");
       toast.info("Please sign in to connect your wallet and start donating!");
       return;
@@ -53,10 +56,7 @@ export default function Philanthropy() {
 
   return (
     <div>
-      <section
-        className="py-10 relative overflow-hidden"
-        style={{ background: "linear-gradient(180deg,#f9f9ff 0%,#fff 100%)" }}
-      >
+      <section className="py-10 relative overflow-hidden bg-[linear-gradient(180deg,#f9f9ff_0%,#fff_100%)]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-12">
             <h2 className="text-3xl font-black text-secondary-color mb-3">
@@ -87,12 +87,7 @@ export default function Philanthropy() {
             </div>
 
             {/* Near-Zero Fees */}
-            <div
-              className="rounded-2xl p-7 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)]"
-              style={{
-                background: "linear-gradient(135deg,#1e1b3a 0%,#0f0e1f 100%)",
-              }}
-            >
+            <div className="rounded-2xl p-7 relative overflow-hidden transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(99,102,241,0.15)] bg-[linear-gradient(135deg,#1e1b3a_0%,#0f0e1f_100%)]">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 opacity-10 rounded-full blur-3xl" />
               <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-5 relative z-10 bg-secondary-mute">
                 <Image
@@ -126,8 +121,7 @@ export default function Philanthropy() {
                 Verifiable Impact
               </h3>
               <p className="text-sm text-foreground leading-relaxed">
-                Track every dollar from transaction to on-the-ground execution
-                via immutable smart contract milestones.
+                {nomenclature.IMPACT_PARA}
               </p>
               <div className="flex gap-2 mt-6">
                 <div className="h-1.5 w-16 rounded-full bg-secondary" />
@@ -140,13 +134,16 @@ export default function Philanthropy() {
                 Ready to make an impact?
               </h3>
               <p className="text-sm text-foreground mb-6 leading-relaxed">
-                Join over 50,000 anonymous donors who are changing the world
-                through transparent crypto philanthropy.
+                {nomenclature.IMPACT_READY_PARA}
               </p>
               <div className="flex items-center justify-center gap-3">
                 {" "}
                 <Button
-                  text={isConnected && roleDonor ? "Disconnect Wallet" : "Connect Wallet"}
+                  text={
+                    isConnected && roleDonor
+                      ? "Disconnect Wallet"
+                      : "Connect Wallet"
+                  }
                   variant={"blue"}
                   size={"default"}
                   onClick={handleWalletConnect}

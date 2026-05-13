@@ -99,7 +99,6 @@ export const FilterBar = ({
 
         {/* 3. Search Filter */}
         <div className=" w-75 mb-1.5">
-          {/* <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 opacity-50" /> */}
           <Input
             className="shadow-sm text-semibold text-foreground bg-white"
             placeholder="Filter by campaign"

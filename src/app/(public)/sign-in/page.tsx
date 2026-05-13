@@ -5,7 +5,10 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { useState } from "react";
-import { useDonorSignInMutation, useForgotPasswordMutation } from "@/src/store/services/api/donorAuthApi";
+import {
+  useDonorSignInMutation,
+  useForgotPasswordMutation,
+} from "@/src/store/services/api/donorAuthApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
@@ -27,7 +30,8 @@ export default function SignIn() {
   }>({});
   const [donorSignIn, { isLoading }] = useDonorSignInMutation();
   const { googleAuthSuccessful, isGoogleLoading } = useGoogleAuth();
-  const [forgotPassword,{isLoading:forgotPasswordLoading}]=useForgotPasswordMutation();
+  const [forgotPassword, { isLoading: forgotPasswordLoading }] =
+    useForgotPasswordMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -68,13 +72,12 @@ export default function SignIn() {
   return (
     <div className="  grid min-h-screen overflow-hidden grid-cols-1 lg:grid-cols-2">
       {/* LEFT SIDE */}
-      <div className="relative hidden lg:block">
+      <div className="relative hidden lg:block h-235 w-full">
         <Image
           src="/inspiringVisual.jpg"
           alt="visual"
-          width={'20'}
-          height={'20'}
-          className="absolute inset-0 h-full w-full object-cover"
+          fill
+          className="object-cover"
         />
 
         <div className="absolute inset-0 bg-linear-to-br from-indigo-900/70 via-blue-800/60 to-indigo-600/60" />
@@ -126,16 +129,18 @@ export default function SignIn() {
                   onClick={() => {
                     console.log("forgot");
                     try {
-                      forgotPassword({email:formData.email}).unwrap()
+                      forgotPassword({ email: formData.email }).unwrap();
                       toast.success("Reset link has been sent to your email.");
                     } catch (error) {
                       console.log(error);
-                      
+
                       toast.error("something went wrong");
                     }
                   }}
-                  disabled={formData.email === ""||!!validators.email(formData.email)}
-                  className="bg-transparent text-primary text-xs font-bold click:bg-transparent hover:bg-transparent hover:cursor-pointer disabled:text-muted disabled:cursor-not-allowed" 
+                  disabled={
+                    formData.email === "" || !!validators.email(formData.email)
+                  }
+                  className="bg-transparent text-primary text-xs font-bold click:bg-transparent hover:bg-transparent hover:cursor-pointer disabled:text-muted disabled:cursor-not-allowed"
                 >
                   <span>{nomenclature.FORGOT}</span>
                 </button>

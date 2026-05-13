@@ -8,8 +8,7 @@ type Activity = {
 const activities: Activity[] = [
   {
     title: "Payout Disbursed",
-    description:
-      "2.5 ETH released for 'Solar Grid Alpha' project phase 2.",
+    description: "2.5 ETH released for 'Solar Grid Alpha' project phase 2.",
     time: "2 HOURS AGO",
     color: "blue",
   },
@@ -22,8 +21,7 @@ const activities: Activity[] = [
   },
   {
     title: "New Campaign Milestone",
-    description:
-      "'Ocean Cleanup' reached 50% of funding goal.",
+    description: "'Ocean Cleanup' reached 50% of funding goal.",
     time: "YESTERDAY",
     color: "blue",
   },
@@ -32,7 +30,6 @@ const activities: Activity[] = [
 export function RecentActivity() {
   return (
     <div className="flex flex-col gap-4">
-      
       <h2 className="text-lg sm:text-xl font-bold">Recent Activity</h2>
 
       {activities.map((item, index) => (
@@ -43,18 +40,14 @@ export function RecentActivity() {
           {/* Dot */}
           <span
             className={`mt-2 h-3 w-3 shrink-0 rounded-full ${
-              item.color === "green"
-                ? "bg-secondary"
-                : "bg-primary"
+              item.color === "green" ? "bg-secondary" : "bg-primary"
             }`}
           />
 
           {/* Content */}
           <div className="flex flex-col min-w-0">
             <p className="font-medium">{item.title}</p>
-            <p className="text-sm text-foreground">
-              {item.description}
-            </p>
+            <p className="text-sm text-foreground">{item.description}</p>
             <span className="text-xs text-muted-foreground mt-1">
               {item.time}
             </span>

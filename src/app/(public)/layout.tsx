@@ -20,7 +20,6 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
   const router = useRouter();
   const pathname = usePathname();
-  // Only call API if persisted state says user is authenticated
   const { isError } = useValidateUserAuthQuery(
     {},
     {
