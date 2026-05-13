@@ -61,10 +61,10 @@ export function hideWalletAddress(address: `0x${string}` | undefined) {
 
 
 const DISPLAY_DECIMALS: Record<TokenSymbol, number> = {
-  ETH:  4,
-  DAI:  2,
-  USDC: 2,
-  USDT: 2,
+  ETH:  6,
+  DAI:  4,
+  USDC: 4,
+  USDT: 4,
 };
 
 export function formatCryptoAmount(amount: number, currency: TokenSymbol): string {
@@ -76,5 +76,5 @@ export function formatCryptoAmount(amount: number, currency: TokenSymbol): strin
   const factor = Math.pow(10, decimals);
   const floored = Math.floor(amount * factor) / factor;
 
-  return floored.toFixed(decimals);
+  return parseFloat(floored.toFixed(decimals)).toString();
 }

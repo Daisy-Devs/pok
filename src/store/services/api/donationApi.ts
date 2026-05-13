@@ -78,6 +78,7 @@ export const donationApi = apiSlice.injectEndpoints({
         url: ENDPOINTS.withdrawal.getWithdrawableBalance,
         method: "GET",
       }),
+      providesTags: ["Donations"],
     }),
     getAllWithdrawals: builder.query<any, void>({
       query: () => ({
