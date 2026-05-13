@@ -139,7 +139,7 @@ const CreateNewCause = () => {
             setCampaignData={setCampaignData}
           />
         </div>
-        <div className="flex flex-col gap-7">
+        <div className="flex flex-col gap-6">
           {/** Campaign Visuals */}
           <CampaignVisuals
             campaignData={campaignData}

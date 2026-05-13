@@ -22,7 +22,7 @@ type FinancialsProps = {
 };
 const Financials: FC<FinancialsProps> = ({ campaignData, setCampaignData }) => {
   return (
-    <div className="bg-white rounded-lg py-8 px-5">
+    <div className="bg-white rounded-lg py-8 px-5 max-w-xs">
       <div className="flex items-center gap-2 mb-5">
         <div className="aspect-square flex justify-center items-center bg-primary-light w-9 rounded-lg">
           <WalletIcon className="text-primary" size={17} />
@@ -80,7 +80,7 @@ const Financials: FC<FinancialsProps> = ({ campaignData, setCampaignData }) => {
       <div className="flex max-w-xs mt-5 bg-green-50 rounded-sm text-secondary-dark p-7">
         <Info size={30} className="mr-2" />
         <p className="text-sm font-semibold w-2xs">
-          Funds will be locked in a smart contract until the goal is reached.
+          Funds are securely stored in a smart contract and available for withdrawal on demand.
         </p>
       </div>
     </div>
