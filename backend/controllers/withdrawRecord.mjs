@@ -27,7 +27,7 @@ export const getAllWithdrawals = async (req, res) => {
     const orgId = req.ngoId;
 
     // Fetch all campaigns for this NGO
- const campaigns = await Campaign.find({ organization: orgId });
+ const campaigns = (await Campaign.find({ organization: orgId })).filter((c) => c.status !== "draft");
 
     // Extract campaign IDs for aggregation
     const campaignIds = campaigns.map((c) => c.id);
