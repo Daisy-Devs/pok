@@ -89,14 +89,6 @@ export default function DonationCard({
       return;
     }
     if (!amount || parseFloat(amount) <= 0) return;
-    console.log("Inside handleDonate", {
-      address: CONTRACT_ADDRESS,
-      abi: CONTRACT_ABI,
-      functionName: "donate",
-      args: [campaignId, anonymous], // passes the anonymous bool
-      value: amount, // sends ETH along with the call
-      gas: 100000n,
-    });
     execute().then(() => {
       setAmount("");
       dispatch(apiSlice.util.invalidateTags([{type:"Campaign", id: campaignIdentifier},'Campaigns']));

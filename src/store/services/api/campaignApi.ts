@@ -22,14 +22,16 @@ export const campaignApi = apiSlice.injectEndpoints({
           sortBy: params?.sortBy,
         },
       }),
-      providesTags: ['Campaigns','Campaign'],
+      providesTags: ["Campaigns", "Campaign"],
     }),
     getCampaign: builder.query({
       query: (params) => ({
         url: ENDPOINTS.campaign.getCampaignById.replace(":id", params),
         method: "GET",
       }),
-      providesTags: ['Campaign'],
+      providesTags: (result, error, params) => [
+        { type: "Campaign", id: params }, 
+      ],
     }),
     getAllOrganizations: builder.query({
       query: (id: string) => ({
@@ -46,24 +48,24 @@ export const campaignApi = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags:['Campaign','Campaigns']
+      invalidatesTags: ["Campaign", "Campaigns"],
     }),
     getCampaignByOrg: builder.query({
       query: () => ({
         url: ENDPOINTS.campaign.getCampaignByOrg,
         method: "GET",
-        tags: ["Campaign",'Campaigns'],
+        tags: ["Campaign", "Campaigns"],
       }),
-      providesTags: ['Campaigns','Campaign'],
+      providesTags: ["Campaigns", "Campaign"],
     }),
     updateCampaign: builder.mutation({
-      query: ({id,data}) => ({
-        url: ENDPOINTS.campaign.updateCampaign.replace(":id",id),
+      query: ({ id, data }) => ({
+        url: ENDPOINTS.campaign.updateCampaign.replace(":id", id),
         method: "POST",
         body: data,
-        invalidatesTags:['Campaign','Campaigns']
+        invalidatesTags: ["Campaign", "Campaigns"],
       }),
-    })
+    }),
   }),
 });
 export const {
@@ -73,5 +75,5 @@ export const {
   useGetAllOrganizationsQuery,
   useCreateCampaignMutation,
   useGetCampaignByOrgQuery,
-  useUpdateCampaignMutation
+  useUpdateCampaignMutation,
 } = campaignApi;

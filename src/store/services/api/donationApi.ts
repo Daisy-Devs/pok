@@ -41,7 +41,9 @@ export const donationApi = apiSlice.injectEndpoints({
         ),
         method: "GET",
       }),
-
+      providesTags: (result, error, params) => [
+        { type: "Campaign", id: params }, // params IS the id here
+      ],
       transformResponse: (response: any) => {
         return response.data?.donations ?? response.data ?? [];
       },
@@ -77,12 +79,12 @@ export const donationApi = apiSlice.injectEndpoints({
         method: "GET",
       }),
     }),
-    getAllWithdrawals: builder.query<any,void>({
+    getAllWithdrawals: builder.query<any, void>({
       query: () => ({
         url: ENDPOINTS.withdrawal.getWithdrawal,
-        method: "GET",    
+        method: "GET",
       }),
-      providesTags: ['Donations'],
+      providesTags: ["Donations"],
     }),
     getWithdrawalByCampaign: builder.query({
       query: (campaignId) => ({
@@ -100,5 +102,5 @@ export const {
   useGetDonationByOrganisationQuery,
   useDownloadDonationHistoryMutation,
   useGetAllWithdrawalsQuery,
-  useGetWithdrawableBalanceQuery
+  useGetWithdrawableBalanceQuery,
 } = donationApi;
