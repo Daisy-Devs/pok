@@ -16,7 +16,7 @@ export default function Footer() {
             {nomenclature.PRODUCT_NAME}
           </h1>
           <p className="text-sm">
-            © {new Date().getFullYear()} Built on Ethereum
+            © {new Date().getFullYear()} · Daisy Devs🌼 · Demo only — no real funds involved
           </p>
         </div>
 
