@@ -170,7 +170,7 @@ export const updateCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
     const { id } = req.params;
-    const { title, missionStatement, cause, imageUrl, goalAmount, status } =
+    const { title, missionStatement, cause, imageUrl, goalAmount, status,goalToken } =
       req.body;
 
     const campaign = await Campaign.findOne({
@@ -185,17 +185,17 @@ export const updateCampaign = async (req, res) => {
     if (campaign.status !== "draft") {
       return sendResponse(res, 400, "Only draft campaigns can be updated");
     }
-
     // ✅ Update allowed fields
-    if (title) campaign.title = title;
-    if (missionStatement) campaign.missionStatement = missionStatement;
-    if (cause) campaign.cause = cause;
-    if (imageUrl) campaign.imageUrl = imageUrl;
-    if (goalAmount) campaign.goalAmount = goalAmount;
+    if (title !== undefined) campaign.title = title;
+    if (missionStatement !== undefined) campaign.missionStatement = missionStatement;
+    if (cause !== undefined) campaign.cause = cause;
+    if (imageUrl !== undefined) campaign.imageUrl = imageUrl;
+    if (goalAmount !== undefined) campaign.goalAmount = goalAmount;
+    if (goalToken !== undefined) campaign.goalToken = goalToken?.toUpperCase();
 
     // ✅ Allow changing status (draft → active)
     if (status) campaign.status = status;
-
+    
     await campaign.save();
 
     return sendResponse(res, 200, "campaigns updated successfully", campaign);
