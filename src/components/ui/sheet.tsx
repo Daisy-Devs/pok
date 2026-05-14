@@ -71,7 +71,7 @@ function SheetContent({
             <Button
               variant="default"
               className="absolute top-3 right-3"
-              size="only_icon"
+              size="sm"
             >
               <XIcon
               />

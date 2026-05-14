@@ -99,7 +99,7 @@ export default function RichTextEditor({ value, onChange }: RichTextEditorProps)
       {/* Editor area */}
       <EditorContent
         editor={editor}
-        className="prose max-w-none p-4 min-h-[150px] focus:outline-none"
+        className="prose max-w-none p-4 min-h-37.5 focus:outline-none"
       />
 
       <div className="flex justify-end px-4 py-2 border-t bg-gray-50">

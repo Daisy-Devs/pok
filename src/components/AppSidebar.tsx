@@ -96,7 +96,7 @@ const AppSidebar = () => {
               <div className="bg-white flex items-center px-5 py-3 rounded-lg my-5">
                 <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0">
                   <Image
-                    src={user?.profileImage}
+                    src={user?.profileImage || "/default-profile.png"}
                     alt="NGO profile image"
                     fill
                     quality={90}

@@ -15,11 +15,15 @@ export interface CampaignApi {
     email: string;
     website: string;
     logo: string;
+    walletAddress?: `0x${string}`;
+    profileImage?: {
+      public_id?: string;
+      url?: string;
+    };
   };
   totalDonors: number;
   campaignIdBytes32: string;
   campaignId: string;
-  
 }
 
 // UI type (used by CampaignCard)
