@@ -8,13 +8,12 @@ import { useRouter } from "next/navigation";
 
 const categoryStyle = "bg-white text-secondary-dark font-bold";
 
-
 export default function CampaignCard({ campaign }: { campaign: Campaign }) {
   const router = useRouter();
   const handleDonate = (id: string) => {
-    router.push(`/campaign/${campaign.id}`);
+    router.push(`/campaign/${id}`);
   };
-  const image = campaign.image[0];
+  const imageSource = campaign.image?.[0]?.url || DEFAULT_IMAGE_URL;
   console.log("campsss",campaign);
   
   return (
@@ -23,7 +22,10 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
       <div className="relative h-48 overflow-hidden">
         <Image
           src={
-            (image && image?.url.includes("cloudinary")) ? image?.url : DEFAULT_IMAGE_URL
+            typeof imageSource === "string" &&
+            imageSource.includes("cloudinary")
+              ? imageSource
+              : DEFAULT_IMAGE_URL
           }
           alt={campaign.title || "Campaign image"}
           width={500}
@@ -66,7 +68,8 @@ export default function CampaignCard({ campaign }: { campaign: Campaign }) {
 
         <div className="flex justify-between items-center">
           <p className="font-bold">
-            {campaign.raised} {campaign.currency}/{campaign.goal} {campaign.currency}
+            {campaign.raised} {campaign.currency}/{campaign.goal}{" "}
+            {campaign.currency}
           </p>
           <Button onClick={() => handleDonate(campaign.id)} text="Donate" />
         </div>

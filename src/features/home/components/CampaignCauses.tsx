@@ -4,6 +4,7 @@ import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "../../explore/types";
 import CampaignCard from "../../explore/components/CampaignCard";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { formatCryptoAmount } from "@/src/lib/utils";
 
 type Tag = {
   label: string;
@@ -19,8 +20,10 @@ export default function CampaignCauses() {
       description: c.missionStatement,
       category: c.cause,
       image: c.imageUrl,
-      progress: Math.floor(((c.totalRaised || 0) / c.goalAmount) * 100),
-      raised: Number(c.totalRaised).toFixed(2) || 0,
+      progress: Math.ceil((c.totalRaised / c.goalAmount) * 100),
+      raised: c.totalRaised
+        ? formatCryptoAmount(Number(c.totalRaised), c.goalToken)
+        : 0,
       goal: c.goalAmount,
       currency: c.goalToken,
     })) || [];
@@ -55,14 +58,14 @@ export default function CampaignCauses() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {isLoading ? (
               <p className="text-sm text-gray-500">Loading campaigns...</p>
-            )  : topCampaigns.length === 0 ? (
+            ) : topCampaigns.length === 0 ? (
               <div className="col-span-full flex justify-center">
                 <DotLottieReact
-                    src="/gif/Empty.lottie"
-                    loop
-                    autoplay
-                    style={{ width: 200, height: 200 }}
-                  />
+                  src="/gif/Empty.lottie"
+                  loop
+                  autoplay
+                  style={{ width: 200, height: 200 }}
+                />
               </div>
             ) : (
               topCampaigns.map((campaign) => (

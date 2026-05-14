@@ -33,14 +33,7 @@ const IMPACT_DATA = [
 export default function ImpactWidget() {
   return (
     <div>
-      <div
-        className="rounded-2xl p-5"
-        style={{
-          background: "linear-gradient(135deg,#fff 0%,#f8f7ff 100%)",
-          boxShadow:
-            "0 20px 60px rgba(99,102,241,.12),0 4px 16px rgba(0,0,0,.06)",
-        }}
-      >
+      <div className="rounded-2xl p-5 bg-[linear-gradient(135deg,#fff_0%,#f8f7ff_100%)] shadow-[0_20px_60px_rgba(99,102,241,.12),0_4px_16px_rgba(0,0,0,.06)]">
         <div className="flex items-center justify-between mb-4">
           <span className="font-semibold text-text-secondary-color text-md">
             Real-time Impact

@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { TokenSymbol } from "../constants/tokens";
 
 /**
  * A utility function to merge multiple class names into a single class
@@ -21,10 +22,10 @@ export function cn(...inputs: ClassValue[]) {
  * @returns {Object} An object containing the first and second halves of the title.
  */
 export function splitTitle(title: string) {
-  const words = title.split(" ");
-  const index = Math.floor(words.length/2);
-  const firstHalf = words.slice(0, index).join(" ");
-  const secondHalf = words.slice(index).join(" ");
+  const words = title?.split(" ");
+  const index = Math.floor(words?.length/2);
+  const firstHalf = words?.slice(0, index)?.join(" ");
+  const secondHalf = words?.slice(index)?.join(" ");
   return { firstHalf, secondHalf };
 }
 
@@ -58,3 +59,22 @@ export function hideWalletAddress(address: `0x${string}` | undefined) {
   return `${address?.slice(0, 6)}...${address?.slice(-4)}`;
 }
 
+
+const DISPLAY_DECIMALS: Record<TokenSymbol, number> = {
+  ETH:  6,
+  DAI:  4,
+  USDC: 4,
+  USDT: 4,
+};
+
+export function formatCryptoAmount(amount: number, currency: TokenSymbol): string {
+  if (amount == null || !isFinite(amount) || isNaN(amount)) return "0.00";
+
+  const decimals = DISPLAY_DECIMALS[currency] ?? 2;
+
+  // Floor instead of round to never overstate balance
+  const factor = Math.pow(10, decimals);
+  const floored = Math.floor(amount * factor) / factor;
+
+  return parseFloat(floored.toFixed(decimals)).toString();
+}

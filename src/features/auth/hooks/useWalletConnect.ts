@@ -2,7 +2,7 @@ import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { toast } from "sonner";
 
 export const useWalletConnectHandler = () => {
   const { isConnected } = useConnection();
@@ -27,14 +27,7 @@ export const useWalletConnectHandler = () => {
           connectWallet({
             walletAddress: data.accounts[0],
           }).then(() => {
-            dispatch(
-              loggedIn({
-                name: "Donor",
-                email: "",
-                role: "Donor",
-              })
-            );
-
+            toast.success("Wallet connected successfully");
             
           });
         },

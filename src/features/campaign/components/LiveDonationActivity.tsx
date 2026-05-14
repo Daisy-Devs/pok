@@ -11,12 +11,17 @@ import {
 } from "@/src/components/ui/table";
 import { ChevronRight, EyeOff, UserIcon } from "lucide-react";
 import { timeAgo } from "@/src/lib/utils";
-import { useGetDonationsByCampaignQuery } from "@/src/store/services/api/donationApi";
+import {
+  useGetDonationsByCampaignQuery,
+  Donation,
+} from "@/src/store/services/api/donationApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { TOKENS } from "@/src/constants/tokens";
 
 const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
   const { data, isLoading, error } = useGetDonationsByCampaignQuery(campaignId);
-  const donations = data ?? [];
+  const donations: Donation[] = data ?? [];
+  console.log("fetched data", data);
 
   return (
     <div className="md:px-6">
@@ -34,16 +39,21 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
         </TableHeader>
         <TableBody>
           {donations.length > 0 ? (
-            donations.map((activity: any, index: number) => (
+            donations.slice(0, 8).map((activity: any, index: number) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">
                   <User
-                    name={activity.organization || "Anonymous"}
-                    isAnonymous={!activity.organization}
+                    name={activity.donorName}
+                    isAnonymous={activity.donorName == "Anomymous"}
                   />
                 </TableCell>
                 <TableCell className="font-semibold text-secondaryText text-base">
-                  {activity.amount}
+                  {activity.amount}{" "}
+                  {
+                    Object.values(TOKENS).find(
+                      (token) => token.address === activity.token,
+                    )?.symbol
+                  }
                 </TableCell>
                 <TableCell suppressHydrationWarning>
                   {(() => {
@@ -58,9 +68,10 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
                 </TableCell>
                 <TableCell>
                   <a
-                    href={activity.etherScanLink}
+                    href={`${process.env.NEXT_PUBLIC_ETHER_SCAN}${activity.transactionHash}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label="View transaction on Etherscan"
                   >
                     <ChevronRight size={12} />
                   </a>

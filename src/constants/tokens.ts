@@ -24,5 +24,5 @@ export const TOKENS = {
 
 export type TokenSymbol = keyof typeof TOKENS
 
-export const UNISWAP_ROUTER    = '0x3BFA4769FB09eEfC5A80d6e87C3B9C650F7Ae488' as `0x${string}`
+export const UNISWAP_ROUTER    = '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E' as `0x${string}`
 export const UNISWAP_QUOTER_V2 = "0xEd1f6473345F45b75F8179591dd5bA1888cf2FB3" as `0x${string}`

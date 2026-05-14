@@ -1,6 +1,6 @@
 "use client";
 import { nomenclature } from "@/src/constants/nomenclature";
-import { Bell, WalletIcon } from "lucide-react";
+import { WalletIcon } from "lucide-react";
 import React from "react";
 import {
   DropdownMenu,
@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useWalletLogoutMutation } from "../store/services/api/walletApi";
 import { toast } from "sonner";
 import { loggedOut } from "../store/services/slice/authSlice";
@@ -17,28 +17,50 @@ import { useDisconnect } from "wagmi";
 import { useAppSelector } from "../store/store";
 import { selectIsAuthenticated, selectUser } from "../store/services/selectors/authSelectors";
 import { splitTitle } from "../lib/utils";
+import { apiSlice } from "../store/services/slice/apiSlice";
+import Link from "next/link";
 
 interface NGOHeaderProps {
-  pageTitle: string;
   walletAddress: string;
 }
-const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
+const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const path = usePathname();
   const [walletLogout] = useWalletLogoutMutation();
   const {mutate:disconnectWallet}=useDisconnect();
   const authenticated = useAppSelector(selectIsAuthenticated);
   const user = useAppSelector(selectUser);
   const isLoggedIn = authenticated && user?.role === "NGO";
-  console.log(user);
-  
+  let pageTitle="";
+  switch (path) {
+    case "/ngo":
+      pageTitle = "Dashboard Overview";
+      break;
+    case "/ngo/causes":
+      pageTitle = "Active Causes";
+      break;
+    case "/ngo/donation-history":
+      pageTitle = "Donation History";
+      break;
+    case "/ngo/withdraw":
+      pageTitle = "Withdraw Funds";
+      break;
+    case "/ngo/new-cause":
+      pageTitle = "Create a New Cause";
+      break;
+    default:
+      pageTitle = "Dashboard Overview";
+  }
   const{firstHalf,secondHalf}=splitTitle(nomenclature.PRODUCT_NAME);
+
   const handleLogout = async () => {
     try{
     const res = await walletLogout({}).unwrap();
     disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
+    dispatch(apiSlice.util.resetApiState());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");
     }catch(err){
@@ -50,10 +72,10 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ pageTitle, walletAddress }) => {
     <div className="flex justify-between p-5">
       {isLoggedIn?<h4 className="text-2xl font-extrabold">{pageTitle}</h4>:
      (
-      <div className="flex">
+      <Link href="/" className="flex">
       <h3 className="text-2xl font-extrabold">{firstHalf}</h3>
       <h3 className="text-2xl font-extrabold text-primary">{secondHalf.replace(" ","")}</h3>
-      </div>
+      </Link>
       )
   }
     {isLoggedIn && (

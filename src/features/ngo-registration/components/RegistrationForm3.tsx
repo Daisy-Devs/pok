@@ -11,10 +11,13 @@ import {
   useDisconnect,
   useSignMessage,
 } from "wagmi";
-import { useWalletLoginMutation } from "@/src/store/services/api/walletApi";
+import {
+  useWalletLoginMutation,
+  useWalletLogoutMutation,
+} from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { loggedIn, loggedOut } from "@/src/store/services/slice/authSlice";
 import { useRegisterNgoMutation } from "@/src/store/services/api/campaignApi";
 import { toast } from "sonner";
 
@@ -34,6 +37,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
   const message = `An orange fox jumped the fence at ${new Date().toISOString()}`;
   const [walletLogin, { isLoading, error: walletLoginError }] =
     useWalletLoginMutation();
+  const [walletLogout] = useWalletLogoutMutation();
   const dispatch = useDispatch();
   const router = useRouter();
   const [registerNgo, { isLoading: registerNgoLoading }] =
@@ -76,9 +80,12 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
           console.log("wallet login response:", res);
           const updatedNgoData = {
             ...ngoData,
-            profileImage:{url:ngoData.profileImage.url,public_id:ngoData.profileImage.public_id},
+            profileImage: {
+              url: ngoData.profileImage.url,
+              public_id: ngoData.profileImage.public_id,
+            },
           };
-          
+
           registerNgo(updatedNgoData)
             .unwrap()
             .then((ngoresponse) => {
@@ -94,6 +101,9 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
             })
             .catch((err) => {
               toast.error("Failed to register NGO");
+              walletLogout({});
+              dispatch(loggedOut());
+              disconnect();
               console.log("ngo registration error:", err, walletLoginError);
             });
         })
@@ -119,7 +129,12 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
         onClick={handleWalletConnect}
         disabled={isConnected}
         leftIcon={
-          <Image src="/metamask.svg" width={25} height={25} alt="metamask" />
+          <Image
+            src="/svg/metamask.svg"
+            width={25}
+            height={25}
+            alt="metamask"
+          />
         }
         rightIcon={<ChevronRight size={16} color="#45464D" />}
       />

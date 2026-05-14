@@ -25,15 +25,21 @@ export const ENDPOINTS = {
   },
   campaign: {
     getAllCampaigns: "/campaign/",
-    getCampaignById: "/campaign/",
+    getCampaignById: "/campaign/:id",
     getAllOrganizations: "/campaign/organizations/:organizationId",
+    createCampaign: "/campaign/create",
+    getCampaignByOrg: "/campaign/org", //campaigns inside organisation
+    updateCampaign: "/campaign/:id",
   },
   donation: {
     getAllDonations: "/donation/",
     getDonationsByCampaign: "/donation/:campaignId",
     getDonationsByDonor: "/donation/user",
-    getAllWithdrawals: "/donation/withdraw",
-    getWithdrawalsByCampaign: "/donation/withdraw/:campaignId",
+    getDonationsByOrg: "/donation/org/history",
+  },
+  withdrawal: {
+    getWithdrawableBalance: "/donation/getWithdrawBalance",
+    getWithdrawal: "/donation/withdraw",
   },
   documents: {
     uploadCompanyProfileImage: "/cloudinary/profile",

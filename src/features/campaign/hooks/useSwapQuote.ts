@@ -17,12 +17,12 @@ export function useSwapQuote({
   const needsSwap = userToken !== campaignToken;
 
   const tokenIn =
-    userToken === "ETH" ? TOKENS.ETH.wrappedAddress : TOKENS[userToken].address;
+    userToken === "ETH" ? TOKENS.ETH.wrappedAddress : TOKENS[userToken]?.address;
 
   const tokenOut =
     campaignToken === "ETH"
       ? TOKENS.ETH.wrappedAddress
-      : TOKENS[campaignToken].address;
+      : TOKENS[campaignToken]?.address;
   console.log(tokenIn, tokenOut);
 
   const publicClient = usePublicClient();

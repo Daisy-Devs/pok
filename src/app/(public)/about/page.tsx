@@ -39,7 +39,7 @@ const AboutUs = () => {
 
         <div className="mt-6 flex justify-center gap-4">
           <Button
-            size={'default'}
+            size={"default"}
             className="bg-white/10"
             textClassName="text-white text-lg px-6 font-bold"
             text="Browse Cases"

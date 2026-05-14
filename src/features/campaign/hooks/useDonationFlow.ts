@@ -1,6 +1,8 @@
 import { CONTRACT_ABI, swapRouterAbi } from "@/src/constants/contract";
 import { TOKENS, TokenSymbol, UNISWAP_ROUTER } from "@/src/constants/tokens";
 import { walletConfig } from "@/src/lib/walletConfig";
+import { selectUser } from "@/src/store/services/selectors/authSelectors";
+import { useAppSelector } from "@/src/store/store";
 import { useState } from "react";
 import {
   createPublicClient,
@@ -8,6 +10,7 @@ import {
   erc20Abi,
   http,
   maxUint256,
+  TransactionReceipt,
 } from "viem";
 import { useWriteContract } from "wagmi";
 
@@ -36,18 +39,21 @@ export function useDonationFlow({
   userToken: TokenSymbol;
   campaignToken: TokenSymbol;
   campaignId: string;
+  basicCampaignId: string;
+  campaignIdBytes32: string;
   amountIn: bigint;
   amountOut: bigint;
   needsSwap: boolean;
   needsRouterApproval?: boolean;
   needsDonationApproval?: boolean;
   anonymous: boolean;
+  ngoWallet: `0x${string}`;
 }) {
   const [step, setStep] = useState<Step>("idle");
   const { mutateAsync: writeContractAsync } = useWriteContract();
-
   const DONATION_CONTRACT = process.env
     .NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
+  let donationReceipt: TransactionReceipt|null=null;
 
   async function execute() {
     try {
@@ -71,7 +77,7 @@ export function useDonationFlow({
       // ─────────────────────────────────────────────
       // 1. APPROVE ROUTER (for normal swaps)
       // ─────────────────────────────────────────────
-      // 1. APPROVE ROUTER (skip for CASE 1)
+
       if (needsSwap && needsRouterApproval && userToken !== "ETH") {
         // ✅ Skip if campaign is ETH — contract handles swap internally
         if (campaignToken !== "ETH") {
@@ -95,7 +101,7 @@ export function useDonationFlow({
       // 2. SWAP
       // ─────────────────────────────────────────────
       if (needsSwap) {
-        // 🔥 CASE 1: USDC (or any ERC20) → ETH (OPTIMIZED)
+        // 🔥 CASE 1: USDC (or any ERC20) → ETH
         if (campaignToken === "ETH" && userToken !== "ETH") {
           setStep("approving_donation");
 
@@ -134,16 +140,16 @@ export function useDonationFlow({
               (amountOut * 85n) / 100n,
               anonymous,
             ],
-            gas: 500000n, // 🔥 ADD THIS
+            gas: 500000n,
           });
 
           await waitForTx(hash);
 
           setStep("done");
-          return; // ✅ STOP (important)
+          return;
         }
 
-        // 🟡 CASE 2: ALL OTHER SWAPS (UNCHANGED LOGIC)
+        // 🟡 CASE 2: ALL OTHER SWAPS
         setStep("swapping");
 
         const tokenIn =
@@ -226,7 +232,7 @@ export function useDonationFlow({
             address: TOKENS[campaignToken].address!,
             abi: erc20Abi,
             functionName: "approve",
-            args: [DONATION_CONTRACT, maxUint256],
+            args: [DONATION_CONTRACT, amountIn],
           });
           await waitForTx(hash);
         }
@@ -236,7 +242,6 @@ export function useDonationFlow({
       // 4. DONATE
       // ─────────────────────────────────────────────
       setStep("donating");
-
       if (campaignToken === "ETH") {
         const hash = await writeContractAsync({
           address: DONATION_CONTRACT,
@@ -245,7 +250,7 @@ export function useDonationFlow({
           args: [campaignId, anonymous],
           value: actualDonateAmount,
         });
-        await waitForTx(hash);
+        donationReceipt = await waitForTx(hash);
       } else {
         const hash = await writeContractAsync({
           address: DONATION_CONTRACT,
@@ -258,7 +263,7 @@ export function useDonationFlow({
             anonymous,
           ],
         });
-        await waitForTx(hash);
+        donationReceipt = await waitForTx(hash);
       }
 
       setStep("done");
@@ -269,7 +274,7 @@ export function useDonationFlow({
     }
   }
 
-  return { step, execute };
+  return { step, execute, donationReceipt };
 }
 
 async function waitForTx(hash: `0x${string}`) {
@@ -282,5 +287,11 @@ async function waitForTx(hash: `0x${string}`) {
     ),
   });
 
-  return await client.waitForTransactionReceipt({ hash });
+  const receipt = await client.waitForTransactionReceipt({ hash });
+
+  if (receipt.status === "reverted") {
+    throw new Error(`Transaction reverted: ${hash}`);
+  }
+
+  return receipt;
 }

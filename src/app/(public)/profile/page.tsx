@@ -2,7 +2,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -12,30 +11,26 @@ import Cause from "@/src/features/profile/components/Cause";
 import Details from "@/src/features/profile/components/Details";
 import { ProfileActivity } from "@/src/features/profile/types";
 import { timeAgo } from "@/src/lib/utils";
-import { useGetDonationsByDonorQuery } from "@/src/store/services/api/donationApi";
+import {
+  Donation,
+  useGetDonationsByDonorQuery} from "@/src/store/services/api/donationApi";
 import {
   ChevronRight,
-  HandHeart,
-  User,
   UserCheck2,
   VectorSquare,
 } from "lucide-react";
 import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import { CAUSE_CATEGORIES } from "@/src/constants/misc";
 
 const Profile = () => {
   const { data: profileData, isLoading: isProfileLoading } =
     useDonorProfileQuery({});
   const { data, isLoading, isError } = useGetDonationsByDonorQuery();
-  const donations = data ?? [];
-
-  const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
+  const donations: Donation[] = data?.data?.donations ?? [];
+  console.log("Donations:", donations);
   const causeCount = new Set(donations.map((d) => d.campaignId)).size;
   const memberSinceDate = profileData?.profile?.memberSince;
-  const Icon = CAUSE_CATEGORIES.find(
-    (category) => category.name === profileData?.profile?.cause,
-  );
+  const latestCause = donations[0]?.campaignCause || "No Cause";
 
   const memberSince = memberSinceDate
     ? new Date(memberSinceDate).toLocaleDateString("en-US", {
@@ -50,18 +45,17 @@ const Profile = () => {
       <Details />
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white border border-border/15 rounded-xl p-4 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
-            <HandHeart size={25} className="text-emerald-700" />
+          <div className="w-9 h-9 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+            <VectorSquare size={25} className="text-primary" />
           </div>
+
           <div>
             <p className="text-xs font-semibold tracking-wide uppercase mb-0.5">
-              Total Donated
+              Latest Donated Cause
             </p>
-            <p className="text-xl font-extrabold text-secondaryText leading-tight">
-              {totalDonated.toFixed(4)} ETH
-            </p>
-            <p className="text-sm font-semibold text-emerald-600 mt-0.5">
-              ≈ $34,210.50 USD
+
+            <p className="text-xl font-bold text-secondaryText leading-tight">
+              {latestCause}
             </p>
           </div>
         </div>
@@ -116,19 +110,24 @@ const Profile = () => {
                 <TableRow key={`${donation.campaignId}-${idx}`}>
                   <TableCell className="font-medium">
                     <Cause
-                      cause={donation.cause}
-                      organization={donation.organization}
+                      cause={donation.campaignCause}
+                      organization={donation.campaignTitle}
+                      individual
                     />
                   </TableCell>
                   <TableCell className="font-semibold text-secondaryText text-base">
                     {donation.amount} ETH
                   </TableCell>
-                  <TableCell>{timeAgo(donation.date)}</TableCell>
+                  <TableCell>{timeAgo(donation.createdAt)}</TableCell>
                   <TableCell>
                     <a
-                      href={donation.etherScanLink}
+                      href={
+                        process.env.NEXT_PUBLIC_ETHER_SCAN +
+                        donation.transactionHash
+                      }
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label="View transaction on Etherscan"
                     >
                       <ChevronRight size={12} />
                     </a>

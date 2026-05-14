@@ -1,7 +1,7 @@
 "use client";
 
 import { nomenclature } from "@/src/constants/nomenclature";
-import { Bell, UserCircle2 } from "lucide-react";
+import { UserCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { usePathname, useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ import { useConnection, useDisconnect } from "wagmi";
 import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect";
 import { splitTitle } from "../lib/utils";
 import { googleLogout } from "@react-oauth/google";
+import { apiSlice } from "../store/services/slice/apiSlice";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -52,6 +53,7 @@ const handleLogout = async () => {
       }
     }
     await donorLogout({}).unwrap();
+    dispatch(apiSlice.util.resetApiState());
     dispatch(loggedOut());
     googleLogout();
     toast.success("You've been logged out");
@@ -110,8 +112,6 @@ const handleLogout = async () => {
       <div className="hidden md:flex items-center gap-4">
         {isLoggedIn ? (
           <>
-            <Bell size={20} className="cursor-pointer" />
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <UserCircle2 size={20} className="cursor-pointer" />

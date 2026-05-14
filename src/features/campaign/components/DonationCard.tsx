@@ -1,9 +1,8 @@
 import { useState } from "react";
-import Image from "next/image";
 import { Switch } from "@/src/components/ui/switch";
 import { Button } from "@/src/components/ui/button";
-import { useConnection, usePublicClient, useWriteContract } from "wagmi";
-import { formatUnits, parseEther, parseUnits } from "viem";
+import { useConnection } from "wagmi";
+import { formatUnits, parseUnits } from "viem";
 import { toast } from "sonner";
 import { CONTRACT_ABI } from "@/src/constants/contract";
 import { useAppSelector } from "@/src/store/store";
@@ -20,15 +19,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/src/components/ui/select";
-import { Coins, Cuboid, Dot, Globe, GlobeOff } from "lucide-react";
+import { Coins,Dot, Globe, GlobeOff } from "lucide-react";
 import { hideWalletAddress } from "@/src/lib/utils";
+import { apiSlice } from "@/src/store/services/slice/apiSlice";
+import { useDispatch } from "react-redux";
 
 export default function DonationCard({
+  campaignIdentifier,
   campaignId,
   campaignToken,
+  ngoWallet
 }: {
+  campaignIdentifier: string;
   campaignId: string;
   campaignToken: TokenSymbol;
+  ngoWallet: `0x${string}`
 }) {
   const [anonymous, setAnonymous] = useState(false);
   const [amount, setAmount] = useState("");
@@ -54,14 +59,16 @@ export default function DonationCard({
   });
 
   const { step, execute } = useDonationFlow({
-    userAddress: address!,
+    userAddress: address,
     userToken,
     campaignToken,
     campaignId,
+    basicCampaignId: campaignIdentifier,
     amountIn: donationAmount, // what user spends
     amountOut: amountOut ?? 0n, // what contract receives
     needsSwap,
     anonymous,
+    ngoWallet
   });
   const isProcessing = !["idle", "done", "error"].includes(step);
   const user = useAppSelector(selectUser);
@@ -69,6 +76,7 @@ export default function DonationCard({
   const displayAmount = amountOut
     ? formatUnits(amountOut, TOKENS[campaignToken].decimals)
     : "—";
+  const dispatch=useDispatch();
 
   async function handleDonate() {
     if (user?.role !== "Donor") {
@@ -81,16 +89,9 @@ export default function DonationCard({
       return;
     }
     if (!amount || parseFloat(amount) <= 0) return;
-    console.log("Inside handleDonate", {
-      address: CONTRACT_ADDRESS,
-      abi: CONTRACT_ABI,
-      functionName: "donate",
-      args: [campaignId, anonymous], // passes the anonymous bool
-      value: amount, // sends ETH along with the call
-      gas: 100000n,
-    });
     execute().then(() => {
       setAmount("");
+      dispatch(apiSlice.util.invalidateTags([{type:"Campaign", id: campaignIdentifier},'Campaigns']));
       toast.success("Donation successful! Thank you for your generosity.🫶");
     }).catch((e) => {
       console.error(e);
@@ -128,7 +129,7 @@ export default function DonationCard({
               onChange={(e) => setAmount(e.target.value)}
               className="flex-1 bg-input text-primaryText text-xl font-medium px-4 py-3.5 outline-none placeholder-gray-300 w-0"
             />
-            <Select value={userToken} onValueChange={setUserToken}>
+            <Select value={userToken} onValueChange={(token)=>{setUserToken(token as TokenSymbol)}}>
               <SelectTrigger
                 size="sm"
                 className="w-27 p-2 mr-2 h-2 bg-background-secondary font-semibold text-primary"
@@ -189,7 +190,7 @@ export default function DonationCard({
           <div className="flex justify-center items-center gap-2 mx-4 self-center bg-input rounded-2xl p-3">
             <Globe size={25} className="text-secondary-dark" />
             <p className="text-xs text-secondaryText font-semibold">
-              WALLET CONNECTED : {hideWalletAddress(address)}
+              WALLET CONNECTED : {hideWalletAddress(address!)}
             </p>
           </div>
         ) : (

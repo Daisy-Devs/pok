@@ -52,6 +52,8 @@ const NGOSignIn = () => {
                   name: res.data.ngo.name,
                   email: res.data.ngo.email,
                   role: "NGO",
+                  profileImage: res.data.ngo.profileImage.url,
+                  ngoId: res.data.ngo._id,
                 }),
               );
               router.replace("/ngo");
@@ -85,7 +87,7 @@ const NGOSignIn = () => {
           size={"lg"}
           disabled={isLoading}
           leftIcon={
-            <Image src="/metamask.svg" width={25} height={25} alt="metamask" />
+            <Image src="/svg/metamask.svg" width={25} height={25} alt="metamask" />
           }
           className="mt-6"
         />

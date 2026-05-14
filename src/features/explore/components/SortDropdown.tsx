@@ -15,7 +15,7 @@ export default function SortDropdown({
 }) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-36 h-8 bg-background-secondary text-extrabold">
+      <SelectTrigger className="w-38 h-8 bg-background-secondary text-extrabold">
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

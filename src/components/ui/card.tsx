@@ -20,7 +20,7 @@ export function Card({   // ← add export
       className={cn(
         "group/card flex flex-col overflow-hidden rounded-xl bg-card text-sm text-card-foreground ring-1 ring-foreground/10",
         variant === "campaign" && "p-0 gap-0 rounded-2xl shadow-sm",
-        variant === "cause" && "p-0 gap-0 rounded-2xl shadow-sm",
+        variant === "cause" && " rounded-2xl shadow-sm ",
         className
       )}
       {...props}

@@ -4,6 +4,7 @@ type User = {
 name: string;
 email: string;
 role: 'Donor'|'NGO'
+id: string
 }
 type AuthState = {
   isAuthenticated: boolean;
