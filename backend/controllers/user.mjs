@@ -72,7 +72,7 @@ export const registerUser = async (req, res) => {
     // 🍪 Cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // 👉 true in production
+      secure: true, // 👉 true in production
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -155,7 +155,7 @@ export const googleAuth = async (req, res) => {
     // 🍪 Cookie
     res.cookie('token', jwtToken, {
       httpOnly: true,
-      secure: false, // 👉 true in production
+      secure: true, // 👉 true in production
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -233,7 +233,7 @@ export const appleAuth = async (req, res) => {
     // 🍪 Set cookie
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // 👉 true in production
+      secure: true, // 👉 true in production
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -414,7 +414,7 @@ export const logoutUser = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false // 👉 true in production
+    secure: true // 👉 true in production
   });
 
   return sendResponse(res, 200, 'User logged out successfully');
