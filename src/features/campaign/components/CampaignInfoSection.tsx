@@ -168,12 +168,14 @@ const CampaignInfoSection = ({ data }: CampaignInfoSectionProps) => {
             </p>
           </div>
         ) : (
-          <DonationCard
-            campaignIdentifier={campaign?.id}
-            campaignId={campaign?.campaignIdBytes32}
-            campaignToken={campaign?.goalToken}
-            ngoWallet={campaign?.organization?.walletAddress}
-          />
+          campaign?.organization?.walletAddress && (
+            <DonationCard
+              campaignIdentifier={campaign.id}
+              campaignId={campaign.campaignIdBytes32}
+              campaignToken={campaign.goalToken}
+              ngoWallet={campaign.organization.walletAddress}
+            />
+          )
         )}
         <OrganisationDetails organisation={organisationData} />
       </div>
