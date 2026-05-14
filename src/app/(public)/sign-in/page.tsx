@@ -18,6 +18,7 @@ import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { Eye, EyeOff } from "lucide-react";
 import { validators } from "@/src/constants/validation";
 import Image from "next/image";
+import { cookies } from "next/headers";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
@@ -50,7 +51,7 @@ export default function SignIn() {
     if (!validate()) return;
     donorSignIn(formData)
       .unwrap()
-      .then((res) => {
+      .then(async(res) => {
         console.log("Sign-in successful", res);
         toast.success("Sign-in successful!");
         dispatch(
@@ -61,6 +62,15 @@ export default function SignIn() {
             id: res.data.userObj._id,
           }),
         );
+        const cookieStore = await cookies();
+
+        cookieStore.set("role", "donor", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          path: "/",
+          maxAge: 60 * 60 * 24,
+        });
         router.replace("/");
       })
       .catch((error) => {

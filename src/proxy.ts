@@ -13,12 +13,12 @@ export const config = {
 };
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("token")?.value || "";
-  const destructuredToken = token
-    ? (jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as Token)
-    : null;
-  const role = destructuredToken ? destructuredToken?.role : "";
-  console.log("pfffttt",token);
+  // const token = request.cookies.get("token")?.value || "";
+  // const destructuredToken = token
+  //   ? (jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as Token)
+  //   : null;
+  const role = request.cookies.get("role")?.value || "";
+  // console.log("pfffttt",token);
   console.log("pfffttt",role);
     console.log("===== MIDDLEWARE =====");
   console.log("URL:", request.nextUrl.pathname);
@@ -31,24 +31,24 @@ export function proxy(request: NextRequest) {
     pathname.startsWith("/ngo/register") ||
     pathname.startsWith("/ngo/sign-in")
   ) {
-    if (token && role == "ngo") {
+    if (role == "ngo") {
       return NextResponse.redirect(new URL("/ngo", request.url));
     }
     return NextResponse.next();
   }
 
   if (pathname.startsWith("/sign-in") || pathname.startsWith("/register")) {
-    if (token && role === "donor") {
+    if (role === "donor") {
       return NextResponse.redirect(new URL("/", request.url));
     }
     return NextResponse.next();
   }
 
   if (pathname.startsWith("/profile")) {
-    if (!token) {
+    if (!role) {
       return NextResponse.redirect(new URL("/sign-in", request.url));
     }
-    if (token && role === "ngo") {
+    if (role === "ngo") {
       return NextResponse.redirect(new URL("/ngo", request.url));
     }
     return NextResponse.next();
@@ -59,7 +59,7 @@ export function proxy(request: NextRequest) {
     if (role === "donor") {
       return NextResponse.redirect(new URL("/", request.url));
     }
-    if (!token) {
+    if (!role) {
       return NextResponse.redirect(new URL("/ngo/sign-in", request.url));
     }
   }

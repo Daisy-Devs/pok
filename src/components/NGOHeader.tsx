@@ -19,6 +19,7 @@ import { selectIsAuthenticated, selectUser } from "../store/services/selectors/a
 import { splitTitle } from "../lib/utils";
 import { apiSlice } from "../store/services/slice/apiSlice";
 import Link from "next/link";
+import { cookies } from "next/headers";
 
 interface NGOHeaderProps {
   walletAddress: string;
@@ -60,6 +61,8 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
     disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
+    const cookieStore = await cookies();
+    cookieStore.delete("token");
     dispatch(apiSlice.util.resetApiState());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");

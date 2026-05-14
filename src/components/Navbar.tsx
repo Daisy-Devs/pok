@@ -24,6 +24,7 @@ import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect
 import { splitTitle } from "../lib/utils";
 import { googleLogout } from "@react-oauth/google";
 import { apiSlice } from "../store/services/slice/apiSlice";
+import { cookies } from "next/dist/server/request/cookies";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -54,6 +55,9 @@ const handleLogout = async () => {
     await donorLogout({}).unwrap();
     dispatch(apiSlice.util.resetApiState());
     dispatch(loggedOut());
+    const cookieStore = await cookies();
+    cookieStore.delete("token");
+
     googleLogout();
     toast.success("You've been logged out");
 

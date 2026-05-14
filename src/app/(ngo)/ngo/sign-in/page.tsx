@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
+import { cookies } from "next/headers";
 import {
   useConnect,
   useConnection,
@@ -45,7 +46,7 @@ const NGOSignIn = () => {
             message,
           })
             .unwrap()
-            .then((res) => {
+            .then(async (res) => {
               console.log("wallet login response:", res);
               dispatch(
                 loggedIn({
@@ -56,6 +57,15 @@ const NGOSignIn = () => {
                   ngoId: res.data.ngo._id,
                 }),
               );
+              const cookieStore = await cookies();
+
+              cookieStore.set("role", "ngo", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24,
+              });
               router.replace("/ngo");
             });
         },
@@ -87,7 +97,12 @@ const NGOSignIn = () => {
           size={"lg"}
           disabled={isLoading}
           leftIcon={
-            <Image src="/svg/metamask.svg" width={25} height={25} alt="metamask" />
+            <Image
+              src="/svg/metamask.svg"
+              width={25}
+              height={25}
+              alt="metamask"
+            />
           }
           className="mt-6"
         />

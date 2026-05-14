@@ -1,5 +1,6 @@
 import { useDonorGoogleAuthMutation } from "@/src/store/services/api/donorAuthApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
+import { cookies } from "next/headers";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -7,12 +8,12 @@ import { toast } from "sonner";
 type GoogleAuthResponse = {
   data: {
     data: { name: string; email: string; _id: string };
-  },
+  };
   error?: {
     data: {
       message: string;
-    }
-  }
+    };
+  };
 };
 /**
  * useGoogleAuth
@@ -37,7 +38,9 @@ export const useGoogleAuth = () => {
     }
 
     try {
-      const res:GoogleAuthResponse = (await donorGoogleAuth({ token })) as GoogleAuthResponse;
+      const res: GoogleAuthResponse = (await donorGoogleAuth({
+        token,
+      })) as GoogleAuthResponse;
       if (res.error) {
         toast.error("Google authentication failed: " + res.error.data.message);
         return;
@@ -54,6 +57,15 @@ export const useGoogleAuth = () => {
           id: res.data.data._id,
         }),
       );
+      const cookieStore = await cookies();
+
+      cookieStore.set("role", "donor", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      });
     } catch (err) {
       console.log("Google auth failed:", err);
       toast.error("Google authentication failed.");

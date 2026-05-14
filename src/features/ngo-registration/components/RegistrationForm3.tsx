@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { loggedIn, loggedOut } from "@/src/store/services/slice/authSlice";
 import { useRegisterNgoMutation } from "@/src/store/services/api/campaignApi";
 import { toast } from "sonner";
+import { cookies } from "next/headers";
 
 interface RegistrationForm3Props {
   changeStep: (step: string) => void;
@@ -88,7 +89,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
 
           registerNgo(updatedNgoData)
             .unwrap()
-            .then((ngoresponse) => {
+            .then(async(ngoresponse) => {
               dispatch(
                 loggedIn({
                   name: ngoData.organizationName,
@@ -96,13 +97,24 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
                   role: "NGO",
                 }),
               );
+              const cookieStore = await cookies();
+
+              cookieStore.set("role", "ngo", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "lax",
+                path: "/",
+                maxAge: 60 * 60 * 24,
+              });
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
-            .catch((err) => {
+            .catch(async(err) => {
               toast.error("Failed to register NGO");
               walletLogout({});
               dispatch(loggedOut());
+              const cookieStore = await cookies();
+              cookieStore.delete("token");
               disconnect();
               console.log("ngo registration error:", err, walletLoginError);
             });

@@ -29,6 +29,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const [walletLogout] = useWalletLogoutMutation();
   const [donorLogout] = useDonorLogoutMutation();
 
+  
   useEffect(() => {
     if (isError) {
       walletLogout({});
