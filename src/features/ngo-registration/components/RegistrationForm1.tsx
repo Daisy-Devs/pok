@@ -151,7 +151,6 @@ const RegistrationForm1: React.FC<RegistrationForm1Props> = ({
             profileImage: file as UploadDocumentType,
           }))
         }
-        setNGOData={updateNgoData}
       />
 
       <UploadBox
