@@ -57,8 +57,9 @@ const NGOSignIn = () => {
                   ngoId: res.data.ngo._id,
                 }),
               );
-              document.cookie = "role=ngo; path=/";
-              router.replace("/ngo");
+              document.cookie = `role=ngo; path=/; max-age=${
+                60 * 60 * 24
+              }; secure; samesite=lax`;
             });
         },
         onError: (error) => {

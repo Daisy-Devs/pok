@@ -89,7 +89,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
 
           registerNgo(updatedNgoData)
             .unwrap()
-            .then(async(ngoresponse) => {
+            .then((ngoresponse) => {
               dispatch(
                 loggedIn({
                   name: ngoData.organizationName,
@@ -97,11 +97,13 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
                   role: "NGO",
                 }),
               );
-              document.cookie = "role=ngo; path=/";
+              document.cookie = `role=ngo; path=/; max-age=${
+                60 * 60 * 24
+              }; secure; samesite=lax`;
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
-            .catch(async(err) => {
+            .catch(async (err) => {
               toast.error("Failed to register NGO");
               walletLogout({});
               dispatch(loggedOut());
