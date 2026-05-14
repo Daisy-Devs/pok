@@ -34,7 +34,6 @@ const Navbar = () => {
   const isLoggedIn = authenticated && user?.role === "Donor";
   const pathname = usePathname();
   const dispatch = useDispatch();
-  const router = useRouter();
   const [donorLogout, { isLoading: logoutLoading }] = useDonorLogoutMutation();
   const [disconnectWallet, { isLoading: disconnectWalletLoading }] =
     useDisconnectWalletMutation();

@@ -6,7 +6,7 @@ import Link from "next/link";
 import { formatCryptoAmount, hideWalletAddress } from "@/src/lib/utils";
 export type ClaimableCampaigns = {
   campaignName: string;
-  campaignId: string;
+  campaignId: `0x${string}`;
   balance: string;
   actions: string;
 };
@@ -29,7 +29,7 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
       <div>
         {formatCryptoAmount(
           Number(row.original.balance.split(" ")[0]),
-          row.original.balance.split(" ")[1],
+          row.original.balance.split(" ")[1] as "ETH" | "USDC"|"DAI"|"USDT",
         )}{" "}
         {row.original.balance.split(" ")[1]}
       </div>
@@ -43,7 +43,7 @@ export const claimableCampaignsColumns: ColumnDef<ClaimableCampaigns>[] = [
       const campainName = row.original.campaignName;
       const balance = row.original.balance;
       const category = row.original.actions;
-      const withdrawable = formatCryptoAmount(Number(row.original.balance.split(" ")[0]), row.original.balance.split(" ")[1])
+      const withdrawable = formatCryptoAmount(Number(row.original.balance.split(" ")[0]), row.original.balance.split(" ")[1] as "ETH" | "USDC"|"DAI"|"USDT");
 
       return (
         <WithdrawModal

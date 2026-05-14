@@ -2,7 +2,7 @@ import { Button } from "@/src/components/ui/button";
 import { ListChecks } from "lucide-react";
 import { nomenclature } from "@/src/constants/nomenclature";
 import Image from "next/image";
-import React from "react";
+
 import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { useConnectWalletMutation } from "@/src/store/services/api/walletApi";
 import { useDispatch } from "react-redux";

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+
 import ImpactWidget from "./ImpactWidget";
 import { Button } from "@/src/components/ui/button";
 import { ShieldCheck } from "lucide-react";

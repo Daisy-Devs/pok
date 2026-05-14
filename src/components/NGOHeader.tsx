@@ -1,7 +1,7 @@
 "use client";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { WalletIcon } from "lucide-react";
-import React from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,

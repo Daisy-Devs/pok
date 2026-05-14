@@ -5,7 +5,10 @@ import { RecentActivity } from "@/src/features/ngo-overview/components/RecentAct
 import StatsCard from "@/src/features/ngo-overview/components/StatsCard";
 import { useGetCampaignByOrgQuery } from "@/src/store/services/api/campaignApi";
 import { FileEdit, CheckCircle2, Users, Wallet } from "lucide-react";
-import React from "react";
+
+type Campaign = {
+  status: "active" | "draft" | "completed";
+}
 
 const NGODashboard = () => {
   const { data, isLoading } = useGetCampaignByOrgQuery({});
@@ -17,15 +20,15 @@ const NGODashboard = () => {
   const campaigns = dashboardData?.campaigns || [];
 
   const activeCampaigns = campaigns.filter(
-    (campaign: any) => campaign.status === "active",
+    (campaign: Campaign) => campaign.status === "active",
   ).length;
 
   const draftCampaigns = campaigns.filter(
-    (campaign: any) => campaign.status === "draft",
+    (campaign: Campaign) => campaign.status === "draft",
   ).length;
 
   const completedCampaigns = campaigns.filter(
-    (campaign: any) => campaign.status === "completed",
+    (campaign: Campaign) => campaign.status === "completed",
   ).length;
 
   const uniqueDonors = dashboardData?.activeDonors || 0;

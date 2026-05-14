@@ -7,7 +7,7 @@ import {
   Trees,
   UsersRound,
 } from "lucide-react";
-import React from "react";
+
 
 interface SelectCauseProps {
   setCause:(cause: string) => void; 

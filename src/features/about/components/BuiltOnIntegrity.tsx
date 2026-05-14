@@ -1,7 +1,7 @@
 "use client";
 import { StatCard } from "@/src/components/StatCard";
 import { ChartLine, Eye, Shield } from "lucide-react";
-import React from "react";
+
 
 const BuiltOnIntegrity = () => {
   return (

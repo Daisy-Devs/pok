@@ -2,7 +2,6 @@ import Heading from '@/src/components/Heading'
 import { nomenclature } from '@/src/constants/nomenclature'
 import { splitTitle } from '@/src/lib/utils'
 import Image from 'next/image'
-import React from 'react'
 
 const Hero = ({text}:{text:string}) => {
     const title=splitTitle(text)

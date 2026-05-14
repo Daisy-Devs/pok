@@ -18,7 +18,7 @@ export default function ExplorePage() {
   const searchParams = useSearchParams();
   const causeFromUrl = searchParams.get("cause");
 
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState(causeFromUrl || "All");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("latest");
   const [page, setPage] = useState(1);
@@ -45,15 +45,7 @@ export default function ExplorePage() {
     limit: 100, 
   });
 
-  useEffect(() => {
-    setPage(1);
-  }, [activeCategory, debouncedSearch, sortBy]);
 
-  useEffect(() => {
-    if (causeFromUrl) {
-      setActiveCategory(causeFromUrl);
-    }
-  }, [causeFromUrl]);
 
   const availableCategories: string[] = useMemo(() => {
     const list: string[] =
@@ -64,14 +56,6 @@ export default function ExplorePage() {
     return ["All", ...unique];
   }, [allData]);
 
-  useEffect(() => {
-    if (
-      availableCategories.length > 0 &&
-      !availableCategories.includes(activeCategory)
-    ) {
-      setActiveCategory("All");
-    }
-  }, [availableCategories, activeCategory]);
 
   const campaigns: Campaign[] = 
       data?.data?.campaigns?.map((c: CampaignApi) => ({
@@ -100,18 +84,18 @@ export default function ExplorePage() {
         </div>
 
         <div className="w-full md:w-127.5 flex justify-end">
-          <SearchBar value={search} onChange={setSearch} />
+          <SearchBar value={search} onChange={(v)=>{setSearch(v); setPage(1)}} />
         </div>
       </div>
       {/* Filters */}
       <div className="max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <CategoryFilter
           active={activeCategory}
-          setActive={setActiveCategory}
+          setActive={(v)=>{setActiveCategory(v); setPage(1)}}
           categories={availableCategories}
         />
         <div className="w-full md:w-auto flex justify-end">
-          <SortDropdown value={sortBy} onChange={setSortBy} />
+          <SortDropdown value={sortBy} onChange={(v)=>{setSortBy(v); setPage(1)}} />
         </div>
       </div>
 

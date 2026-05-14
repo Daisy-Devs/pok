@@ -2,7 +2,7 @@
 import { StatCard } from "@/src/components/StatCard";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { HouseHeart, Scroll, ScrollText } from "lucide-react";
-import React from "react";
+
 
 const ProtocolTransparency = () => {
   return (

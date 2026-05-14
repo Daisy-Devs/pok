@@ -1,7 +1,7 @@
 import { DEFAULT_IMAGE_URL } from "@/src/constants/misc";
 import { Check, Globe2, Mail } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+
 
 interface OrganisationDetailsProps {
   organisation: {

@@ -9,7 +9,6 @@ import {
 } from "@/src/components/ui/table";
 import Cause from "@/src/features/profile/components/Cause";
 import Details from "@/src/features/profile/components/Details";
-import { ProfileActivity } from "@/src/features/profile/types";
 import { timeAgo } from "@/src/lib/utils";
 import {
   Donation,
@@ -23,9 +22,9 @@ import { useDonorProfileQuery } from "@/src/store/services/api/donorAuthApi";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 
 const Profile = () => {
-  const { data: profileData, isLoading: isProfileLoading } =
+  const { data: profileData } =
     useDonorProfileQuery({});
-  const { data, isLoading, isError } = useGetDonationsByDonorQuery();
+  const { data } = useGetDonationsByDonorQuery();
   const donations: Donation[] = data?.data?.donations ?? [];
   console.log("Donations:", donations);
   const causeCount = new Set(donations.map((d) => d.campaignId)).size;
@@ -39,7 +38,6 @@ const Profile = () => {
       })
     : "—";
 
-  const profileActivities: ProfileActivity[] = [];
   return (
     <div className="flex flex-col gap-3 w-full py-12 px-5 space-y-9">
       <Details />
@@ -122,7 +120,7 @@ const Profile = () => {
                   <TableCell>
                     <a
                       href={
-                        process.env.NEXT_PUBLIC_ETHER_SCAN +
+                        process?.env?.NEXT_PUBLIC_ETHER_SCAN +
                         donation.transactionHash
                       }
                       target="_blank"

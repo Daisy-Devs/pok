@@ -6,6 +6,9 @@ export interface Donation {
   campaignCause: string;
   campaignTitle: string;
   amount: number;
+  donorName: string;
+  token: string;
+  date?: string;
   createdAt: string;
   transactionHash: string;
 }
@@ -23,7 +26,7 @@ export const donationApi = apiSlice.injectEndpoints({
         url: ENDPOINTS.donation.getAllDonations,
         method: "GET",
       }),
-      transformResponse: (response: any) => response.data.data,
+      transformResponse: (response) => response?.data?.data,
     }),
 
     getDonationsByDonor: builder.query<DonationsByDonorResponse, void>({
@@ -44,11 +47,11 @@ export const donationApi = apiSlice.injectEndpoints({
       providesTags: (result, error, params) => [
         { type: "Campaign", id: params }, // params IS the id here
       ],
-      transformResponse: (response: any) => {
+      transformResponse: (response:any) => {
         return response.data?.donations ?? response.data ?? [];
       },
     }),
-    getDonationByOrganisation: builder.query<any, any>({
+    getDonationByOrganisation: builder.query({
       query: (params) => ({
         url: ENDPOINTS.donation.getDonationsByOrg,
         method: "GET",

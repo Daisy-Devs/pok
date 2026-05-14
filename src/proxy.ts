@@ -2,6 +2,12 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 
+type Token={
+  name: string;
+  email: string;
+  role: string;
+  id: string;
+}
 export const config = {
   matcher: ["/ngo/:path*", "/profile", "/sign-in", "/register"], //TODO: add donate '/campaigns/:path*/donate'
 };
@@ -9,8 +15,8 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value || "";
   const destructuredToken = token
-    ? (jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as string)
-    : "";
+    ? (jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as Token)
+    : null;
   const role = destructuredToken ? destructuredToken?.role : "";
 
   if (
