@@ -11,14 +11,19 @@ import { redis } from './utils/redis.mjs';
 const app = express();
 
 // ✅ CORS
-app.use(cors({
-  origin: 'https://pok-fe.up.railway.app/',
+const corsOptions = {
+  origin: 'https://pok-fe.up.railway.app',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'x-requested-with'
+  ],
   credentials: true
-}));
+};
 
-app.options('/{*any}', cors());
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // ✅ Middlewares
 app.use(express.json());
