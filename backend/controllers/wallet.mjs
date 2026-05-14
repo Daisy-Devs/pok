@@ -189,7 +189,7 @@ export const logoutWallet = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: isProd,
-    sameSite: "strict"
+    sameSite: "none"
   });
   return sendResponse(res, 200, 'Logged out successfully');
 };

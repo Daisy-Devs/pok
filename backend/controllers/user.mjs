@@ -413,7 +413,7 @@ export const resetPassword = async (req, res) => {
 export const logoutUser = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true // 👉 true in production
   });
 
