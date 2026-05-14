@@ -62,15 +62,7 @@ export default function SignIn() {
             id: res.data.userObj._id,
           }),
         );
-        const cookieStore = await cookies();
-
-        cookieStore.set("role", "donor", {
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
-          path: "/",
-          maxAge: 60 * 60 * 24,
-        });
+        document.cookie = "role=donor; path=/";
         router.replace("/");
       })
       .catch((error) => {

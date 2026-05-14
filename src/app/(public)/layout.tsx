@@ -36,6 +36,7 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
       donorLogout({});
       console.log("Logging out!caught");
       dispatch(loggedOut());
+      document.cookie = "role=; path=/";
     }
   }, [isError, dispatch, walletLogout, donorLogout]);
 

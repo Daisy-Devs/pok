@@ -57,15 +57,7 @@ export const useGoogleAuth = () => {
           id: res.data.data._id,
         }),
       );
-      const cookieStore = await cookies();
-
-      cookieStore.set("role", "donor", {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        path: "/",
-        maxAge: 60 * 60 * 24,
-      });
+      document.cookie = "role=donor; path=/";
     } catch (err) {
       console.log("Google auth failed:", err);
       toast.error("Google authentication failed.");

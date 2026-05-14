@@ -57,15 +57,7 @@ const NGOSignIn = () => {
                   ngoId: res.data.ngo._id,
                 }),
               );
-              const cookieStore = await cookies();
-
-              cookieStore.set("role", "ngo", {
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
-                path: "/",
-                maxAge: 60 * 60 * 24,
-              });
+              document.cookie = "role=ngo; path=/";
               router.replace("/ngo");
             });
         },

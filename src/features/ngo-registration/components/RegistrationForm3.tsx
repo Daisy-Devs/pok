@@ -97,15 +97,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
                   role: "NGO",
                 }),
               );
-              const cookieStore = await cookies();
-
-              cookieStore.set("role", "ngo", {
-                httpOnly: true,
-                secure: true,
-                sameSite: "lax",
-                path: "/",
-                maxAge: 60 * 60 * 24,
-              });
+              document.cookie = "role=ngo; path=/";
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
@@ -113,8 +105,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
               toast.error("Failed to register NGO");
               walletLogout({});
               dispatch(loggedOut());
-              const cookieStore = await cookies();
-              cookieStore.delete("token");
+              document.cookie = "role=; path=/";
               disconnect();
               console.log("ngo registration error:", err, walletLoginError);
             });
