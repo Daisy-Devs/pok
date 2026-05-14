@@ -149,7 +149,7 @@ export default function Philanthropy() {
                   onClick={handleWalletConnect}
                   disabled={isLoading}
                 />
-                <Button text="Learn More" variant={"white"} size={"default"} />
+                <Button text="Learn More" onClick={() => {router.push("/about")}} variant={"white"} size={"default"} />
               </div>
             </div>
           </div>
