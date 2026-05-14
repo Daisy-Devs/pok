@@ -1,0 +1,129 @@
+"use client";
+import { Calendar, RefreshCcw, Download } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import { Input } from "@/src/components/ui/input";
+import { Button } from "@/src/components/ui/button";
+import { useDownloadDonationHistoryMutation } from "@/src/store/services/api/donationApi";
+
+type FilterBarProps = {
+  onSearchChange: (value: string) => void;
+  onAssetChange: (value: string) => void;
+  onDateChange: (value: string) => void;
+  totalRecords: number;
+  donations: any[];
+  isLoading: boolean;
+  currentFilters: {
+    days: string;
+    goalToken: string;
+    cause: string;
+  };
+};
+
+export const FilterBar = ({
+  onSearchChange,
+  onAssetChange,
+  onDateChange,
+  totalRecords,
+  currentFilters,
+}: FilterBarProps) => {
+  const [triggerDownload, { isLoading: isExporting }] =
+    useDownloadDonationHistoryMutation();
+
+  const handleExportCSV = async () => {
+    try {
+      const response = await triggerDownload({
+        days: currentFilters.days !== "all" ? currentFilters.days : undefined,
+        goalToken:
+          currentFilters.goalToken !== "all"
+            ? currentFilters.goalToken
+            : undefined,
+        cause: currentFilters.cause || undefined,
+      }).unwrap();
+
+      const blob =
+        typeof response === "string"
+          ? new Blob([response], { type: "text/csv" })
+          : response;
+
+      if (blob instanceof Blob) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `donations-history-${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+
+        link.remove();
+        window.URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error("❌ Export failed:", error);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4  p-4 rounded-xl ">
+      <div className="flex items-center gap-3 ">
+        {/* 1. Date Filter */}
+        <Select onValueChange={onDateChange} defaultValue="30">
+          <SelectTrigger className="w-45 bg-white shadow-sm ">
+            <Calendar className="w-4 h-4 mr-2 opacity-50 " />
+            <SelectValue placeholder="Select Range" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">Last 7 Days</SelectItem>
+            <SelectItem value="30">Last 30 Days</SelectItem>
+            <SelectItem value="90">Last 90 Days</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* 2. Asset Filter */}
+        <Select onValueChange={onAssetChange} defaultValue="eth">
+          <SelectTrigger className="w-42.5 bg-white shadow-sm ">
+            <RefreshCcw className="w-4 h-4 mr-2 opacity-50" />
+            <SelectValue placeholder="Asset" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="eth">Asset: ETH</SelectItem>
+            <SelectItem value="usdc">Asset: USDC</SelectItem>
+            <SelectItem value="usdt">Asset: USDT</SelectItem>
+            <SelectItem value="dai">Asset: DAI</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* 3. Search Filter */}
+        <div className=" w-75 mb-1.5">
+          <Input
+            className="shadow-sm text-semibold text-foreground bg-white"
+            placeholder="Filter by campaign"
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-6">
+        <div className="text-sm font-medium">
+          <span className="text-primary-color mr-2 uppercase  text-bold">
+            Total Screened:
+          </span>
+          <span className="text-secondary-dark font-bold">
+            {totalRecords} Records
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          className="font-semibold"
+          text="Export CSV"
+          leftIcon={<Download className="w-4 h-4" />}
+          onClick={handleExportCSV}
+        />
+      </div>
+    </div>
+  );
+};
