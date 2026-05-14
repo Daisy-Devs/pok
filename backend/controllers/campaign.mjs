@@ -126,7 +126,7 @@ export const createCampaign = async (req, res) => {
       return sendResponse(res, 404, "Organization not found");
     }
 
-    if (missionStatement== "" && status!=="draft") {
+    if (missionStatement == "" && status !== "draft") {
       return sendResponse(res, 400, "Mission Statement is required");
     }
     if (organization.walletAddress.toLowerCase() !== walletAddress) {
@@ -170,8 +170,15 @@ export const updateCampaign = async (req, res) => {
   try {
     const ngoId = req.ngoId;
     const { id } = req.params;
-    const { title, missionStatement, cause, imageUrl, goalAmount, status,goalToken } =
-      req.body;
+    const {
+      title,
+      missionStatement,
+      cause,
+      imageUrl,
+      goalAmount,
+      status,
+      goalToken,
+    } = req.body;
 
     const campaign = await Campaign.findOne({
       _id: new ObjectId(id),
@@ -187,7 +194,8 @@ export const updateCampaign = async (req, res) => {
     }
     // ✅ Update allowed fields
     if (title !== undefined) campaign.title = title;
-    if (missionStatement !== undefined) campaign.missionStatement = missionStatement;
+    if (missionStatement !== undefined)
+      campaign.missionStatement = missionStatement;
     if (cause !== undefined) campaign.cause = cause;
     if (imageUrl !== undefined) campaign.imageUrl = imageUrl;
     if (goalAmount !== undefined) campaign.goalAmount = goalAmount;
@@ -195,7 +203,7 @@ export const updateCampaign = async (req, res) => {
 
     // ✅ Allow changing status (draft → active)
     if (status) campaign.status = status;
-    
+
     await campaign.save();
 
     return sendResponse(res, 200, "campaigns updated successfully", campaign);
@@ -236,7 +244,13 @@ export const getAllCampaigns = async (req, res) => {
     } else {
       filter.status = { $in: ["active", "completed"] };
     }
-    if (cause) filter.cause = cause;
+
+    if (cause) {
+      filter.cause = {
+        $regex: `^${cause.trim()}$`,
+        $options: "i",
+      };
+    }
     if (goalToken) filter.goalToken = goalToken.toUpperCase();
 
     if (location) {
