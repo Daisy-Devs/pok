@@ -18,7 +18,15 @@ export function proxy(request: NextRequest) {
     ? (jwt.verify(token, process.env.NEXT_PUBLIC_JWT_SECRET!) as Token)
     : null;
   const role = destructuredToken ? destructuredToken?.role : "";
-
+  console.log("pfffttt",token);
+  console.log("pfffttt",role);
+    console.log("===== MIDDLEWARE =====");
+  console.log("URL:", request.nextUrl.pathname);
+  console.log("COOKIE HEADER:", request.headers.get("cookie"));
+  console.log(
+    "TOKEN:",
+    request.cookies.get("token")?.value
+  );
   if (
     pathname.startsWith("/ngo/register") ||
     pathname.startsWith("/ngo/sign-in")
