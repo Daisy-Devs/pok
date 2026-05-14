@@ -1,5 +1,5 @@
 
-# PoK(Proof of Kindness)
+# PoK(Proof of Kindness)🫶
 
 PoK is a Software-as-a-Service (SaaS) platform that enables individuals and organizations to send and receive cryptocurrency donations with full anonymity. It bridges the gap between transparent blockchain infrastructure and privacy-first giving, allowing donors to support causes without exposing their identity or wallet history.
 
