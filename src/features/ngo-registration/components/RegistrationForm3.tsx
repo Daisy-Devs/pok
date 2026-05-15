@@ -99,7 +99,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
               );
               document.cookie = `role=ngo; path=/; max-age=${
                 60 * 60 * 24
-              }; samesite=lax`;
+              }; secure; samesite=lax`;
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
@@ -107,7 +107,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
               toast.error("Failed to register NGO");
               walletLogout({});
               dispatch(loggedOut());
-              document.cookie = "role=; path=/";
+              document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
               disconnect();
               console.log("ngo registration error:", err, walletLoginError);
             });

@@ -60,7 +60,7 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
     disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
-    document.cookie = "role=; path=/";
+    document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
     dispatch(apiSlice.util.resetApiState());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");

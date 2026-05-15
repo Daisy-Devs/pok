@@ -55,7 +55,7 @@ const handleLogout = async () => {
     await donorLogout({}).unwrap();
     dispatch(apiSlice.util.resetApiState());
     dispatch(loggedOut());
-    document.cookie = "role=; path=/";
+    document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
     googleLogout();
     toast.success("You've been logged out");
 

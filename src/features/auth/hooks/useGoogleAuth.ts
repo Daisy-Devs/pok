@@ -59,7 +59,7 @@ export const useGoogleAuth = () => {
       );
       document.cookie = `role=donor; path=/; max-age=${
         60 * 60 * 24
-      }; samesite=lax`;
+      }; secure; samesite=lax`;
     } catch (err) {
       console.log("Google auth failed:", err);
       toast.error("Google authentication failed.");

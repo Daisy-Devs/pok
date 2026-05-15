@@ -63,7 +63,7 @@ export default function SignIn() {
         );
         document.cookie = `role=donor; path=/; max-age=${
           60 * 60 * 24
-        }; samesite=lax`;
+        }; secure; samesite=lax`;
         router.replace("/");
       })
       .catch((error) => {
@@ -77,7 +77,7 @@ export default function SignIn() {
       {/* LEFT SIDE */}
       <div className="relative hidden lg:block h-235 w-full">
         <Image
-          src="/about-hero.png"
+          src="/InspiringVisual.jpg"
           alt="visual"
           fill
           className="object-cover"

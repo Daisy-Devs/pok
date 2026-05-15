@@ -58,7 +58,7 @@ const NGOSignIn = () => {
               );
               document.cookie = `role=ngo; path=/; max-age=${
                 60 * 60 * 24
-              }; samesite=lax`;
+              }; secure; samesite=lax`;
             });
         },
         onError: (error) => {
