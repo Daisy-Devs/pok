@@ -18,7 +18,6 @@ import { useGoogleAuth } from "@/src/features/auth/hooks/useGoogleAuth";
 import { Eye, EyeOff } from "lucide-react";
 import { validators } from "@/src/constants/validation";
 import Image from "next/image";
-import { cookies } from "next/headers";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({

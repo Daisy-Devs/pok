@@ -19,7 +19,6 @@ import { selectIsAuthenticated, selectUser } from "../store/services/selectors/a
 import { splitTitle } from "../lib/utils";
 import { apiSlice } from "../store/services/slice/apiSlice";
 import Link from "next/link";
-import { cookies } from "next/headers";
 
 interface NGOHeaderProps {
   walletAddress: string;

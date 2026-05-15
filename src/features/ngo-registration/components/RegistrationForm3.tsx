@@ -21,7 +21,6 @@ import { useRouter } from "next/navigation";
 import { loggedIn, loggedOut } from "@/src/store/services/slice/authSlice";
 import { useRegisterNgoMutation } from "@/src/store/services/api/campaignApi";
 import { toast } from "sonner";
-import { cookies } from "next/headers";
 
 interface RegistrationForm3Props {
   changeStep: (step: string) => void;
