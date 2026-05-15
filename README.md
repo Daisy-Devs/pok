@@ -17,10 +17,11 @@ PoK is a Software-as-a-Service (SaaS) platform that enables individuals and orga
 
 **Server:** Node, Express, Mongoose
 
+**Blockchain:** Solidity
 
 ## Demo
 
-
+[Click on this link for a demo](https://pok-fe.up.railway.app/)
 
 
 ## Authors
