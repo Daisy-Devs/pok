@@ -78,7 +78,7 @@ export default function SignIn() {
       {/* LEFT SIDE */}
       <div className="relative hidden lg:block h-235 w-full">
         <Image
-          src="/InspiringVisual.jpg"
+          src="/about-hero.png"
           alt="visual"
           fill
           className="object-cover"
