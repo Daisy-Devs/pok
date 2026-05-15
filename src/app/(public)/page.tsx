@@ -31,7 +31,7 @@ export default function Home() {
             <AlertDialogTitle>⚠️ Third Party Cookies Required</AlertDialogTitle>
             <AlertDialogDescription>
               This app uses cookies for secure login. Please make sure to allow
-              third-party cookies for this website.
+              third-party cookies on your browser for this website.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

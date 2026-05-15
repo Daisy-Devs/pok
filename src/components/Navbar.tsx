@@ -109,6 +109,7 @@ const handleLogout = async () => {
           {nomenclature.ABOUT_US}
         </Link>
       </div>
+      <div className="hidden md:flex items-center gap-4">
       <HoverCard openDelay={10} closeDelay={100}>
       <HoverCardTrigger asChild>
         <Button variant="ghost" text="Only on Testnet" leftIcon={<FlaskConical size={16} className="text-primary animate-caret-blink" />} />
@@ -121,7 +122,7 @@ const handleLogout = async () => {
             monetary value.</div>
       </HoverCardContent>
     </HoverCard>
-      <div className="hidden md:flex items-center gap-4">
+      
         {isLoggedIn ? (
           <>
             <DropdownMenu>
