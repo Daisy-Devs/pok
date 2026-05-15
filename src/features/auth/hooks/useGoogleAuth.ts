@@ -1,6 +1,6 @@
+"use client";
 import { useDonorGoogleAuthMutation } from "@/src/store/services/api/donorAuthApi";
 import { loggedIn } from "@/src/store/services/slice/authSlice";
-import { cookies } from "next/headers";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
@@ -59,7 +59,7 @@ export const useGoogleAuth = () => {
       );
       document.cookie = `role=donor; path=/; max-age=${
         60 * 60 * 24
-      }; secure; samesite=lax`;
+      }; samesite=lax`;
     } catch (err) {
       console.log("Google auth failed:", err);
       toast.error("Google authentication failed.");

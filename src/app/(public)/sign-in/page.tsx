@@ -64,7 +64,7 @@ export default function SignIn() {
         );
         document.cookie = `role=donor; path=/; max-age=${
           60 * 60 * 24
-        }; secure; samesite=lax`;
+        }; samesite=lax`;
         router.replace("/");
       })
       .catch((error) => {

@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/src/components/ui/button";
 import FormTitle from "./FormTitle";
 import { nomenclature } from "@/src/constants/nomenclature";
@@ -99,7 +100,7 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
               );
               document.cookie = `role=ngo; path=/; max-age=${
                 60 * 60 * 24
-              }; secure; samesite=lax`;
+              }; samesite=lax`;
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
