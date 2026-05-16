@@ -70,7 +70,11 @@ export default function Footer() {
                 className="h-5 w-5"
               />
             </a>
-            <Share2 size={20} className="cursor-pointer"  onClick={handleShare} />
+            <Share2
+              size={20}
+              className="cursor-pointer"
+              onClick={handleShare}
+            />
           </div>
         </div>
       </div>
