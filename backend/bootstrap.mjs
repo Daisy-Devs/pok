@@ -1,4 +1,7 @@
 import dotenv from "dotenv";
-dotenv.config(); // FIRST THING EVER
+dotenv.config(); // ✅ runs first
 
-import("./index.mjs");
+import("./index.mjs").catch((err) => {
+  console.error("❌ Failed to start server:", err);
+  process.exit(1);
+});

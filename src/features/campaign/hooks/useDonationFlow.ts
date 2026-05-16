@@ -40,7 +40,6 @@ export function useDonationFlow({
   campaignToken: TokenSymbol;
   campaignId: string;
   basicCampaignId: string;
-  campaignIdBytes32: string;
   amountIn: bigint;
   amountOut: bigint;
   needsSwap: boolean;

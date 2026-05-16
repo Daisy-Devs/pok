@@ -29,12 +29,14 @@ const PublicLayout = ({ children }: { children: React.ReactNode }) => {
   const [walletLogout] = useWalletLogoutMutation();
   const [donorLogout] = useDonorLogoutMutation();
 
+  
   useEffect(() => {
     if (isError) {
       walletLogout({});
       donorLogout({});
       console.log("Logging out!caught");
       dispatch(loggedOut());
+      document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
     }
   }, [isError, dispatch, walletLogout, donorLogout]);
 

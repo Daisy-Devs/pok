@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { UserType } from "../types";
+import {UserType } from "../types";
 import {
   Table,
   TableBody,
@@ -39,7 +38,7 @@ const LiveDonationActivity = ({ campaignId }: { campaignId: string }) => {
         </TableHeader>
         <TableBody>
           {donations.length > 0 ? (
-            donations.slice(0, 8).map((activity: any, index: number) => (
+            donations.slice(0, 8).map((activity: Donation, index: number) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">
                   <User

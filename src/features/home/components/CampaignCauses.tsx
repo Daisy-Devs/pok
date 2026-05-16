@@ -1,4 +1,4 @@
-import React from "react";
+
 import { ArrowRight } from "lucide-react";
 import { useGetAllCampaignsQuery } from "@/src/store/services/api/campaignApi";
 import { Campaign, CampaignApi } from "../../explore/types";

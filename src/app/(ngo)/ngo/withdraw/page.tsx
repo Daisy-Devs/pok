@@ -4,6 +4,7 @@ import {
   claimableCampaignsColumns,
   claimHistoryColumns,
 } from "@/src/features/withdraw/columns";
+import { CampaignBalance, ClaimHistoryApi } from "@/src/features/withdraw/types";
 import { formatCryptoAmount } from "@/src/lib/utils";
 import { useGetAllWithdrawalsQuery, useGetWithdrawableBalanceQuery } from "@/src/store/services/api/donationApi";
 import Image from "next/image";
@@ -17,7 +18,7 @@ const WithdrawFunds = () => {
   
 
   const claimableCampaigns = claimHistory?.data?.balances
-    ?.map((campaign: any) => ({
+    ?.map((campaign:CampaignBalance ) => ({
       campaignName: campaign.campaignTitle,
       // campaignId: campaign._id,
       balance: `${campaign.remainingBalance}` + " " + campaign.token,
@@ -26,7 +27,7 @@ const WithdrawFunds = () => {
     }))
   /** TODO: After a withdrawal, check the response and add to table */
   const claimHistoryData = claimHistory?.data?.withdrawals?.map(
-    (withdrawal: any) => ({
+    (withdrawal: ClaimHistoryApi) => ({
       campaignName: withdrawal?.campaignTitle,
       amount: withdrawal?.amount+" "+withdrawal?.campaignToken,
       date: withdrawal?.createdAt,

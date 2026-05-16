@@ -1,6 +1,5 @@
 import { quoterAbi } from "@/src/constants/contract";
 import { TOKENS, TokenSymbol, UNISWAP_QUOTER_V2 } from "@/src/constants/tokens";
-import { log } from "console";
 import { useEffect, useState } from "react";
 import { decodeFunctionResult, encodeFunctionData } from "viem";
 import { usePublicClient } from "wagmi";
@@ -67,7 +66,7 @@ export function useSwapQuote({
           data: raw.data!,
         });
 
-        if (!cancelled) setAmountOut((decoded as bigint[])[0]);
+        if (!cancelled) setAmountOut((decoded)[0]);
       } catch (err) {
         if (!cancelled) setError(err as Error);
       } finally {

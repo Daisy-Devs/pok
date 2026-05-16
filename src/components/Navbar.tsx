@@ -1,7 +1,7 @@
 "use client";
 
 import { nomenclature } from "@/src/constants/nomenclature";
-import { UserCircle2 } from "lucide-react";
+import { FlaskConical, UserCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { usePathname, useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ import { useWalletConnectHandler } from "../features/auth/hooks/useWalletConnect
 import { splitTitle } from "../lib/utils";
 import { googleLogout } from "@react-oauth/google";
 import { apiSlice } from "../store/services/slice/apiSlice";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 
 const Navbar = () => {
   const {handleWalletConnect}=useWalletConnectHandler();
@@ -34,7 +35,6 @@ const Navbar = () => {
   const isLoggedIn = authenticated && user?.role === "Donor";
   const pathname = usePathname();
   const dispatch = useDispatch();
-  const router = useRouter();
   const [donorLogout, { isLoading: logoutLoading }] = useDonorLogoutMutation();
   const [disconnectWallet, { isLoading: disconnectWalletLoading }] =
     useDisconnectWalletMutation();
@@ -55,6 +55,7 @@ const handleLogout = async () => {
     await donorLogout({}).unwrap();
     dispatch(apiSlice.util.resetApiState());
     dispatch(loggedOut());
+    document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
     googleLogout();
     toast.success("You've been logged out");
 
@@ -108,8 +109,20 @@ const handleLogout = async () => {
           {nomenclature.ABOUT_US}
         </Link>
       </div>
-
       <div className="hidden md:flex items-center gap-4">
+      <HoverCard openDelay={10} closeDelay={100}>
+      <HoverCardTrigger asChild>
+        <Button variant="ghost" text="Only on Testnet" leftIcon={<FlaskConical size={16} className="text-primary animate-caret-blink" />} />
+      </HoverCardTrigger>
+      <HoverCardContent className="flex bg-white w-64 flex-col gap-0.5">
+        <div className="text-primary font-semibold">⚠️ This is not a real donation platform</div>
+        <div>This project runs on a blockchain testnet for demonstration and
+            testing purposes only. No real cryptocurrency or funds are
+            collected, processed, or disbursed. All tokens used here have no
+            monetary value.</div>
+      </HoverCardContent>
+    </HoverCard>
+      
         {isLoggedIn ? (
           <>
             <DropdownMenu>

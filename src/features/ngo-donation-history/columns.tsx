@@ -2,7 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { User } from "lucide-react";
 import Image from "next/image";
-import React from "react";
+
 
 export type DonationHistory = {
   donor: string;

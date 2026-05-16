@@ -45,7 +45,7 @@ const NGOSignIn = () => {
             message,
           })
             .unwrap()
-            .then((res) => {
+            .then(async (res) => {
               console.log("wallet login response:", res);
               dispatch(
                 loggedIn({
@@ -56,7 +56,9 @@ const NGOSignIn = () => {
                   ngoId: res.data.ngo._id,
                 }),
               );
-              router.replace("/ngo");
+              document.cookie = `role=ngo; path=/; max-age=${
+                60 * 60 * 24
+              }; secure; samesite=lax`;
             });
         },
         onError: (error) => {
@@ -87,7 +89,12 @@ const NGOSignIn = () => {
           size={"lg"}
           disabled={isLoading}
           leftIcon={
-            <Image src="/svg/metamask.svg" width={25} height={25} alt="metamask" />
+            <Image
+              src="/svg/metamask.svg"
+              width={25}
+              height={25}
+              alt="metamask"
+            />
           }
           className="mt-6"
         />

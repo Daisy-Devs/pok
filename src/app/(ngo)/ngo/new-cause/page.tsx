@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 const CreateNewCause = () => {
   const searchParams = useSearchParams();
-  const raw = searchParams.get("editCampaign"); // get() not dot-access
+  const raw = searchParams.get("editCampaign") || ""; // get() not dot-access
   const data = JSON.parse(decodeURIComponent(raw));
 
   const [campaignData, setCampaignData] = useState<Campaign>({

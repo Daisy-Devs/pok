@@ -1,7 +1,7 @@
 "use client";
 import { nomenclature } from "@/src/constants/nomenclature";
 import { WalletIcon } from "lucide-react";
-import React from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,6 +60,7 @@ const NGOHeader: React.FC<NGOHeaderProps> = ({ walletAddress }) => {
     disconnectWallet();
     console.log("logged out", res);
     dispatch(loggedOut());
+    document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
     dispatch(apiSlice.util.resetApiState());
     router.replace("/ngo/sign-in");
     toast.success("Logout successful");

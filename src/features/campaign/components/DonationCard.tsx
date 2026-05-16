@@ -4,7 +4,6 @@ import { Button } from "@/src/components/ui/button";
 import { useConnection } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import { toast } from "sonner";
-import { CONTRACT_ABI } from "@/src/constants/contract";
 import { useAppSelector } from "@/src/store/store";
 import { selectUser } from "@/src/store/services/selectors/authSelectors";
 import { useRouter } from "next/navigation";
@@ -59,7 +58,7 @@ export default function DonationCard({
   });
 
   const { step, execute } = useDonationFlow({
-    userAddress: address,
+    userAddress: address as `0x${string}`,
     userToken,
     campaignToken,
     campaignId,

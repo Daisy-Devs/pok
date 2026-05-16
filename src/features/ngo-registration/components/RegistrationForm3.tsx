@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/src/components/ui/button";
 import FormTitle from "./FormTitle";
 import { nomenclature } from "@/src/constants/nomenclature";
@@ -96,13 +97,17 @@ const RegistrationForm3: React.FC<RegistrationForm3Props> = ({
                   role: "NGO",
                 }),
               );
+              document.cookie = `role=ngo; path=/; max-age=${
+                60 * 60 * 24
+              }; secure; samesite=lax`;
               console.log("register ngo response:", ngoresponse);
               router.replace("/ngo");
             })
-            .catch((err) => {
+            .catch(async (err) => {
               toast.error("Failed to register NGO");
               walletLogout({});
               dispatch(loggedOut());
+              document.cookie = `role=; path=/; max-age=0; secure; samesite=lax`;
               disconnect();
               console.log("ngo registration error:", err, walletLoginError);
             });

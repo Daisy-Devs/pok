@@ -50,7 +50,7 @@ export default function SignIn() {
     if (!validate()) return;
     donorSignIn(formData)
       .unwrap()
-      .then((res) => {
+      .then(async (res) => {
         console.log("Sign-in successful", res);
         toast.success("Sign-in successful!");
         dispatch(
@@ -61,6 +61,9 @@ export default function SignIn() {
             id: res.data.userObj._id,
           }),
         );
+        document.cookie = `role=donor; path=/; max-age=${
+          60 * 60 * 24
+        }; secure; samesite=lax`;
         router.replace("/");
       })
       .catch((error) => {
