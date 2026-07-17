@@ -12,7 +12,7 @@ const app = express();
 
 // ✅ CORS
 const corsOptions = {
-  origin: 'https://pok-fe.up.railway.app',
+  origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
     'Content-Type',
